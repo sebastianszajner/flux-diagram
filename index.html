@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLUX — Interaktywna Mapa Kompetencji | Nowe Motywacje</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { colors: {
+    flux: { fast: '#f59e0b', liquid: '#06b6d4', unlearn: '#10b981', experiment: '#8b5cf6' },
+    dark: { 950: '#0c0f1a', 900: '#111827', 800: '#1e293b', 700: '#334155' }
+  }}}
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{font-family:'Inter',system-ui,sans-serif;box-sizing:border-box}
+body{background:#0c0f1a;margin:0}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#111827}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+
+/* Diagram */
+.flux-quadrant{cursor:pointer;transition:all .4s cubic-bezier(.4,0,.2,1)}
+.flux-quadrant:hover{filter:brightness(1.4);transform:scale(1.03)}
+.flux-quadrant:hover .qf{opacity:.35}
+.qf{transition:opacity .4s}
+.center-pulse{animation:cpulse 3s ease-in-out infinite}
+@keyframes cpulse{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.3;transform:scale(1.05)}}
+
+/* Nav */
+.nav-link{position:relative;transition:color .3s}
+.nav-link::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:#f59e0b;transition:width .3s}
+.nav-link:hover::after,.nav-link.active::after{width:100%}
+
+/* Views */
+.view{display:none;opacity:0;transition:opacity .3s}
+.view.active{display:block;opacity:1}
+
+/* Cards */
+.fcard{transition:all .3s;border:1px solid #1e293b}
+.fcard:hover{transform:translateY(-3px);box-shadow:0 8px 30px -10px var(--glow,transparent)}
+
+/* Filters */
+.chip{transition:all .2s;cursor:pointer;user-select:none;white-space:nowrap}
+.chip:hover{transform:scale(1.03)}
+.chip.on{ring:2px;box-shadow:0 0 0 2px var(--ring,#f59e0b)}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .4s ease forwards}
+
+/* Tab */
+.tab-btn{transition:all .3s;border-bottom:2px solid transparent}
+.tab-btn.active{border-bottom-color:currentColor}
+.tab-content{display:none}.tab-content.active{display:block;animation:fadeUp .3s ease}
+
+/* Hamburger */
+.hamburger span{display:block;width:20px;height:2px;background:#94a3b8;margin:4px 0;transition:all .3s}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
+.mobile-menu{max-height:0;overflow:hidden;transition:max-height .3s}
+.mobile-menu.open{max-height:300px}
+
+/* Chat widget */
+.chat-toggle{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#8b5cf6);cursor:pointer;z-index:9999;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(139,92,246,.4);transition:transform .3s}
+.chat-toggle:hover{transform:scale(1.1)}
+.chat-panel{position:fixed;bottom:88px;right:24px;width:380px;max-height:520px;background:#111827;border:1px solid #334155;border-radius:16px;z-index:9998;display:none;flex-direction:column;box-shadow:0 20px 60px -10px rgba(0,0,0,.7)}
+.chat-panel.open{display:flex}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;min-height:200px;max-height:360px}
+.chat-msg{margin-bottom:12px;max-width:85%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5}
+.chat-msg.user{background:#1e293b;margin-left:auto;color:#e2e8f0}
+.chat-msg.assistant{background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(139,92,246,.1));color:#cbd5e1;border:1px solid #334155}
+.chat-input-area{border-top:1px solid #1e293b;padding:12px;display:flex;gap:8px}
+.chat-input-area textarea{flex:1;background:#0c0f1a;border:1px solid #334155;border-radius:10px;padding:8px 12px;color:#e2e8f0;font-size:13px;resize:none;outline:none;font-family:inherit}
+.chat-input-area textarea:focus{border-color:#8b5cf6}
+.chat-input-area button{background:#8b5cf6;color:white;border:none;border-radius:10px;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:600}
+.chat-input-area button:disabled{opacity:.4;cursor:not-allowed}
+
+/* Settings modal */
+.settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.settings-overlay.open{display:flex}
+
+/* Scenario card */
+.scenario-card{transition:all .3s;cursor:pointer}
+.scenario-card:hover{transform:translateY(-2px);box-shadow:0 8px 30px -8px rgba(0,0,0,.5)}
+
+@media(max-width:768px){
+  .chat-panel{right:12px;left:12px;width:auto;bottom:80px}
+  .chat-toggle{bottom:16px;right:16px;width:46px;height:46px}
+}
+</style>
+</head>
+<body class="min-h-screen text-slate-100">
+
+<!-- ========== NAV ========== -->
+<nav class="fixed top-0 left-0 right-0 z-50 bg-dark-950/90 backdrop-blur-xl border-b border-dark-700/50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 via-cyan-500 to-violet-500 flex items-center justify-center"><span class="text-[10px] font-black text-white">F</span></div>
+      <span class="font-bold text-base">FLUX</span>
+      <span class="text-slate-600 text-xs hidden sm:inline">| Nowe Motywacje</span>
+    </div>
+    <!-- Desktop nav -->
+    <div class="hidden md:flex items-center gap-6">
+      <a onclick="nav('home')" class="nav-link active text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="home">Model</a>
+      <a onclick="nav('explore')" class="nav-link text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="explore">Eksplorator</a>
+      <a onclick="nav('trends')" class="nav-link text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="trends">Trendy</a>
+      <a onclick="nav('research')" class="nav-link text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="research">Badania</a>
+      <a onclick="nav('tools')" class="nav-link text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="tools">Narzędzia</a>
+      <button onclick="openSettings()" class="text-slate-500 hover:text-white transition-colors" title="Ustawienia">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
+    </div>
+    <!-- Mobile hamburger -->
+    <button class="hamburger md:hidden" onclick="toggleMobile()"><span></span><span></span><span></span></button>
+  </div>
+  <!-- Mobile menu -->
+  <div class="mobile-menu md:hidden bg-dark-950 border-t border-dark-700/50 px-4">
+    <div class="py-3 space-y-2">
+      <a onclick="nav('home');toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">Model FLUX</a>
+      <a onclick="nav('explore');toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">Eksplorator</a>
+      <a onclick="nav('trends');toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">Trendy</a>
+      <a onclick="nav('research');toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">Badania</a>
+      <a onclick="nav('tools');toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">Narzędzia</a>
+      <a onclick="openSettings();toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">Ustawienia Gemini</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ========== HOME ========== -->
+<section id="view-home" class="view active pt-16">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+  <div class="text-center mb-6">
+    <h1 class="text-3xl sm:text-4xl font-black"><span class="text-amber-400">F</span><span class="text-cyan-400">L</span><span class="text-emerald-400">U</span><span class="text-violet-400">X</span> <span class="text-white">Model</span></h1>
+    <p class="text-slate-400 text-sm sm:text-base mt-1 max-w-xl mx-auto">Rama kompetencyjno-operacyjna do funkcjonowania w świecie zmienności.</p>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+    <!-- Left cards -->
+    <div class="space-y-3 order-2 lg:order-1">
+      <div class="fcard rounded-xl p-4 bg-dark-900 cursor-pointer" style="--glow:rgba(245,158,11,.15)" onclick="showDetail('fast')">
+        <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center"><span class="text-amber-400 font-black">F</span></div><div><h3 class="font-bold text-sm text-amber-400">FAST</h3><p class="text-[10px] text-slate-500">Tempo decyzji i działania</p></div></div>
+        <p class="text-xs text-slate-400">Szybkie reagowanie i podejmowanie decyzji w warunkach niepewności.</p>
+      </div>
+      <div class="fcard rounded-xl p-4 bg-dark-900 cursor-pointer" style="--glow:rgba(16,185,129,.15)" onclick="showDetail('unlearn')">
+        <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-black">U</span></div><div><h3 class="font-bold text-sm text-emerald-400">UNLEARN & RELEARN</h3><p class="text-[10px] text-slate-500">Uczenie się i aktualizacja</p></div></div>
+        <p class="text-xs text-slate-400">Świadome porzucanie przestarzałych modeli mentalnych.</p>
+      </div>
+    </div>
+    <!-- Diagram -->
+    <div class="flex justify-center order-1 lg:order-2">
+      <div class="w-full max-w-[440px] aspect-square">
+        <svg viewBox="0 0 800 800" class="w-full h-full">
+          <defs><radialGradient id="cg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#1e293b"/><stop offset="100%" stop-color="#0c0f1a"/></radialGradient></defs>
+          <circle cx="400" cy="400" r="350" fill="none" stroke="#1e293b" stroke-width=".5" stroke-dasharray="4 4"/>
+          <circle cx="400" cy="400" r="260" fill="none" stroke="#1e293b" stroke-width=".5" stroke-dasharray="4 4"/>
+          <line x1="400" y1="50" x2="400" y2="750" stroke="#1e293b" stroke-width=".5"/>
+          <line x1="50" y1="400" x2="750" y2="400" stroke="#1e293b" stroke-width=".5"/>
+          <g class="flux-quadrant" onclick="showDetail('fast')"><path d="M400,400 L400,50 A350,350 0 0,1 750,400 Z" class="qf" fill="#f59e0b" opacity=".12"/><text x="570" y="210" text-anchor="middle" fill="#f59e0b" font-size="24" font-weight="800" letter-spacing="3">FAST</text><text x="570" y="230" text-anchor="middle" fill="#f59e0b" font-size="9" opacity=".5">Tempo decyzji</text></g>
+          <g class="flux-quadrant" onclick="showDetail('liquid')"><path d="M400,400 L750,400 A350,350 0 0,1 400,750 Z" class="qf" fill="#06b6d4" opacity=".12"/><text x="570" y="580" text-anchor="middle" fill="#06b6d4" font-size="24" font-weight="800" letter-spacing="3">LIQUID</text><text x="570" y="600" text-anchor="middle" fill="#06b6d4" font-size="9" opacity=".5">Współpraca</text></g>
+          <g class="flux-quadrant" onclick="showDetail('unlearn')"><path d="M400,400 L400,750 A350,350 0 0,1 50,400 Z" class="qf" fill="#10b981" opacity=".12"/><text x="230" y="580" text-anchor="middle" fill="#10b981" font-size="20" font-weight="800" letter-spacing="2">UNLEARN</text><text x="230" y="600" text-anchor="middle" fill="#10b981" font-size="9" opacity=".5">Adaptacja</text></g>
+          <g class="flux-quadrant" onclick="showDetail('experiment')"><path d="M400,400 L50,400 A350,350 0 0,1 400,50 Z" class="qf" fill="#8b5cf6" opacity=".12"/><text x="220" y="210" text-anchor="middle" fill="#8b5cf6" font-size="18" font-weight="800" letter-spacing="2">EXPERIMENT</text><text x="220" y="230" text-anchor="middle" fill="#8b5cf6" font-size="9" opacity=".5">Innowacje</text></g>
+          <circle cx="400" cy="400" r="65" fill="url(#cg)" stroke="#334155" stroke-width="1"/>
+          <circle cx="400" cy="400" r="70" fill="none" stroke="#f59e0b" stroke-width=".5" opacity=".3" class="center-pulse"/>
+          <text x="400" y="395" text-anchor="middle" fill="white" font-size="26" font-weight="900" letter-spacing="5">FLUX</text>
+          <text x="400" y="414" text-anchor="middle" fill="#64748b" font-size="8" letter-spacing="2">KLIKNIJ OBSZAR</text>
+        </svg>
+      </div>
+    </div>
+    <!-- Right cards -->
+    <div class="space-y-3 order-3">
+      <div class="fcard rounded-xl p-4 bg-dark-900 cursor-pointer" style="--glow:rgba(6,182,212,.15)" onclick="showDetail('liquid')">
+        <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center"><span class="text-cyan-400 font-black">L</span></div><div><h3 class="font-bold text-sm text-cyan-400">LIQUID</h3><p class="text-[10px] text-slate-500">Współpraca i przepływ</p></div></div>
+        <p class="text-xs text-slate-400">Płynność struktur, ról i przepływu wiedzy. Bezpieczeństwo psychologiczne.</p>
+      </div>
+      <div class="fcard rounded-xl p-4 bg-dark-900 cursor-pointer" style="--glow:rgba(139,92,246,.15)" onclick="showDetail('experiment')">
+        <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center"><span class="text-violet-400 font-black">X</span></div><div><h3 class="font-bold text-sm text-violet-400">EXPERIMENT</h3><p class="text-[10px] text-slate-500">Eksperymentowanie</p></div></div>
+        <p class="text-xs text-slate-400">Systematyczne testowanie hipotez, uczenie się z błędów.</p>
+      </div>
+    </div>
+  </div>
+  <!-- Evolution bar -->
+  <div class="mt-8 bg-dark-900/50 border border-dark-700/50 rounded-xl p-4">
+    <div class="flex items-center justify-center gap-3 overflow-x-auto text-xs">
+      <span class="px-3 py-1 rounded-lg bg-slate-800/50 text-slate-500 whitespace-nowrap">VUCA <span class="text-[9px] text-slate-600">1987</span></span>
+      <span class="text-slate-700">→</span>
+      <span class="px-3 py-1 rounded-lg bg-slate-800/50 text-slate-500 whitespace-nowrap">BANI <span class="text-[9px] text-slate-600">2020</span></span>
+      <span class="text-slate-700">→</span>
+      <span class="px-4 py-1.5 rounded-lg bg-gradient-to-r from-amber-500/10 via-cyan-500/10 to-violet-500/10 border border-amber-500/20 whitespace-nowrap font-bold bg-clip-text"><span class="bg-gradient-to-r from-amber-400 via-cyan-400 to-violet-400 bg-clip-text text-transparent">FLUX</span> <span class="text-[9px] text-slate-400">2025+</span></span>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ========== DETAIL ========== -->
+<section id="view-detail" class="view pt-16">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+  <button onclick="nav('home')" class="flex items-center gap-1 text-xs text-slate-500 hover:text-white mb-4"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>Powrót</button>
+  <div id="detail-header"></div>
+  <div class="flex gap-4 border-b border-dark-700 mb-4 mt-4 overflow-x-auto" id="detail-tabs"></div>
+  <div id="detail-content"></div>
+</div>
+</section>
+
+<!-- ========== EXPLORE (SCENARIOS + FILTERS) ========== -->
+<section id="view-explore" class="view pt-16">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+  <div class="text-center mb-6">
+    <h2 class="text-2xl sm:text-3xl font-black">Eksplorator <span class="text-amber-400">FLUX</span></h2>
+    <p class="text-slate-400 text-sm">Filtruj scenariusze po roli, branży, sytuacji i typie wyzwania.</p>
+  </div>
+  <!-- FILTER BAR -->
+  <div class="bg-dark-900 border border-dark-700 rounded-xl p-4 mb-6 space-y-3" id="filter-bar">
+    <!-- FLUX Area -->
+    <div>
+      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Obszar FLUX</p>
+      <div class="flex flex-wrap gap-1.5">
+        <span class="chip on text-[11px] px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700" style="--ring:#94a3b8" data-f="area" data-v="all" onclick="toggleFilter(this)">Wszystkie</span>
+        <span class="chip text-[11px] px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20" style="--ring:#f59e0b" data-f="area" data-v="fast" onclick="toggleFilter(this)">F — FAST</span>
+        <span class="chip text-[11px] px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" style="--ring:#06b6d4" data-f="area" data-v="liquid" onclick="toggleFilter(this)">L — LIQUID</span>
+        <span class="chip text-[11px] px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" style="--ring:#10b981" data-f="area" data-v="unlearn" onclick="toggleFilter(this)">U — UNLEARN</span>
+        <span class="chip text-[11px] px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20" style="--ring:#8b5cf6" data-f="area" data-v="experiment" onclick="toggleFilter(this)">X — EXPERIMENT</span>
+      </div>
+    </div>
+    <!-- Industry -->
+    <div>
+      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Branża</p>
+      <div class="flex flex-wrap gap-1.5" id="industry-chips"></div>
+    </div>
+    <!-- Role type -->
+    <div>
+      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Rola / Stanowisko</p>
+      <div class="flex flex-wrap gap-1.5" id="role-chips"></div>
+    </div>
+    <!-- Situation -->
+    <div>
+      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Sytuacja</p>
+      <div class="flex flex-wrap gap-1.5" id="situation-chips"></div>
+    </div>
+    <!-- Life context -->
+    <div>
+      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Kontekst życiowy</p>
+      <div class="flex flex-wrap gap-1.5" id="context-chips"></div>
+    </div>
+    <!-- Challenge type -->
+    <div>
+      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Typ wyzwania</p>
+      <div class="flex flex-wrap gap-1.5" id="challenge-chips"></div>
+    </div>
+    <div class="flex justify-between items-center pt-2 border-t border-dark-700">
+      <span class="text-[10px] text-slate-600" id="result-count">0 scenariuszy</span>
+      <button onclick="resetFilters()" class="text-[10px] text-slate-500 hover:text-white">Resetuj filtry</button>
+    </div>
+  </div>
+  <!-- Results -->
+  <div id="explore-results" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+</div>
+</section>
+
+<!-- ========== TRENDS ========== -->
+<section id="view-trends" class="view pt-16">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+  <div class="text-center mb-6">
+    <h2 class="text-2xl sm:text-3xl font-black">Mapa Trendów <span class="text-amber-400">FLUX</span></h2>
+    <p class="text-slate-400 text-sm">Trendy wg horyzontu czasowego i obszaru FLUX.</p>
+  </div>
+  <div class="flex justify-center gap-2 mb-6 flex-wrap">
+    <button onclick="filterTrends('all')" class="tf on px-3 py-1 rounded-full text-[11px] bg-slate-800 text-slate-300 border border-slate-700">Wszystkie</button>
+    <button onclick="filterTrends('fast')" class="tf px-3 py-1 rounded-full text-[11px] bg-amber-500/10 text-amber-400 border border-amber-500/20">FAST</button>
+    <button onclick="filterTrends('liquid')" class="tf px-3 py-1 rounded-full text-[11px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">LIQUID</button>
+    <button onclick="filterTrends('unlearn')" class="tf px-3 py-1 rounded-full text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">UNLEARN</button>
+    <button onclick="filterTrends('experiment')" class="tf px-3 py-1 rounded-full text-[11px] bg-violet-500/10 text-violet-400 border border-violet-500/20">EXPERIMENT</button>
+  </div>
+  <div class="flex justify-center"><div class="w-full max-w-[700px] aspect-square"><svg id="trend-map" viewBox="0 0 1000 1000" class="w-full h-full"></svg></div></div>
+  <div class="flex justify-center gap-6 mt-4 text-[10px] text-slate-500 flex-wrap">
+    <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white/30"></span>NOW</span>
+    <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>NEW 1–2y</span>
+    <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white/10"></span>NEXT 3–5y</span>
+    <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white/5"></span>BEYOND 5+</span>
+  </div>
+</div>
+</section>
+
+<!-- ========== RESEARCH ========== -->
+<section id="view-research" class="view pt-16">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+  <div class="text-center mb-6">
+    <h2 class="text-2xl sm:text-3xl font-black">Biblioteka <span class="text-emerald-400">Badań</span></h2>
+    <p class="text-slate-400 text-sm">Evidence-based: badania naukowe stojące za modelem FLUX.</p>
+  </div>
+  <div class="flex justify-center gap-2 mb-6 flex-wrap">
+    <button onclick="filterRes('all')" class="rf on px-3 py-1 rounded-full text-[11px] bg-slate-800 text-slate-300 border border-slate-700">Wszystkie</button>
+    <button onclick="filterRes('fast')" class="rf px-3 py-1 rounded-full text-[11px] bg-amber-500/10 text-amber-400 border border-amber-500/20">FAST</button>
+    <button onclick="filterRes('liquid')" class="rf px-3 py-1 rounded-full text-[11px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">LIQUID</button>
+    <button onclick="filterRes('unlearn')" class="rf px-3 py-1 rounded-full text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">UNLEARN</button>
+    <button onclick="filterRes('experiment')" class="rf px-3 py-1 rounded-full text-[11px] bg-violet-500/10 text-violet-400 border border-violet-500/20">EXPERIMENT</button>
+  </div>
+  <div id="research-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+</div>
+</section>
+
+<!-- ========== TOOLS ========== -->
+<section id="view-tools" class="view pt-16">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+  <div class="text-center mb-6">
+    <h2 class="text-2xl sm:text-3xl font-black">Narzędzia <span class="text-violet-400">FLUX</span></h2>
+    <p class="text-slate-400 text-sm">Gotowe klocki: checklisty, canvasy, prompty, diagnostyki.</p>
+  </div>
+  <div id="tools-grid"></div>
+</div>
+</section>
+
+<!-- ========== GEMINI CHAT WIDGET ========== -->
+<div class="chat-toggle" onclick="toggleChat()" title="Zapytaj AI o FLUX">
+  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+</div>
+<div class="chat-panel" id="chat-panel">
+  <div class="p-3 border-b border-dark-700 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-violet-500 flex items-center justify-center"><span class="text-[8px] font-black text-white">AI</span></div>
+      <span class="text-sm font-semibold text-slate-200">FLUX Asystent</span>
+      <span class="text-[9px] text-slate-600">Gemini</span>
+    </div>
+    <button onclick="toggleChat()" class="text-slate-500 hover:text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+  </div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-msg assistant">Cześć! Jestem asystentem FLUX. Zapytaj mnie o model, scenariusze, narzędzia lub jak zastosować FLUX w Twojej branży.</div>
+  </div>
+  <div id="chat-status" class="px-4 text-[10px] text-violet-400 h-4"></div>
+  <div class="chat-input-area">
+    <textarea id="chat-input" rows="1" placeholder="Zapytaj o FLUX..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+    <button onclick="sendChat()" id="chat-send">Wyślij</button>
+  </div>
+</div>
+
+<!-- ========== SETTINGS ========== -->
+<div class="settings-overlay" id="settings-overlay" onclick="if(event.target===this)closeSettings()">
+  <div class="bg-dark-900 border border-dark-700 rounded-2xl p-6 max-w-md w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-bold text-slate-200">Ustawienia Gemini API</h3>
+      <button onclick="closeSettings()" class="text-slate-500 hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <p class="text-xs text-slate-400 mb-4">Klucz API Gemini z <a href="https://aistudio.google.com/apikey" target="_blank" class="text-violet-400 hover:underline">aistudio.google.com</a> (darmowy).</p>
+    <input type="password" id="api-key-input" placeholder="AIza..." class="w-full bg-dark-950 border border-dark-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-violet-500 mb-3">
+    <div class="flex gap-2">
+      <button onclick="saveApiKey()" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium py-2 rounded-lg transition-colors">Zapisz</button>
+      <button onclick="clearApiKey()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm py-2 rounded-lg transition-colors">Wyczyść</button>
+    </div>
+    <p id="settings-status" class="text-xs mt-2 h-4"></p>
+  </div>
+</div>
+
+<!-- ========== SCRIPTS ========== -->
+<script>
+// ===== COLORS & CLASSES =====
+const C={fast:'#f59e0b',liquid:'#06b6d4',unlearn:'#10b981',experiment:'#8b5cf6'};
+const CC={fast:{t:'text-amber-400',bg:'bg-amber-500/10',b:'border-amber-500/20'},liquid:{t:'text-cyan-400',bg:'bg-cyan-500/10',b:'border-cyan-500/20'},unlearn:{t:'text-emerald-400',bg:'bg-emerald-500/10',b:'border-emerald-500/20'},experiment:{t:'text-violet-400',bg:'bg-violet-500/10',b:'border-violet-500/20'}};
+
+// ===== FLUX CORE DATA =====
+const FLUX={
+  fast:{letter:'F',name:'FAST',full:'Tempo decyzji i działania',color:'#f59e0b',
+    def:'Szybkie reagowanie i podejmowanie decyzji w warunkach niepewności. Eliminacja zbędnych opóźnień.',
+    q:'Jak szybko Twój zespół przechodzi od sygnału do działania?',
+    anti:['Paraliż analityczny — „potrzebujemy jeszcze jednej analizy"','Nadmierne komitety — decyzja przechodzi przez 5 poziomów','Czekanie na pełne dane','Reaktywność bez refleksji'],
+    levels:[{l:'Początkujący',d:'Rozpoznaje potrzebę szybszych decyzji'},{l:'Praktyk',d:'Checklisty decyzyjne, skrócone cykle'},{l:'Zaawansowany',d:'Autonomiczne zespoły, sensing + responding'}]},
+  liquid:{letter:'L',name:'LIQUID',full:'Współpraca i przepływ',color:'#06b6d4',
+    def:'Płynność struktur, ról i przepływu wiedzy. Bezpieczeństwo psychologiczne jako fundament.',
+    q:'Czy ludzie czują się bezpiecznie, mówiąc co myślą?',
+    anti:['Silosy — „to nie moja odpowiedzialność"','Brak feedbacku — błędy się powtarzają','Hierarchia blokująca','Spotkania bez wartości'],
+    levels:[{l:'Początkujący',d:'Rozumie PS, ale nie mierzy'},{l:'Praktyk',d:'Retrospektywy, feedback loops'},{l:'Zaawansowany',d:'Kultura otwartości, self-organizing'}]},
+  unlearn:{letter:'U',name:'UNLEARN & RELEARN',full:'Uczenie się i aktualizacja',color:'#10b981',
+    def:'Świadome porzucanie przestarzałych modeli mentalnych. W erze AI — ciągła aktualizacja.',
+    q:'Kiedy ostatnio zespół świadomie porzucił stary sposób działania?',
+    anti:['„Zawsze tak robiliśmy"','Opór przed AI','Ignorowanie danych','Szkolenie = event jednorazowy'],
+    levels:[{l:'Początkujący',d:'Dostrzega potrzebę aktualizacji'},{l:'Praktyk',d:'Przeglądy kompetencji, AI eksperymenty'},{l:'Zaawansowany',d:'Organizacja ucząca się'}]},
+  experiment:{letter:'X',name:'EXPERIMENT',full:'Eksperymentowanie i innowacje',color:'#8b5cf6',
+    def:'Systematyczne testowanie hipotez. Eksperyment to źródło danych, nie porażka.',
+    q:'Ile eksperymentów przeprowadził Twój zespół w ostatnim kwartale?',
+    anti:['Perfekcjonizm — „musi być idealne"','Zero-defect culture','Brak budżetu na testy','Kopiowanie zamiast testowania'],
+    levels:[{l:'Początkujący',d:'Pojedyncze próby bez struktury'},{l:'Praktyk',d:'A/B testy, pilotaże, logowanie'},{l:'Zaawansowany',d:'Kultura eksperymentów'}]}
+};
+
+// ===== FILTER DIMENSIONS =====
+const INDUSTRIES=[
+  {id:'automotive',name:'Automotive',icon:'🚗'},{id:'ecommerce',name:'E-commerce',icon:'🛒'},
+  {id:'pharma',name:'Farmacja',icon:'💊'},{id:'insurance',name:'Ubezpieczenia',icon:'🛡️'},
+  {id:'oze',name:'OZE / Energia',icon:'⚡'},{id:'fmcg',name:'FMCG',icon:'📦'},
+  {id:'startup',name:'Start-up',icon:'🚀'},{id:'it',name:'IT / Software',icon:'💻'},
+  {id:'banking',name:'Bankowość',icon:'🏦'},{id:'retail',name:'Handel / Retail',icon:'🏬'}
+];
+const ROLES=[
+  {id:'manager',name:'Kierownik / Manager'},{id:'teamlead',name:'Team Lead'},
+  {id:'specialist',name:'Specjalista'},{id:'agent',name:'Agent / Doradca'},
+  {id:'sales',name:'Handlowiec / KAM'},{id:'founder',name:'Founder / C-level'},
+  {id:'hr',name:'HR / People'},{id:'trainer',name:'Trener / Coach'}
+];
+const SITUATIONS=[
+  {id:'online',name:'Online / Remote',icon:'💻'},{id:'offline',name:'Offline / Sala',icon:'🏢'},
+  {id:'one2one',name:'1:1',icon:'👤'},{id:'group',name:'Grupowe',icon:'👥'},
+  {id:'crisis',name:'Kryzysowe',icon:'🔥'},{id:'hybrid',name:'Hybrydowe',icon:'🔀'}
+];
+const LIFE_CONTEXTS=[
+  {id:'professional',name:'Zawodowy',icon:'💼'},{id:'leader',name:'Lider zespołu',icon:'👑'},
+  {id:'husband',name:'Mąż / Partner',icon:'💑'},{id:'father',name:'Ojciec / Rodzic',icon:'👨‍👦'},
+  {id:'health',name:'Zdrowie / Nawyki',icon:'🧘'},{id:'hobby',name:'Hobby / Pasja',icon:'🏎️'},
+  {id:'finance',name:'Finanse',icon:'💰'},{id:'learner',name:'Uczący się',icon:'📚'}
+];
+const CHALLENGE_TYPES=[
+  {id:'decision',name:'Decyzyjne',flux:'fast'},{id:'communication',name:'Komunikacyjne',flux:'liquid'},
+  {id:'adaptation',name:'Adaptacyjne',flux:'unlearn'},{id:'innovation',name:'Innowacyjne',flux:'experiment'},
+  {id:'trust',name:'Relacyjne / Zaufanie',flux:'liquid'},{id:'learning',name:'Uczeniowe',flux:'unlearn'},
+  {id:'speed',name:'Tempo / Presja czasu',flux:'fast'},{id:'error',name:'Kultura błędu',flux:'experiment'}
+];
+
+// ===== SCENARIOS (multi-tagged) =====
+const SCENARIOS=[
+  // FAST - professional
+  {title:'Decyzja cenowa pod presją',desc:'Kierownik sprzedaży musi odpowiedzieć na ofertę konkurencji w 24h — bez czekania na centralę.',area:['fast'],industry:['automotive','fmcg'],role:['manager','sales'],situation:['offline','crisis'],context:['professional','leader'],challenge:['decision','speed'],tip:'Użyj checklisty "Decyzja w 15 min": co wiem → czego nie wiem → konsekwencje bezczynności.'},
+  {title:'Priorytety backlogu w sprincie',desc:'Team lead reaguje na dane z testów A/B i przesuwa priorytety w środku sprintu.',area:['fast'],industry:['ecommerce','it','startup'],role:['teamlead','specialist'],situation:['online','group'],context:['professional'],challenge:['decision','speed'],tip:'Decision Log po każdej zmianie priorytetów — 2 min na rationale.'},
+  {title:'Zmiana regulacji w 48h',desc:'Regionalny musi zmienić przekaz po decyzji regulatora — w 48h, bez centralnego briefu.',area:['fast','unlearn'],industry:['pharma'],role:['manager','sales'],situation:['offline'],context:['professional'],challenge:['decision','adaptation'],tip:'Signal Scanning Ritual: co ta zmiana oznacza dla naszych klientów? Nowy skrypt w 24h.'},
+  {title:'Decyzja inwestycyjna w niepewności',desc:'Head of Dev decyduje o projekcie, gdy przepisy mogą się zmienić w kwartał.',area:['fast'],industry:['oze'],role:['manager','founder'],situation:['offline','group'],context:['professional','leader'],challenge:['decision'],tip:'Scenariusze: co jeśli TAK, co jeśli NIE? Decision Tempo Tracker dla całego pipeline.'},
+  {title:'Odpowiedź na ofertę w rozmowie',desc:'Agent ubezpieczeniowy musi podjąć decyzję o ofercie na spotkaniu z klientem — teraz, bez "wrócę z odpowiedzią".',area:['fast'],industry:['insurance','banking'],role:['agent','sales'],situation:['offline','one2one'],context:['professional'],challenge:['decision','speed'],tip:'Przygotuj "decision tree" dla najczęstszych scenariuszy przed spotkaniem.'},
+  // FAST - personal
+  {title:'Pilna decyzja finansowa',desc:'Okazja inwestycyjna z 48h oknem — jak szybko podjąć decyzję, nie rezygnując z analizy?',area:['fast'],industry:[],role:[],situation:['one2one'],context:['finance'],challenge:['decision','speed'],tip:'52 Notatki: masz swoją strategię — sprawdź czy mieści się w niej ta okazja. TAK/NIE w 30 min.'},
+  {title:'Kryzys zdrowotny na szkoleniu',desc:'Ból pleców/migrena przed prowadzeniem 8h warsztatu. Szybka decyzja: jechać, zmienić format, odwołać?',area:['fast'],industry:[],role:['trainer'],situation:['crisis'],context:['health','professional'],challenge:['decision','speed'],tip:'STOP → 3 opcje → wybierz tę z najmniejszym kosztem długoterminowym.'},
+  // LIQUID - professional
+  {title:'Przekaz leadów bez strat',desc:'Lead z digital trafia do salonu — kto przejmuje, jak szybko, z jakim kontekstem?',area:['liquid'],industry:['automotive'],role:['manager','teamlead','sales'],situation:['hybrid'],context:['professional'],challenge:['communication','trust'],tip:'Collaboration Flow Map: kto → komu → co → jak szybko. Zidentyfikuj bottlenecki.'},
+  {title:'Spójność komunikacji w terenie',desc:'30 przedstawicieli w 5 regionach mówi różne rzeczy o tym samym produkcie.',area:['liquid'],industry:['pharma','fmcg'],role:['manager','sales'],situation:['offline','group'],context:['professional','leader'],challenge:['communication'],tip:'Cross-Team Sync: wspólny brief + cotygodniowy flash update z centrali.'},
+  {title:'Bezpieczeństwo psychologiczne w IT',desc:'Junior developer boi się zgłosić bug w kodzie seniora.',area:['liquid'],industry:['it','startup'],role:['teamlead','specialist'],situation:['online','group'],context:['professional','leader'],challenge:['trust'],tip:'PS Radar co kwartał + retrospektywa: "co utrudnia nam mówienie prawdy?"'},
+  {title:'Feedback między agentami',desc:'Doświadczony agent nie dzieli się technikami z nowymi — „niech się sami nauczą".',area:['liquid'],industry:['insurance','banking'],role:['agent','trainer'],situation:['offline','group'],context:['professional'],challenge:['trust','communication'],tip:'Liquid Collaboration Canvas: zmapuj przepływy wiedzy. Kto jest bottleneckiem?'},
+  // LIQUID - personal
+  {title:'Trudna rozmowa z partnerem',desc:'Ola czuje się zaniedbana po tygodniu intensywnych szkoleń. Jak rozmawiać, nie eskalując?',area:['liquid'],industry:[],role:[],situation:['one2one','offline'],context:['husband'],challenge:['communication','trust'],tip:'NVC: obserwacja → uczucia → potrzeby → prośba. Mów "czuję X, potrzebuję Y" nie "Ty zawsze..."'},
+  {title:'Budowanie zaufania z synem',desc:'Syn (przedszkolak/szkolak) nie chce opowiadać co było w szkole.',area:['liquid'],industry:[],role:[],situation:['one2one','offline'],context:['father'],challenge:['trust','communication'],tip:'15 min "just us" bez ekranów, bez pytań. Obecność > przesłuchanie. Mów o swoim dniu pierwszy.'},
+  {title:'Feedback w zespole NM',desc:'Chcesz dać feedback liderowi z NM, który stosuje metody, z którymi się nie zgadzasz.',area:['liquid'],industry:[],role:['trainer'],situation:['one2one','offline'],context:['professional','leader'],challenge:['communication','trust'],tip:'SBI: Sytuacja → Zachowanie → Wpływ. Konkretnie, bez osądzania.'},
+  // UNLEARN - professional
+  {title:'Wdrożenie AI w zespole sprzedaży',desc:'Handlowcy boją się AI — „zastąpi nas". Jak zmienić mindset?',area:['unlearn'],industry:['fmcg','automotive','insurance'],role:['manager','sales','hr'],situation:['group','offline'],context:['professional','leader'],challenge:['adaptation','learning'],tip:'AI Prompt Pack: pokaż konkretne use cases (podsumowanie CRM, mail follow-up). Efekt WOW > teoria.'},
+  {title:'Zmiana ścieżki klienta na digital-first',desc:'Klienci kupują online, ale zespół wciąż optymalizuje proces offline.',area:['unlearn'],industry:['automotive','retail','ecommerce'],role:['manager','teamlead'],situation:['group','hybrid'],context:['professional'],challenge:['adaptation'],tip:'Learning Cycle Canvas: co się sprawdza vs co nie — dane, nie opinie. Skill Gap Analyzer na dzisiaj.'},
+  {title:'Nowy produkt, stare skrypty',desc:'Nowa terapia wymaga przebudowy pitchu. Stare argumenty nie działają.',area:['unlearn'],industry:['pharma','insurance'],role:['sales','trainer'],situation:['offline','group'],context:['professional'],challenge:['adaptation','learning'],tip:'Adaptive Learning Loop: Działaj → Obserwuj → Reflektuj → Adaptuj. 3 tygodnie na nowy skrypt.'},
+  // UNLEARN - personal
+  {title:'Stare nawyki żywieniowe',desc:'Wiesz co jest zdrowe, ale wciąż jesz to co zawsze. Jak zmienić?',area:['unlearn'],industry:[],role:[],situation:['one2one'],context:['health'],challenge:['adaptation','learning'],tip:'Atomic Habits: 1 zmiana na 3 tygodnie. Stack na istniejącym nawyku: "po kawie → szklanka wody".'},
+  {title:'Porzucenie przestarzałej rutyny ojcowskiej',desc:'„Jak byłem mały to nikt ze mną nie rozmawiał i wyrosłem". Ale Twój syn potrzebuje inaczej.',area:['unlearn'],industry:[],role:[],situation:['one2one','offline'],context:['father'],challenge:['adaptation'],tip:'STOP → THINK → ACT. Co syn potrzebuje TERAZ? Modelowanie > instrukcja.'},
+  {title:'Zmiana podejścia do finansów',desc:'„Kiedyś zacznę oszczędzać" — ale kiedy? Zmiana mentalnego modelu pieniędzy.',area:['unlearn'],industry:[],role:[],situation:['one2one'],context:['finance'],challenge:['adaptation','learning'],tip:'52 Notatki: systematyczność > kwota. Zacznij od 100 zł/msc, automatyczny przelew.'},
+  // EXPERIMENT - professional
+  {title:'Test nowego formatu szkolenia',desc:'Chcesz sprawdzić czy 4×2h online > 1×8h offline. Jak zmierzyć?',area:['experiment'],industry:[],role:['trainer','hr'],situation:['online','group'],context:['professional'],challenge:['innovation','error'],tip:'Hypothesis Builder: "Jeśli 4×2h to NPS będzie >8 ponieważ mniej zmęczenia". Mierz, nie zgaduj.'},
+  {title:'A/B test komunikatu sprzedażowego',desc:'Dwa warianty pitch\'a — który konwertuje lepiej? Jak testować w terenie?',area:['experiment'],industry:['fmcg','automotive','insurance'],role:['sales','manager'],situation:['offline'],context:['professional'],challenge:['innovation'],tip:'Experiment Design Kit: grupa A vs B, 2 tygodnie, ta sama baza klientów. Log wyników.'},
+  {title:'Pilotaż nowego procesu',desc:'Nowy workflow w jednym zespole przed skalowaniem na organizację.',area:['experiment'],industry:['it','startup','banking'],role:['teamlead','manager','founder'],situation:['group','hybrid'],context:['professional','leader'],challenge:['innovation','error'],tip:'Safe-to-fail probe: 1 zespół, 4 tygodnie, jasne metryki. Pre-mortem: co może pójść nie tak?'},
+  {title:'MVP produktu w start-upie',desc:'Founder decyduje o pivocie na podstawie danych z 2 tygodni, nie 2 kwartałów.',area:['experiment','fast'],industry:['startup'],role:['founder','teamlead'],situation:['hybrid','crisis'],context:['professional'],challenge:['innovation','decision','speed'],tip:'Experiment Outcome Log: hipoteza → test → wynik → wniosek → następny krok. Nie pivot bez danych.'},
+  // EXPERIMENT - personal
+  {title:'Test nowego hobby',desc:'RC Cars czy fotografia? Nie musisz wybierać od razu — testuj.',area:['experiment'],industry:[],role:[],situation:['offline'],context:['hobby'],challenge:['innovation'],tip:'2 tygodnie: 1 hobby. Notuj flow state (skala 1-10). Po miesiącu porównaj.'},
+  {title:'Eksperyment z rutyną poranną',desc:'Wstać o 5:30 i ćwiczyć? Albo medytacja? Test 21 dni.',area:['experiment'],industry:[],role:[],situation:['one2one'],context:['health'],challenge:['innovation'],tip:'Hypothesis Builder: "Jeśli wstanę o 5:30 to energia do 14:00 wzrośnie". Mierz przez 3 tygodnie.'},
+  {title:'Nowy format randki z Olą',desc:'Zamiast kina — escape room, gotowanie razem, wspólny projekt? Testuj co daje więcej.',area:['experiment'],industry:[],role:[],situation:['one2one','offline'],context:['husband'],challenge:['innovation'],tip:'1 nowe doświadczenie/miesiąc. Refleksja: co dało więcej bliskości? Konto emocjonalne: + czy -?'},
+];
+
+// ===== RESEARCH =====
+const RESEARCH=[
+  {area:'fast',authors:'Eisenhardt, K.M.',year:1989,title:'Making Fast Strategic Decisions in High-Velocity Environments',finding:'Szybkie zespoły decyzyjne używają więcej informacji i tworzą więcej alternatyw niż wolne.',type:'Badanie empiryczne',src:'https://www.jstor.org/stable/256434'},
+  {area:'fast',authors:'Werder, K. et al.',year:2022,title:'IT capability → organizational agility (meta-analysis)',finding:'Zdolności IT wspierają zwinność w wymiarze sensing i responding.',type:'Meta-analiza',src:'https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0268761'},
+  {area:'fast',authors:'Czurłowska, M.',year:2024,title:'Agile w praktyce — wpływ na komunikację i adaptację',finding:'Wdrożenie Agile poprawia współpracę i tempo adaptacji.',type:'Badanie',src:null},
+  {area:'liquid',authors:'Frazier, M.L. et al.',year:2017,title:'Psychological Safety: A Meta-Analytic Review',finding:'PS wiąże się z lepszą efektywnością, dzieleniem wiedzy i zachowaniami obywatelskimi.',type:'Meta-analiza',src:'https://onlinelibrary.wiley.com/doi/abs/10.1111/peps.12183'},
+  {area:'liquid',authors:'Edmondson, A.C.',year:1999,title:'Psychological safety and learning behavior in work teams',finding:'Klimat ryzyka interpersonalnego ułatwia uczenie się zespołowe.',type:'Badanie empiryczne',src:'https://journals.sagepub.com/doi/10.2307/2666999'},
+  {area:'liquid',authors:'Jin, X.',year:2024,title:'Psychological Safety i innowacyjność pracowników',finding:'Komunikacja jest mechanizmem łączącym PS z efektywnością innowacyjną.',type:'Badanie',src:null},
+  {area:'liquid',authors:'Santana, R. et al.',year:2025,title:'Psychological safety w środowisku IT',finding:'PS = warunek współpracy, uczenia się i dostosowania do zmian w zespołach cross-funkcyjnych.',type:'Przegląd systematyczny',src:null},
+  {area:'liquid',authors:'Dickel, D. et al.',year:2026,title:'PS, współpraca i dynamic capabilities',finding:'PS → współpraca → dynamic capabilities. Różnice kulturowe (Brazylia vs Niemcy).',type:'Badanie porównawcze',src:null},
+  {area:'unlearn',authors:'Brynjolfsson, E. et al.',year:2023,title:'Generative AI at Work (NBER)',finding:'AI w obsłudze klienta: +14% produktywność, największy zysk dla najmniej doświadczonych.',type:'Badanie NBER',src:'https://www.nber.org/papers/w31161'},
+  {area:'unlearn',authors:'Sisk, V.F. et al.',year:2018,title:'Growth mindset meta-analysis',finding:'Związek growth mindset z wynikami istotny ale niewielki. Kontekst > interwencja.',type:'Meta-analiza',src:'https://journals.sagepub.com/doi/10.1177/0956797617739704'},
+  {area:'experiment',authors:'van Dyck, C. et al.',year:2005,title:'Organizational Error Management Culture',finding:'Kultura zarządzania błędami (nie unikania) → lepsza wydajność. Otwarta komunikacja o błędach kluczowa.',type:'Badanie empiryczne',src:'https://pubmed.ncbi.nlm.nih.gov/16316276/'}
+];
+
+// ===== TOOLS =====
+const TOOLS=[
+  {area:'fast',name:'Decyzja w 15 minut',type:'Checklista',desc:'Co wiem → czego nie wiem → konsekwencje bezczynności → decyzja.',use:'Przed każdą decyzją czekającą >24h.'},
+  {area:'fast',name:'2-min Decision Log',type:'Mikro-nawyk',desc:'Po decyzji: 2 min na kontekst, opcje, rationale. Buduje bazę wiedzy.',use:'Codziennie.'},
+  {area:'fast',name:'Signal Scanning Ritual',type:'Rytuał',desc:'5 sygnałów/tydzień z rynku: co to znaczy dla nas?',use:'Poniedziałkowy stand-up.'},
+  {area:'fast',name:'Decision Tempo Tracker',type:'Metryka',desc:'Od identyfikacji problemu do działania — ile dni? Benchmark.',use:'Miesięczny przegląd.'},
+  {area:'liquid',name:'Psychological Safety Radar',type:'Diagnostyka',desc:'7 pytań Edmondson + 3 o przepływ wiedzy. Skala 1-5.',use:'Co kwartał.'},
+  {area:'liquid',name:'Collaboration Flow Map',type:'Canvas',desc:'Kto → komu → co → jak często → wartość. Bottlenecki.',use:'Raz na kwartał.'},
+  {area:'liquid',name:'Cross-Team Sync Checklist',type:'Checklista',desc:'Agenda, decyzje, action items, ownership, deadline.',use:'Każde spotkanie cross-fun.'},
+  {area:'liquid',name:'Liquid Collaboration Canvas',type:'Canvas',desc:'Role → kanały → częstotliwość → jakość w zespołach.',use:'Sprint retrospective.'},
+  {area:'liquid',name:'Team Dynamics Diagnostic',type:'Diagnostyka',desc:'PS + współpraca → dynamic capabilities. Benchmarki Dickel 2026.',use:'Kwartalna diagnoza.'},
+  {area:'unlearn',name:'Adaptive Learning Loop',type:'Framework',desc:'Działaj → Obserwuj → Reflektuj → Adaptuj. 4 pytania.',use:'Po każdym sprincie/projekcie.'},
+  {area:'unlearn',name:'Skill Gap Analyzer',type:'Diagnostyka',desc:'Obecne vs wymagane umiejętności. Plan 30/60/90 dni.',use:'Kwartalnie, przed transformacją.'},
+  {area:'unlearn',name:'Learning Cycle Canvas',type:'Canvas',desc:'Co się wydarzyło → sprawdziło → nie działało → zmieniamy → mierzymy.',use:'Retrospektywy, post-mortemy.'},
+  {area:'unlearn',name:'AI Prompt Pack',type:'Prompt Pack',desc:'Podsumowanie spotkania, analiza sprzedaży, brainstorm, warianty.',use:'Codziennie z AI.'},
+  {area:'experiment',name:'Hypothesis Builder',type:'Framework',desc:'Jeśli [X] to [Y] ponieważ [Z]. Metryka + timeline.',use:'Przed każdym eksperymentem.'},
+  {area:'experiment',name:'Experiment Outcome Log',type:'Rejestr',desc:'Hipoteza → test → wynik → wniosek → next step.',use:'Po każdym eksperymencie.'},
+  {area:'experiment',name:'Experiment Design Kit',type:'Framework',desc:'MVP canvas, A/B template, pilot protocol, failure pre-mortem.',use:'Warsztaty innowacyjne.'},
+];
+
+// ===== TRENDS =====
+const TRENDS=[
+  {name:'Sprint planning',area:'fast',ring:'now',angle:-60},{name:'Decyzje real-time',area:'fast',ring:'now',angle:-30},
+  {name:'AI-assisted decisions',area:'fast',ring:'new',angle:-70},{name:'Real-time analytics',area:'fast',ring:'new',angle:-20},
+  {name:'Predictive ops',area:'fast',ring:'next',angle:-55},{name:'Autonomous teams',area:'fast',ring:'next',angle:-35},
+  {name:'Cognitive augmentation',area:'fast',ring:'beyond',angle:-50},
+  {name:'Psychological Safety',area:'liquid',ring:'now',angle:15},{name:'Cross-functional',area:'liquid',ring:'now',angle:45},
+  {name:'Remote-first collab',area:'liquid',ring:'new',angle:20},{name:'AI knowledge mgmt',area:'liquid',ring:'new',angle:55},
+  {name:'Liquid org structures',area:'liquid',ring:'next',angle:35},{name:'Collective intelligence',area:'liquid',ring:'beyond',angle:40},
+  {name:'AI literacy',area:'unlearn',ring:'now',angle:105},{name:'Growth mindset',area:'unlearn',ring:'now',angle:135},
+  {name:'GenAI w pracy',area:'unlearn',ring:'new',angle:110},{name:'Continuous learning',area:'unlearn',ring:'new',angle:150},
+  {name:'Skill obsolescence',area:'unlearn',ring:'next',angle:125},{name:'Neural interfaces',area:'unlearn',ring:'beyond',angle:130},
+  {name:'A/B testing',area:'experiment',ring:'now',angle:195},{name:'Error management',area:'experiment',ring:'now',angle:225},
+  {name:'Rapid prototyping',area:'experiment',ring:'new',angle:200},{name:'Innovation labs',area:'experiment',ring:'new',angle:240},
+  {name:'Experiment culture',area:'experiment',ring:'next',angle:215},{name:'Autonomous innovation',area:'experiment',ring:'beyond',angle:230}
+];
+
+// ===== STATE =====
+let filters={area:'all',industry:'all',role:'all',situation:'all',context:'all',challenge:'all'};
+let trendFilter='all',resFilter='all';
+
+// ===== NAVIGATION =====
+function nav(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l=>{l.classList.remove('active');l.style.removeProperty('color')});
+  const el=document.getElementById('view-'+v);
+  if(el)el.classList.add('active');
+  document.querySelector(`.nav-link[data-v="${v}"]`)?.classList.add('active');
+  if(v==='explore')renderExplore();
+  if(v==='trends')renderTrends();
+  if(v==='research')renderResearch();
+  if(v==='tools')renderTools();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleMobile(){
+  document.querySelector('.hamburger').classList.toggle('open');
+  document.querySelector('.mobile-menu').classList.toggle('open');
+}
+
+// ===== DETAIL VIEW =====
+let curArea=null,curTab='overview';
+function showDetail(a){
+  curArea=a;curTab='overview';const d=FLUX[a],c=CC[a];
+  document.getElementById('detail-header').innerHTML=`
+    <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-xl ${c.bg} flex items-center justify-center"><span class="${c.t} font-black text-2xl">${d.letter}</span></div>
+    <div><h2 class="text-2xl font-black ${c.t}">${d.name}</h2><p class="text-slate-400 text-sm">${d.full}</p></div></div>
+    <p class="mt-3 text-sm text-slate-300 bg-dark-900 rounded-lg p-3 border ${c.b}">${d.def}</p>`;
+  const tabs=['overview','research','industries','tools'];
+  const labels=['Przegląd','Badania','Scenariusze','Narzędzia'];
+  document.getElementById('detail-tabs').innerHTML=tabs.map((t,i)=>`<button class="tab-btn pb-2 text-xs font-medium ${t==='overview'?c.t+' active':'text-slate-500'}" onclick="curTab='${t}';renderDetail()" style="border-bottom-color:${t==='overview'?d.color:'transparent'}">${labels[i]}</button>`).join('');
+  renderDetail();nav('detail');
+}
+function renderDetail(){
+  const d=FLUX[curArea],c=CC[curArea],el=document.getElementById('detail-content');
+  document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active',c.t);b.classList.add('text-slate-500');b.style.borderBottomColor='transparent'});
+  event?.target?.classList?.add('active',c.t);
+  if(event?.target)event.target.style.borderBottomColor=d.color;
+
+  if(curTab==='overview'){
+    el.innerHTML=`<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-dark-900 rounded-xl p-4 border border-dark-700"><p class="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Kluczowe pytanie</p><p class="${c.t} font-medium">${d.q}</p></div>
+      <div class="bg-dark-900 rounded-xl p-4 border border-dark-700"><p class="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Poziomy</p>${d.levels.map((l,i)=>`<div class="flex gap-2 items-start mb-2"><span class="w-5 h-5 rounded-full ${c.bg} flex items-center justify-center flex-shrink-0"><span class="${c.t} text-[10px] font-bold">${i+1}</span></span><div><span class="text-xs font-semibold text-slate-300">${l.l}</span><p class="text-[11px] text-slate-500">${l.d}</p></div></div>`).join('')}</div>
+      <div class="bg-dark-900 rounded-xl p-4 border border-dark-700 md:col-span-2"><p class="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Antywzorce</p><div class="grid grid-cols-1 md:grid-cols-2 gap-2">${d.anti.map(a=>`<div class="flex gap-1.5 items-start"><span class="text-red-400 text-xs mt-0.5">✕</span><span class="text-xs text-slate-400">${a}</span></div>`).join('')}</div></div></div>`;
+  }
+  if(curTab==='research'){
+    const r=RESEARCH.filter(x=>x.area===curArea);
+    el.innerHTML=r.map(x=>`<div class="bg-dark-900 rounded-xl p-4 border border-dark-700 mb-3"><div class="flex items-center gap-2 mb-1"><span class="text-[10px] px-2 py-0.5 rounded-full ${c.bg} ${c.t}">${x.type}</span><span class="text-[10px] text-slate-600">${x.year}</span></div><h4 class="text-sm font-semibold text-slate-200">${x.title}</h4><p class="text-[11px] text-slate-500 mb-1">${x.authors}</p><p class="text-xs text-slate-400">${x.finding}</p>${x.src?`<a href="${x.src}" target="_blank" class="text-[11px] ${c.t} hover:underline mt-1 inline-block">Źródło →</a>`:''}</div>`).join('');
+  }
+  if(curTab==='industries'){
+    const s=SCENARIOS.filter(x=>x.area.includes(curArea));
+    el.innerHTML=s.map(x=>`<div class="bg-dark-900 rounded-xl p-4 border border-dark-700 mb-3"><h4 class="text-sm font-semibold text-slate-200 mb-1">${x.title}</h4><p class="text-xs text-slate-400 mb-2">${x.desc}</p><div class="flex flex-wrap gap-1 mb-2">${x.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${ind.icon} ${ind.name}</span>`:''}).join('')}${x.context.map(c=>`<span class="text-[9px] px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-400">${LIFE_CONTEXTS.find(z=>z.id===c)?.icon||''} ${LIFE_CONTEXTS.find(z=>z.id===c)?.name||c}</span>`).join('')}</div><div class="bg-dark-950 rounded-lg p-3 text-xs text-emerald-400/80"><strong>Tip:</strong> ${x.tip}</div></div>`).join('');
+  }
+  if(curTab==='tools'){
+    const t=TOOLS.filter(x=>x.area===curArea);
+    el.innerHTML=`<div class="grid grid-cols-1 md:grid-cols-2 gap-3">${t.map(x=>`<div class="bg-dark-900 rounded-xl p-4 border border-dark-700"><span class="text-[10px] px-2 py-0.5 rounded-full ${c.bg} ${c.t}">${x.type}</span><h4 class="text-sm font-semibold text-slate-200 mt-2 mb-1">${x.name}</h4><p class="text-xs text-slate-400 mb-2">${x.desc}</p><p class="text-[11px] text-slate-500 border-t border-dark-700 pt-2"><span class="text-slate-400">Kiedy:</span> ${x.use}</p></div>`).join('')}</div>`;
+  }
+}
+
+// ===== EXPLORE (FILTERS + SCENARIOS) =====
+function initFilterChips(){
+  const mk=(arr,fld,cont)=>{
+    let h=`<span class="chip on text-[11px] px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700" style="--ring:#94a3b8" data-f="${fld}" data-v="all" onclick="toggleFilter(this)">Wszystkie</span>`;
+    arr.forEach(x=>{h+=`<span class="chip text-[11px] px-3 py-1 rounded-full bg-slate-800/50 text-slate-400 border border-slate-700/50" style="--ring:#94a3b8" data-f="${fld}" data-v="${x.id}" onclick="toggleFilter(this)">${x.icon||''} ${x.name}</span>`});
+    document.getElementById(cont).innerHTML=h;
+  };
+  mk(INDUSTRIES,'industry','industry-chips');
+  mk(ROLES,'role','role-chips');
+  mk(SITUATIONS,'situation','situation-chips');
+  mk(LIFE_CONTEXTS,'context','context-chips');
+  mk(CHALLENGE_TYPES,'challenge','challenge-chips');
+}
+function toggleFilter(el){
+  const f=el.dataset.f,v=el.dataset.v;
+  // deselect all in same group
+  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  filters[f]=v;
+  renderExplore();
+}
+function resetFilters(){
+  filters={area:'all',industry:'all',role:'all',situation:'all',context:'all',challenge:'all'};
+  document.querySelectorAll('#filter-bar .chip').forEach(c=>{c.classList.remove('on');if(c.dataset.v==='all')c.classList.add('on')});
+  renderExplore();
+}
+function renderExplore(){
+  let results=SCENARIOS.filter(s=>{
+    if(filters.area!=='all'&&!s.area.includes(filters.area))return false;
+    if(filters.industry!=='all'&&!s.industry.includes(filters.industry)&&s.industry.length>0)return false;
+    if(filters.industry!=='all'&&s.industry.length===0)return false;
+    if(filters.role!=='all'&&!s.role.includes(filters.role)&&s.role.length>0)return false;
+    if(filters.role!=='all'&&s.role.length===0)return false;
+    if(filters.situation!=='all'&&!s.situation.includes(filters.situation))return false;
+    if(filters.context!=='all'&&!s.context.includes(filters.context))return false;
+    if(filters.challenge!=='all'&&!s.challenge.includes(filters.challenge))return false;
+    return true;
+  });
+  document.getElementById('result-count').textContent=`${results.length} scenariuszy`;
+  document.getElementById('explore-results').innerHTML=results.length?results.map(s=>{
+    const areaColors=s.area.map(a=>C[a]||'#94a3b8');
+    const mainArea=s.area[0];const c=CC[mainArea]||CC.fast;
+    return`<div class="scenario-card bg-dark-900 rounded-xl p-4 border border-dark-700 hover:${c.b}">
+      <div class="flex items-center gap-1.5 mb-2">${s.area.map(a=>`<span class="text-[10px] px-1.5 py-0.5 rounded-full ${CC[a].bg} ${CC[a].t} font-bold">${FLUX[a].letter}</span>`).join('')}</div>
+      <h4 class="text-sm font-semibold text-slate-200 mb-1">${s.title}</h4>
+      <p class="text-xs text-slate-400 mb-3">${s.desc}</p>
+      <div class="flex flex-wrap gap-1 mb-3">${s.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${ind.icon} ${ind.name}</span>`:''}).join('')}${s.role.map(r=>{const rl=ROLES.find(z=>z.id===r);return rl?`<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${rl.name}</span>`:''}).join('')}${s.context.map(x=>{const lc=LIFE_CONTEXTS.find(z=>z.id===x);return lc?`<span class="text-[9px] px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-400">${lc.icon} ${lc.name}</span>`:''}).join('')}${s.situation.map(x=>{const st=SITUATIONS.find(z=>z.id===x);return st?`<span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400">${st.icon} ${st.name}</span>`:''}).join('')}</div>
+      <div class="bg-dark-950 rounded-lg p-3 text-[11px] text-emerald-400/80"><strong>Tip:</strong> ${s.tip}</div>
+    </div>`;
+  }).join(''):`<div class="col-span-2 text-center py-12 text-slate-500 text-sm">Brak scenariuszy dla wybranych filtrów. <button onclick="resetFilters()" class="text-amber-400 hover:underline">Resetuj</button></div>`;
+}
+
+// ===== TREND MAP =====
+function renderTrends(){
+  const svg=document.getElementById('trend-map');const cx=500,cy=500;
+  const rings={now:180,new:280,next:370,beyond:450};
+  let h=`<circle cx="${cx}" cy="${cy}" r="460" fill="#0c0f1a" stroke="#1e293b" stroke-width=".5"/>`;
+  Object.entries(rings).forEach(([k,r])=>{h+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,${k==='now'?.12:k==='new'?.08:k==='next'?.05:.03})" stroke-width="1" ${k!=='now'?'stroke-dasharray="4 2"':''}/>`;});
+  h+=`<text x="${cx+5}" y="${cy-rings.now-5}" fill="#475569" font-size="10" letter-spacing="2">NOW</text>`;
+  h+=`<text x="${cx+5}" y="${cy-rings.new-5}" fill="#334155" font-size="10" letter-spacing="2">NEW</text>`;
+  h+=`<text x="${cx+5}" y="${cy-rings.next-5}" fill="#1e293b" font-size="10" letter-spacing="2">NEXT</text>`;
+  h+=`<text x="${cx+5}" y="${cy-rings.beyond-5}" fill="#1e293b" font-size="10" letter-spacing="2">BEYOND</text>`;
+  h+=`<line x1="${cx}" y1="${cy-460}" x2="${cx}" y2="${cy-60}" stroke="#1e293b" stroke-width=".5"/><line x1="${cx}" y1="${cy+60}" x2="${cx}" y2="${cy+460}" stroke="#1e293b" stroke-width=".5"/><line x1="${cx-460}" y1="${cy}" x2="${cx-60}" y2="${cy}" stroke="#1e293b" stroke-width=".5"/><line x1="${cx+60}" y1="${cy}" x2="${cx+460}" y2="${cy}" stroke="#1e293b" stroke-width=".5"/>`;
+  h+=`<path d="M${cx},${cx} L${cx},${cy-460} A460,460 0 0,1 ${cx+460},${cy} Z" fill="${C.fast}" opacity=".03"/>`;
+  h+=`<path d="M${cx},${cy} L${cx+460},${cy} A460,460 0 0,1 ${cx},${cy+460} Z" fill="${C.liquid}" opacity=".03"/>`;
+  h+=`<path d="M${cx},${cy} L${cx},${cy+460} A460,460 0 0,1 ${cx-460},${cy} Z" fill="${C.unlearn}" opacity=".03"/>`;
+  h+=`<path d="M${cx},${cy} L${cx-460},${cy} A460,460 0 0,1 ${cx},${cy-460} Z" fill="${C.experiment}" opacity=".03"/>`;
+  TRENDS.forEach(t=>{
+    const r=rings[t.ring],a=t.angle*Math.PI/180,x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);
+    const sz=t.ring==='now'?6:t.ring==='new'?5:t.ring==='next'?4:3;
+    const op=t.ring==='now'?.9:t.ring==='new'?.6:t.ring==='next'?.4:.25;
+    const show=trendFilter==='all'||trendFilter===t.area;
+    h+=`<g style="opacity:${show?1:.08};transition:opacity .4s"><circle cx="${x}" cy="${y}" r="${sz}" fill="${C[t.area]}" opacity="${op}"/><text x="${x}" y="${y-sz-4}" text-anchor="middle" fill="${C[t.area]}" font-size="8" opacity="${op*.9}" font-weight="500">${t.name}</text></g>`;
+  });
+  h+=`<circle cx="${cx}" cy="${cy}" r="55" fill="#111827" stroke="#334155"/><text x="${cx}" y="${cy-3}" text-anchor="middle" fill="white" font-size="20" font-weight="900" letter-spacing="4">FLUX</text><text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#64748b" font-size="7" letter-spacing="2">TREND MAP</text>`;
+  svg.innerHTML=h;
+}
+function filterTrends(f){trendFilter=f;document.querySelectorAll('.tf').forEach(b=>b.classList.remove('on'));event.target.classList.add('on');renderTrends();}
+
+// ===== RESEARCH VIEW =====
+function renderResearch(){
+  const list=resFilter==='all'?RESEARCH:RESEARCH.filter(r=>r.area===resFilter);
+  document.getElementById('research-grid').innerHTML=list.map(r=>{const c=CC[r.area];return`<div class="bg-dark-900 rounded-xl p-4 border border-dark-700 cursor-pointer" onclick="this.classList.toggle('expanded')"><div class="flex items-center gap-2 mb-1"><span class="text-[10px] px-2 py-0.5 rounded-full ${c.bg} ${c.t}">${FLUX[r.area].name}</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">${r.type}</span><span class="text-[10px] text-slate-600 ml-auto">${r.year}</span></div><h4 class="text-sm font-semibold text-slate-200">${r.title}</h4><p class="text-[11px] text-slate-500">${r.authors}</p><div class="expand-content" style="max-height:0;overflow:hidden;transition:max-height .4s"><div class="mt-2 pt-2 border-t border-dark-700"><p class="text-xs text-slate-400">${r.finding}</p>${r.src?`<a href="${r.src}" target="_blank" class="text-[11px] ${c.t} hover:underline mt-1 inline-block">Źródło →</a>`:''}</div></div><p class="text-[10px] text-slate-600 mt-1">Kliknij ↓</p></div>`;}).join('');
+  // fix expand
+  document.querySelectorAll('#research-grid .expand-content').forEach(el=>{
+    el.closest('[onclick]').addEventListener('click',function(){
+      const exp=this.querySelector('.expand-content');
+      exp.style.maxHeight=exp.style.maxHeight==='0px'||!exp.style.maxHeight?exp.scrollHeight+'px':'0px';
+    },{once:false});
+  });
+}
+function filterRes(f){resFilter=f;document.querySelectorAll('.rf').forEach(b=>b.classList.remove('on'));event.target.classList.add('on');renderResearch();}
+
+// ===== TOOLS VIEW =====
+function renderTools(){
+  const areas=['fast','liquid','unlearn','experiment'];
+  document.getElementById('tools-grid').innerHTML=areas.map(a=>{const d=FLUX[a],c=CC[a],t=TOOLS.filter(x=>x.area===a);
+    return`<div class="mb-6"><div class="flex items-center gap-2 mb-3"><div class="w-6 h-6 rounded ${c.bg} flex items-center justify-center"><span class="${c.t} font-black text-xs">${d.letter}</span></div><span class="${c.t} font-bold text-sm">${d.name}</span><span class="text-[10px] text-slate-600">${t.length} narzędzi</span></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">${t.map(x=>`<div class="bg-dark-900 rounded-xl p-4 border border-dark-700"><span class="text-[10px] px-2 py-0.5 rounded-full ${c.bg} ${c.t}">${x.type}</span><h4 class="text-sm font-semibold text-slate-200 mt-2 mb-1">${x.name}</h4><p class="text-[11px] text-slate-400 mb-2">${x.desc}</p><p class="text-[10px] text-slate-500 border-t border-dark-700 pt-2"><span class="text-slate-400">Kiedy:</span> ${x.use}</p></div>`).join('')}</div></div>`;
+  }).join('');
+}
+
+// ===== GEMINI CHAT =====
+const FLUX_SYSTEM_PROMPT=`Jesteś ekspertem modelu FLUX — ramy kompetencyjno-operacyjnej.
+FLUX = Fast (tempo decyzji), Liquid (współpraca i PS), Unlearn & Relearn (oduczanie się), eXperiment (innowacje).
+Odpowiadaj po polsku, konkretnie, evidence-based. Podawaj przykłady z branż (automotive, e-commerce, farmacja, ubezpieczenia, OZE, FMCG, start-upy, IT, bankowość, retail).
+Model działa zarówno w kontekście zawodowym (trener, lider, manager, specjalista) jak i prywatnym (mąż, ojciec, zdrowie, hobby, finanse).
+Kluczowe badania: Eisenhardt 1989 (fast decisions), Edmondson 1999 (PS), Frazier 2017 (PS meta-analysis), van Dyck 2005 (error management), Brynjolfsson 2023 (GenAI at work).
+Narzędzia: Decision 15min, PS Radar, Skill Gap Analyzer, Hypothesis Builder, Learning Loop, Collaboration Flow Map.
+Bądź konkretny, podawaj actionable tips. Nie lej wody.`;
+
+let chatHistory=[];
+function toggleChat(){document.getElementById('chat-panel').classList.toggle('open')}
+async function sendChat(){
+  const input=document.getElementById('chat-input');
+  const text=input.value.trim();if(!text)return;
+  input.value='';addChatMsg(text,'user');
+  const status=document.getElementById('chat-status');
+  const btn=document.getElementById('chat-send');
+  btn.disabled=true;status.textContent='Analizuje...';
+
+  const apiKey=localStorage.getItem('flux_gemini_key');
+  if(!apiKey){addChatMsg('Brak klucza Gemini API. Kliknij ikonę ustawień (⚙️) w nawigacji i wpisz klucz z aistudio.google.com (darmowy).','assistant');btn.disabled=false;status.textContent='';return;}
+
+  chatHistory.push({role:'user',parts:[{text}]});
+  try{
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({system_instruction:{parts:[{text:FLUX_SYSTEM_PROMPT}]},contents:chatHistory,generationConfig:{temperature:0.4,maxOutputTokens:1500}})
+    });
+    if(!r.ok){const e=await r.text();throw new Error(r.status===429?'Limit API (15/min). Poczekaj.':r.status===403?'Klucz API bez uprawnień.':'Błąd '+r.status)}
+    const d=await r.json();
+    const reply=d.candidates?.[0]?.content?.parts?.[0]?.text||'Brak odpowiedzi.';
+    chatHistory.push({role:'model',parts:[{text:reply}]});
+    addChatMsg(reply,'assistant');
+  }catch(e){addChatMsg('Błąd: '+e.message,'assistant')}
+  btn.disabled=false;status.textContent='';
+}
+function addChatMsg(text,role){
+  const div=document.createElement('div');div.className=`chat-msg ${role}`;
+  div.innerHTML=role==='assistant'?text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'):text;
+  document.getElementById('chat-messages').appendChild(div);
+  document.getElementById('chat-messages').scrollTop=9999;
+}
+
+// ===== SETTINGS =====
+function openSettings(){document.getElementById('settings-overlay').classList.add('open');const k=localStorage.getItem('flux_gemini_key');if(k)document.getElementById('api-key-input').value=k}
+function closeSettings(){document.getElementById('settings-overlay').classList.remove('open')}
+function saveApiKey(){const k=document.getElementById('api-key-input').value.trim();if(!k)return;localStorage.setItem('flux_gemini_key',k);document.getElementById('settings-status').innerHTML='<span class="text-emerald-400">Zapisano!</span>';setTimeout(closeSettings,1000)}
+function clearApiKey(){localStorage.removeItem('flux_gemini_key');document.getElementById('api-key-input').value='';document.getElementById('settings-status').innerHTML='<span class="text-slate-400">Wyczyszczono.</span>'}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded',()=>{initFilterChips()});
+</script>
+</body>
+</html>
