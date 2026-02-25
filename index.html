@@ -149,6 +149,39 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
 
 /* Megaworld badge */
 .mw-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:600;white-space:nowrap}
+
+/* Search overlay */
+.search-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10003;display:none;align-items:flex-start;justify-content:center;padding-top:8vh;backdrop-filter:blur(6px)}
+.search-overlay.open{display:flex}
+.search-box{width:100%;max-width:640px;background:#111827;border:1px solid #334155;border-radius:1rem;overflow:hidden;max-height:78vh;display:flex;flex-direction:column;margin:0 1rem;box-shadow:0 25px 60px -12px rgba(0,0,0,.8)}
+.search-input{width:100%;background:transparent;border:none;border-bottom:1px solid #1e293b;padding:1rem 1.25rem;color:#e2e8f0;font-size:1rem;outline:none;font-family:inherit}
+.search-input::placeholder{color:#475569}
+.search-results{overflow-y:auto;padding:.75rem;max-height:60vh}
+.search-result{padding:.75rem 1rem;border-radius:.75rem;cursor:pointer;transition:background .2s;margin-bottom:.25rem}
+.search-result:hover{background:rgba(245,158,11,.08)}
+.search-cat{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#64748b;padding:.5rem 1rem;font-weight:600}
+.search-kbd{display:inline-flex;align-items:center;padding:2px 6px;border-radius:4px;font-size:10px;background:#1e293b;color:#64748b;border:1px solid #334155;font-family:monospace}
+
+/* Download button */
+.dl-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:.5rem;font-size:11px;background:rgba(245,158,11,.08);color:#f59e0b;border:1px solid rgba(245,158,11,.15);cursor:pointer;transition:all .2s;font-weight:500}
+.dl-btn:hover{background:rgba(245,158,11,.18);transform:translateY(-1px)}
+
+/* Scroll to top */
+.scroll-top{position:fixed;bottom:5.5rem;right:1.5rem;width:2.5rem;height:2.5rem;border-radius:50%;background:#1e293b;border:1px solid #334155;color:#94a3b8;cursor:pointer;z-index:9996;display:none;align-items:center;justify-content:center;transition:all .3s;font-size:1rem}
+.scroll-top:hover{background:#334155;color:white;transform:translateY(-2px)}
+.scroll-top.show{display:flex}
+
+/* Section header with download */
+.section-header{display:flex;align-items:center;justify-content:center;gap:.75rem;flex-wrap:wrap}
+.section-header .dl-btn{margin-top:.25rem}
+
+/* Quick challenge chips */
+.challenge-quick{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:2rem;font-size:12px;background:#1e293b;color:#94a3b8;border:1px solid #334155;cursor:pointer;transition:all .2s;white-space:nowrap}
+.challenge-quick:hover{background:rgba(245,158,11,.1);border-color:#f59e0b;color:#f59e0b}
+
+/* Cross-link pill */
+.cross-link{display:inline-flex;align-items:center;gap:3px;padding:2px 10px;border-radius:9999px;font-size:10px;cursor:pointer;transition:all .2s;text-decoration:none}
+.cross-link:hover{filter:brightness(1.3);transform:translateY(-1px)}
 </style>
 </head>
 <body class="min-h-screen text-slate-100">
@@ -168,6 +201,9 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
       <a onclick="nav('trends')" class="nav-link text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="trends">Trendy</a>
       <a onclick="nav('research')" class="nav-link text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="research">Badania</a>
       <a onclick="nav('tools')" class="nav-link text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="tools">Narzędzia</a>
+      <button onclick="openSearch()" class="text-slate-500 hover:text-white transition-colors" title="Szukaj (Ctrl+K)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </button>
       <button onclick="toggleProjector()" class="projector-btn text-slate-500 hover:text-white transition-colors" title="Tryb projektorowy">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
       </button>
@@ -271,7 +307,7 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
 <section id="view-explore" class="view pt-16">
 <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
   <div class="text-center mb-6">
-    <h2 class="text-2xl sm:text-3xl font-black">Eksplorator <span class="text-amber-400">FLUX</span></h2>
+    <div class="section-header"><h2 class="text-2xl sm:text-3xl font-black">Eksplorator <span class="text-amber-400">FLUX</span></h2><button class="dl-btn" onclick="downloadSection('explore')">📥 Pobierz</button></div>
     <p class="text-slate-400 text-sm">Filtruj scenariusze po roli, branży, sytuacji i typie wyzwania.</p>
   </div>
   <!-- FILTER BAR -->
@@ -326,8 +362,8 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
 <section id="view-trends" class="view pt-16">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
   <div class="text-center mb-6">
-    <h2 class="text-2xl sm:text-3xl font-black">Mapa Trendów <span class="text-amber-400">FLUX</span></h2>
-    <p class="text-slate-400 text-sm">Trendy wg horyzontu czasowego i obszaru FLUX.</p>
+    <div class="section-header"><h2 class="text-2xl sm:text-3xl font-black">Mapa Trendów <span class="text-amber-400">FLUX</span></h2><button class="dl-btn" onclick="downloadSection('trends')">📥 Pobierz</button></div>
+    <p class="text-slate-400 text-sm">Trendy wg horyzontu czasowego i obszaru FLUX. <button onclick="openSearch()" class="text-amber-400 hover:underline text-sm">🔍 Szukaj po wyzwaniu →</button></p>
   </div>
   <div class="flex justify-center gap-2 mb-6 flex-wrap">
     <button onclick="filterTrends('all')" class="tf on px-3 py-1 rounded-full text-[11px] bg-slate-800 text-slate-300 border border-slate-700">Wszystkie</button>
@@ -351,7 +387,7 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
 <section id="view-research" class="view pt-16">
 <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6">
   <div class="text-center mb-6">
-    <h2 class="text-2xl sm:text-3xl font-black">Biblioteka <span class="text-emerald-400">Badań</span></h2>
+    <div class="section-header"><h2 class="text-2xl sm:text-3xl font-black">Biblioteka <span class="text-emerald-400">Badań</span></h2><button class="dl-btn" onclick="downloadSection('research')">📥 Pobierz</button></div>
     <p class="text-slate-400 text-sm">Evidence-based: badania naukowe stojące za modelem FLUX.</p>
   </div>
   <div class="flex justify-center gap-2 mb-6 flex-wrap">
@@ -369,7 +405,7 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
 <section id="view-tools" class="view pt-16">
 <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6">
   <div class="text-center mb-6">
-    <h2 class="text-2xl sm:text-3xl font-black">Narzędzia <span class="text-violet-400">FLUX</span></h2>
+    <div class="section-header"><h2 class="text-2xl sm:text-3xl font-black">Narzędzia <span class="text-violet-400">FLUX</span></h2><button class="dl-btn" onclick="downloadSection('tools')">📥 Pobierz</button></div>
     <p class="text-slate-400 text-sm">Gotowe klocki: checklisty, canvasy, prompty, diagnostyki.</p>
   </div>
   <div id="tools-grid"></div>
@@ -497,6 +533,36 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
 
 <!-- Wheel tooltip (fixed position, appended to body) -->
 <div id="flux-tooltip" class="flux-tooltip"></div>
+
+<!-- ========== SEARCH OVERLAY ========== -->
+<div class="search-overlay" id="search-overlay" onclick="if(event.target===this)closeSearch()">
+  <div class="search-box">
+    <div class="flex items-center gap-2 px-4 border-b border-dark-700">
+      <svg class="w-5 h-5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input class="search-input" id="search-input" placeholder="Opisz wyzwanie, problem lub szukaj trendu..." oninput="performSearch(this.value)" autocomplete="off">
+      <span class="search-kbd">Esc</span>
+    </div>
+    <div class="px-4 py-2 border-b border-dark-700/50">
+      <p class="text-[10px] text-slate-500 mb-1.5">Szybkie wyzwania:</p>
+      <div class="flex flex-wrap gap-1.5" id="quick-challenges">
+        <span class="challenge-quick" onclick="quickSearch('zespół nie komunikuje się')">💬 Brak komunikacji</span>
+        <span class="challenge-quick" onclick="quickSearch('opór przed zmianą AI')">🤖 Opór przed AI</span>
+        <span class="challenge-quick" onclick="quickSearch('wolne decyzje paraliż')">⏱️ Wolne decyzje</span>
+        <span class="challenge-quick" onclick="quickSearch('wypalenie stres')">🔥 Wypalenie</span>
+        <span class="challenge-quick" onclick="quickSearch('innowacje eksperyment')">🧪 Brak innowacji</span>
+        <span class="challenge-quick" onclick="quickSearch('zaufanie bezpieczeństwo')">🤝 Brak zaufania</span>
+        <span class="challenge-quick" onclick="quickSearch('reskilling kompetencje')">📚 Luka kompetencyjna</span>
+        <span class="challenge-quick" onclick="quickSearch('polaryzacja konflikty')">⚡ Konflikty w zespole</span>
+      </div>
+    </div>
+    <div class="search-results" id="search-results">
+      <div class="text-center py-8 text-slate-500 text-sm">Wpisz wyzwanie lub problem — pokażemy adekwatne trendy, scenariusze i narzędzia.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCROLL TO TOP ========== -->
+<button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <!-- ========== SCRIPTS ========== -->
 <script>
@@ -951,7 +1017,8 @@ function showDetail(a){
   curArea=a;curTab='overview';const d=FLUX[a],c=CC[a];
   document.getElementById('detail-header').innerHTML=`
     <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-xl ${c.bg} flex items-center justify-center"><span class="${c.t} font-black text-2xl">${d.letter}</span></div>
-    <div><h2 class="text-2xl font-black ${c.t}">${d.name}</h2><p class="text-slate-400 text-sm">${d.full}</p></div></div>
+    <div><h2 class="text-2xl font-black ${c.t}">${d.name}</h2><p class="text-slate-400 text-sm">${d.full}</p></div>
+    <button class="dl-btn ml-auto" onclick="downloadSection('detail')">📥 Pobierz</button></div>
     <p class="mt-3 text-sm text-slate-300 bg-dark-900 rounded-lg p-3 border ${c.b}">${d.def}</p>`;
   const tabs=['overview','research','industries','tools'];
   const labels=['Przegląd','Badania','Scenariusze','Narzędzia'];
@@ -1057,6 +1124,7 @@ function renderExplore(){
       <div class="flex flex-wrap gap-1.5 mb-3">${s.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">${ind.icon} ${ind.name}</span>`:''}).join('')}${s.role.map(r=>{const rl=ROLES.find(z=>z.id===r);return rl?`<span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">${rl.name}</span>`:''}).join('')}${s.context.map(x=>{const lc=LIFE_CONTEXTS.find(z=>z.id===x);return lc?`<span class="text-xs px-2 py-0.5 rounded bg-violet-500/10 text-violet-400">${lc.icon} ${lc.name}</span>`:''}).join('')}${s.situation.map(x=>{const st=SITUATIONS.find(z=>z.id===x);return st?`<span class="text-xs px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400">${st.icon} ${st.name}</span>`:''}).join('')}</div>
       <div class="bg-dark-950 rounded-lg p-3 text-sm text-emerald-400/80"><strong>Tip:</strong> ${s.tip}</div>
       ${s.fluxWhy?`<details class="mt-2"><summary class="text-xs text-slate-500 cursor-pointer hover:text-slate-300 transition-colors">Dlaczego ${s.area.map(a=>FLUX[a].letter).join('+')}?</summary><p class="text-xs text-slate-400 mt-1 pl-2 border-l-2 border-dark-700">${s.fluxWhy}</p></details>`:''}
+      ${(()=>{const rt=getScenarioTrends(s);return rt.length?`<details class="mt-1"><summary class="text-xs text-slate-500 cursor-pointer hover:text-slate-300 transition-colors">🌍 Powiązane trendy (${rt.length})</summary><div class="flex flex-wrap gap-1 mt-1">${rt.map(t=>{const mw=MEGAWORLDS[t.mw];return`<span class="cross-link" style="background:${mw.color}10;color:${mw.color}" onclick="event.stopPropagation();nav('trends');setTimeout(()=>showTrendPopup({clientX:400,clientY:300,stopPropagation:()=>{}},'${t.name.replace(/'/g,"\\\\'")}'),300)">${t.name}</span>`}).join('')}</div></details>`:''})()}
     </div>`;
   }).join(''):`<div class="col-span-2 text-center py-12 text-slate-500 text-sm">Brak scenariuszy dla wybranych filtrów. <button onclick="resetFilters()" class="text-amber-400 hover:underline">Resetuj</button></div>`;
 }
@@ -1197,6 +1265,7 @@ function showTrendPopup(ev,name){
   const div=document.createElement('div');
   div.id='trend-popup';
   div.className='fixed z-[10002] max-w-sm p-4 bg-dark-900/95 backdrop-blur-md border border-dark-700 rounded-xl shadow-2xl';
+  const relScenarios=getTrendScenarios(t.name);
   div.innerHTML=`
     <div class="flex items-center gap-2 mb-2">
       <span class="mw-badge" style="background:${mw.color}20;color:${mw.color}">${mw.icon} ${mw.name}</span>
@@ -1204,10 +1273,15 @@ function showTrendPopup(ev,name){
       ${t.hr?'<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400">⚡ Trend HR</span>':''}
     </div>
     <h4 class="text-sm font-bold text-slate-200 mb-1">${t.name}</h4>
-    <p class="text-xs text-slate-400 mb-3">${t.desc}</p>
+    <p class="text-xs text-slate-400 mb-2">${t.desc}</p>
     <p class="text-[10px] text-slate-500 uppercase mb-1">Wpływ na FLUX</p>
     <div class="flex gap-1 mb-2">${t.flux.map(a=>fluxBadge(a,{clickAction:'detail'})).join('')}</div>
-    <button class="text-xs text-slate-500 hover:text-white" onclick="document.getElementById('trend-popup')?.remove()">Zamknij ✕</button>`;
+    ${relScenarios.length?`<p class="text-[10px] text-slate-500 uppercase mb-1 mt-2">Powiązane scenariusze</p>
+    <div class="space-y-1 mb-2">${relScenarios.map(s=>`<div class="cross-link" style="background:${C[s.area[0]]}10;color:${C[s.area[0]]}" onclick="document.getElementById('trend-popup')?.remove();nav('explore');filters.area='${s.area[0]}';renderExplore()"><span class="text-[9px]">${FLUX[s.area[0]].letter}</span> ${s.title}</div>`).join('')}</div>`:''}
+    <div class="flex gap-2 mt-2">
+      <button class="text-xs text-amber-400 hover:underline" onclick="document.getElementById('trend-popup')?.remove();downloadTrend('${t.name.replace(/'/g,"\\'")}')">📥 Pobierz</button>
+      <button class="text-xs text-slate-500 hover:text-white" onclick="document.getElementById('trend-popup')?.remove()">Zamknij ✕</button>
+    </div>`;
   div.style.left=Math.min(ev.clientX,window.innerWidth-350)+'px';
   div.style.top=Math.min(ev.clientY-10,window.innerHeight-250)+'px';
   document.body.appendChild(div);
@@ -1636,6 +1710,315 @@ function downloadCanvas(toolIdx){
   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=t.name.toLowerCase().replace(/\s+/g,'-')+'-canvas.html';a.click();URL.revokeObjectURL(url);
 }
 
+// ===== GLOBAL SEARCH / CHALLENGE FINDER =====
+const SEARCH_SYNONYMS={
+  'komunikacja':['feedback','rozmowa','dialog','informacja','przepływ','spotkanie','silos'],
+  'decyzja':['decyzyjny','szybkość','tempo','priorytet','wybór','analiza'],
+  'zaufanie':['bezpieczeństwo psychologiczne','ps','psychological safety','otwartość','relacja','strach'],
+  'zmiana':['adaptacja','transformacja','wdrożenie','nowy','przystosowanie','elastyczność'],
+  'ai':['sztuczna inteligencja','automatyzacja','chatgpt','algorytm','robot','technologia','digital'],
+  'wypalenie':['stres','burnout','zmęczenie','obciążenie','produktywność','praca','overload','kryzys'],
+  'innowacja':['eksperyment','test','pilot','mvp','nowy pomysł','kreatywność','prototyp'],
+  'konflikt':['polaryzacja','napięcie','spór','nieporozumienie','różnice','pokolenie'],
+  'kompetencje':['skill','umiejętność','reskilling','upskilling','uczenie','nauka','rozwój','gap'],
+  'lider':['manager','kierownik','przywództwo','zarządzanie','zespół','delegowanie']
+};
+
+function openSearch(){
+  document.getElementById('search-overlay').classList.add('open');
+  const inp=document.getElementById('search-input');
+  inp.value='';inp.focus();
+  document.getElementById('search-results').innerHTML='<div class="text-center py-8 text-slate-500 text-sm">Wpisz wyzwanie lub problem — pokażemy adekwatne trendy, scenariusze i narzędzia.</div>';
+}
+function closeSearch(){document.getElementById('search-overlay').classList.remove('open')}
+function quickSearch(q){document.getElementById('search-input').value=q;performSearch(q)}
+
+function performSearch(query){
+  const el=document.getElementById('search-results');
+  if(!query||query.length<2){el.innerHTML='<div class="text-center py-8 text-slate-500 text-sm">Wpisz wyzwanie lub problem — pokażemy adekwatne trendy, scenariusze i narzędzia.</div>';return}
+  const q=query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const words=q.split(/\s+/).filter(w=>w.length>1);
+  // Expand synonyms
+  const expanded=new Set(words);
+  words.forEach(w=>{
+    Object.entries(SEARCH_SYNONYMS).forEach(([key,syns])=>{
+      if(key.includes(w)||w.includes(key)||syns.some(s=>s.includes(w)||w.includes(s))){
+        expanded.add(key);syns.forEach(s=>expanded.add(s));
+      }
+    });
+  });
+  const allTerms=[...expanded];
+
+  function scoreText(text){
+    if(!text)return 0;
+    const t=text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    let score=0;
+    allTerms.forEach(term=>{
+      if(t.includes(term))score+=term.length>3?3:1;
+      // Bonus for exact word match
+      if(t.split(/\s+/).includes(term))score+=2;
+    });
+    // Original words get extra weight
+    words.forEach(w=>{if(t.includes(w))score+=4});
+    return score;
+  }
+
+  // Score trends
+  const trendResults=TRENDS.map(t=>{
+    let s=scoreText(t.name)*3+scoreText(t.desc)*2;
+    // Boost by flux area match
+    t.flux.forEach(f=>{s+=scoreText(FLUX[f].name)+scoreText(FLUX[f].full)});
+    // Boost HR trends
+    if(t.hr)s+=1;
+    const mw=MEGAWORLDS[t.mw];
+    s+=scoreText(mw.name);
+    return{type:'trend',item:t,score:s};
+  }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score).slice(0,8);
+
+  // Score scenarios
+  const scenarioResults=SCENARIOS.map(s=>{
+    let sc=scoreText(s.title)*3+scoreText(s.desc)*2+scoreText(s.tip);
+    sc+=scoreText(s.fluxWhy||'');
+    s.challenge.forEach(c=>{const ch=CHALLENGE_TYPES.find(x=>x.id===c);if(ch)sc+=scoreText(ch.name)*2});
+    s.context.forEach(c=>{const ctx=LIFE_CONTEXTS.find(x=>x.id===c);if(ctx)sc+=scoreText(ctx.name)});
+    return{type:'scenario',item:s,score:sc};
+  }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score).slice(0,6);
+
+  // Score tools
+  const toolResults=TOOLS.map(t=>{
+    let s=scoreText(t.name)*3+scoreText(t.desc)*2+scoreText(t.type)+scoreText(t.use);
+    return{type:'tool',item:t,score:s};
+  }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score).slice(0,5);
+
+  // Score research
+  const researchResults=RESEARCH.map(r=>{
+    let s=scoreText(r.title)*3+scoreText(r.finding)*2+scoreText(r.authors);
+    return{type:'research',item:r,score:s};
+  }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score).slice(0,4);
+
+  // Build HTML
+  let h='';
+  const total=trendResults.length+scenarioResults.length+toolResults.length+researchResults.length;
+  if(total===0){el.innerHTML='<div class="text-center py-8 text-slate-500 text-sm">Brak wyników. Spróbuj inne słowa kluczowe.</div>';return}
+
+  // Determine recommended FLUX area based on top results
+  const fluxScores={fast:0,liquid:0,unlearn:0,experiment:0};
+  trendResults.forEach(r=>r.item.flux.forEach(f=>fluxScores[f]+=r.score));
+  scenarioResults.forEach(r=>r.item.area.forEach(a=>fluxScores[a]+=r.score));
+  const topFlux=Object.entries(fluxScores).sort((a,b)=>b[1]-a[1])[0];
+  if(topFlux[1]>0){
+    const fd=FLUX[topFlux[0]],fc=CC[topFlux[0]];
+    h+=`<div class="mx-2 mb-3 p-3 rounded-xl ${fc.bg} border ${fc.b}">
+      <div class="flex items-center gap-2"><span class="${fc.t} font-black text-lg">${fd.letter}</span><span class="${fc.t} font-bold text-sm">${fd.name}</span></div>
+      <p class="text-xs text-slate-400 mt-1">Twoje wyzwanie najbardziej dotyczy obszaru <strong class="${fc.t}">${fd.name}</strong>. ${fd.def.substring(0,80)}...</p>
+      <button onclick="closeSearch();showDetail('${topFlux[0]}')" class="text-xs ${fc.t} hover:underline mt-1">Przejdź do ${fd.letter} →</button>
+    </div>`;
+  }
+
+  if(trendResults.length){
+    h+=`<p class="search-cat">🌍 Trendy 2025 (${trendResults.length})</p>`;
+    trendResults.forEach(r=>{
+      const t=r.item,mw=MEGAWORLDS[t.mw];
+      h+=`<div class="search-result" onclick="closeSearch();nav('trends');setTimeout(()=>showTrendPopup({clientX:400,clientY:300,stopPropagation:()=>{}},'${t.name.replace(/'/g,"\\'")}'),300)">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:${mw.color}"></span>
+          <span class="text-sm font-medium text-slate-200">${t.name}</span>
+          ${t.hr?'<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400">HR</span>':''}
+          <span class="text-[9px] text-slate-600 ml-auto">${t.ring.toUpperCase()}</span>
+        </div>
+        <p class="text-xs text-slate-500">${t.desc.substring(0,80)}...</p>
+        <div class="flex gap-1 mt-1">${t.flux.map(a=>`<span class="text-[9px] px-1.5 py-0.5 rounded-full" style="background:${C[a]}15;color:${C[a]}">${FLUX[a].letter}</span>`).join('')}</div>
+      </div>`;
+    });
+  }
+  if(scenarioResults.length){
+    h+=`<p class="search-cat">📋 Scenariusze (${scenarioResults.length})</p>`;
+    scenarioResults.forEach(r=>{
+      const s=r.item;
+      h+=`<div class="search-result" onclick="closeSearch();nav('explore');filters.area='all';renderExplore()">
+        <div class="flex items-center gap-2 mb-1">${s.area.map(a=>`<span class="text-[9px] px-1.5 py-0.5 rounded-full" style="background:${C[a]}15;color:${C[a]}">${FLUX[a].letter}</span>`).join('')}
+          <span class="text-sm font-medium text-slate-200">${s.title}</span>
+        </div>
+        <p class="text-xs text-slate-500">${s.desc.substring(0,80)}...</p>
+      </div>`;
+    });
+  }
+  if(toolResults.length){
+    h+=`<p class="search-cat">🔧 Narzędzia (${toolResults.length})</p>`;
+    toolResults.forEach(r=>{
+      const t=r.item,c=CC[t.area];
+      h+=`<div class="search-result" onclick="closeSearch();nav('tools')">
+        <div class="flex items-center gap-2 mb-1"><span class="text-[9px] px-1.5 py-0.5 rounded-full ${c.bg} ${c.t}">${t.type}</span><span class="text-sm font-medium text-slate-200">${t.name}</span></div>
+        <p class="text-xs text-slate-500">${t.desc.substring(0,80)}...</p>
+      </div>`;
+    });
+  }
+  if(researchResults.length){
+    h+=`<p class="search-cat">📚 Badania (${researchResults.length})</p>`;
+    researchResults.forEach(r=>{
+      const res=r.item;
+      h+=`<div class="search-result" onclick="closeSearch();nav('research')">
+        <span class="text-sm font-medium text-slate-200">${res.title}</span>
+        <p class="text-xs text-slate-500">${res.authors} (${res.year})</p>
+      </div>`;
+    });
+  }
+
+  h+=`<div class="text-center py-3"><p class="text-[10px] text-slate-600">Znaleziono ${total} wyników dla „${query}"</p></div>`;
+  el.innerHTML=h;
+}
+
+// ===== DOWNLOAD SYSTEM =====
+function downloadAsHTML(title,body,filename){
+  const html=`<!DOCTYPE html><html lang="pl"><head><meta charset="UTF-8"><title>${title} — FLUX</title>
+<style>*{font-family:'Inter',system-ui,sans-serif;box-sizing:border-box}body{max-width:900px;margin:auto;padding:2rem;background:#fff;color:#1e293b;line-height:1.6}
+h1{color:#f59e0b;border-bottom:3px solid #f59e0b;padding-bottom:.5rem;font-size:1.5rem}h2{color:#334155;font-size:1.2rem;margin-top:2rem}h3{color:#475569;font-size:1rem}
+.card{border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem;margin:.75rem 0;page-break-inside:avoid}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:600}
+.tip{background:#f0fdf4;border-left:3px solid #22c55e;padding:.75rem 1rem;margin:.5rem 0;border-radius:0 8px 8px 0}
+.meta{font-size:12px;color:#94a3b8}
+table{width:100%;border-collapse:collapse;margin:1rem 0}th,td{border:1px solid #e2e8f0;padding:.5rem .75rem;text-align:left;font-size:13px}th{background:#f8fafc;font-weight:600}
+@media print{body{padding:1cm}.card{page-break-inside:avoid}h1{page-break-before:auto}}
+</style></head><body>
+<h1>${title}</h1><p class="meta">Wygenerowano z FLUX App | ${new Date().toLocaleDateString('pl')} | flux-diagram.sebastianszajner.github.io</p>
+${body}
+<hr style="margin-top:2rem;border-color:#e2e8f0"><p class="meta">Model FLUX © Nowe Motywacje | Fast · Liquid · Unlearn · eXperiment</p></body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+}
+
+function downloadSection(section){
+  if(section==='trends'){
+    const filtered=trendFilter==='all'&&mwFilter==='all'&&!hrOnly?TRENDS:TRENDS.filter(t=>{
+      const showFlux=trendFilter==='all'||t.flux.includes(trendFilter);
+      const showMw=mwFilter==='all'||mwFilter===t.mw;
+      const showHr=!hrOnly||t.hr;
+      return showFlux&&showMw&&showHr;
+    });
+    const grouped={};filtered.forEach(t=>{if(!grouped[t.mw])grouped[t.mw]=[];grouped[t.mw].push(t)});
+    let body=`<p><strong>${filtered.length}</strong> trendów${trendFilter!=='all'?' | Filtr FLUX: '+FLUX[trendFilter].name:''}${mwFilter!=='all'?' | Megaświat: '+MEGAWORLDS[mwFilter].name:''}${hrOnly?' | Tylko HR':''}</p>`;
+    Object.entries(grouped).forEach(([mwId,trends])=>{
+      const mw=MEGAWORLDS[mwId];
+      body+=`<h2>${mw.icon} ${mw.name}</h2><table><tr><th>Trend</th><th>Horyzont</th><th>FLUX</th><th>HR</th><th>Opis</th></tr>`;
+      trends.forEach(t=>{
+        body+=`<tr><td><strong>${t.name}</strong></td><td>${t.ring.toUpperCase()}</td><td>${t.flux.map(a=>FLUX[a].letter).join(', ')}</td><td>${t.hr?'⚡':''}</td><td>${t.desc}</td></tr>`;
+      });
+      body+=`</table>`;
+    });
+    downloadAsHTML('Mapa Trendów FLUX 2025',body,'flux-trendy-2025.html');
+  }
+  else if(section==='explore'){
+    const results=SCENARIOS.filter(s=>{
+      if(filters.area!=='all'&&!s.area.includes(filters.area))return false;
+      if(filters.industry!=='all'&&!s.industry.includes(filters.industry)&&s.industry.length>0)return false;
+      if(filters.industry!=='all'&&s.industry.length===0)return false;
+      if(filters.role!=='all'&&!s.role.includes(filters.role)&&s.role.length>0)return false;
+      if(filters.role!=='all'&&s.role.length===0)return false;
+      if(filters.situation!=='all'&&!s.situation.includes(filters.situation))return false;
+      if(filters.context!=='all'&&!s.context.includes(filters.context))return false;
+      if(filters.challenge!=='all'&&!s.challenge.includes(filters.challenge))return false;
+      return true;
+    });
+    let body=`<p><strong>${results.length}</strong> scenariuszy</p>`;
+    results.forEach(s=>{
+      body+=`<div class="card"><h3>${s.title}</h3><p>${s.desc}</p>
+      <p class="meta">FLUX: ${s.area.map(a=>FLUX[a].name).join(', ')} | Branże: ${s.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?ind.name:i}).join(', ')||'Uniwersalny'}</p>
+      <div class="tip"><strong>Tip:</strong> ${s.tip}</div>
+      ${s.fluxWhy?`<p class="meta" style="margin-top:.5rem"><em>Dlaczego ${s.area.map(a=>FLUX[a].letter).join('+')}:</em> ${s.fluxWhy}</p>`:''}</div>`;
+    });
+    downloadAsHTML('Scenariusze FLUX',body,'flux-scenariusze.html');
+  }
+  else if(section==='research'){
+    const list=resFilter==='all'?RESEARCH:RESEARCH.filter(r=>r.area===resFilter);
+    let body=`<p><strong>${list.length}</strong> badań</p><table><tr><th>Tytuł</th><th>Autorzy</th><th>Rok</th><th>FLUX</th><th>Typ</th><th>Kluczowy wynik</th></tr>`;
+    list.forEach(r=>{
+      body+=`<tr><td><strong>${r.title}</strong></td><td>${r.authors}</td><td>${r.year}</td><td>${FLUX[r.area].name}</td><td>${r.type}</td><td>${r.finding}</td></tr>`;
+    });
+    body+=`</table>`;
+    downloadAsHTML('Biblioteka Badań FLUX',body,'flux-badania.html');
+  }
+  else if(section==='tools'){
+    let body='';
+    ['fast','liquid','unlearn','experiment'].forEach(a=>{
+      const t=TOOLS.filter(x=>x.area===a);
+      body+=`<h2>${FLUX[a].letter} — ${FLUX[a].name} (${t.length} narzędzi)</h2>`;
+      t.forEach(x=>{
+        body+=`<div class="card"><span class="badge" style="background:#f59e0b20;color:#f59e0b">${x.type}</span><h3>${x.name}</h3><p>${x.desc}</p><p class="meta"><strong>Kiedy:</strong> ${x.use}</p></div>`;
+      });
+    });
+    downloadAsHTML('Narzędzia FLUX',body,'flux-narzedzia.html');
+  }
+  else if(section==='detail'&&curArea){
+    const d=FLUX[curArea];
+    const scenarios=SCENARIOS.filter(s=>s.area.includes(curArea));
+    const tools=TOOLS.filter(t=>t.area===curArea);
+    const research=RESEARCH.filter(r=>r.area===curArea);
+    let body=`<h2>${d.letter} — ${d.name}</h2><p>${d.def}</p>
+    <div class="card"><h3>Kluczowe pytanie</h3><p style="color:#f59e0b;font-weight:600">${d.q}</p></div>
+    <h2>Antywzorce</h2>${d.anti.map(a=>`<p>✕ ${a}</p>`).join('')}
+    <h2>Scenariusze (${scenarios.length})</h2>`;
+    scenarios.forEach(s=>{body+=`<div class="card"><h3>${s.title}</h3><p>${s.desc}</p><div class="tip"><strong>Tip:</strong> ${s.tip}</div></div>`});
+    body+=`<h2>Narzędzia (${tools.length})</h2>`;
+    tools.forEach(t=>{body+=`<div class="card"><span class="badge" style="background:#f59e0b20;color:#f59e0b">${t.type}</span><h3>${t.name}</h3><p>${t.desc}</p></div>`});
+    body+=`<h2>Badania (${research.length})</h2>`;
+    research.forEach(r=>{body+=`<div class="card"><h3>${r.title}</h3><p class="meta">${r.authors} (${r.year}) — ${r.type}</p><p>${r.finding}</p></div>`});
+    downloadAsHTML(`FLUX: ${d.name}`,body,`flux-${curArea}.html`);
+  }
+}
+
+function downloadTrend(name){
+  const t=TRENDS.find(tr=>tr.name===name);if(!t)return;
+  const mw=MEGAWORLDS[t.mw];
+  const relScenarios=getTrendScenarios(t.name);
+  const relTools=TOOLS.filter(x=>t.flux.includes(x.area));
+  let body=`<div class="card">
+    <span class="badge" style="background:${mw.color}20;color:${mw.color}">${mw.icon} ${mw.name}</span>
+    <span class="badge" style="background:#f8fafc">${t.ring.toUpperCase()}</span>
+    ${t.hr?'<span class="badge" style="background:#fef3c720;color:#f59e0b">⚡ Trend HR</span>':''}
+    <h2>${t.name}</h2><p>${t.desc}</p>
+    <p style="margin-top:1rem"><strong>Wpływ na FLUX:</strong> ${t.flux.map(a=>`${FLUX[a].letter} — ${FLUX[a].name}`).join(', ')}</p>
+  </div>`;
+  if(relScenarios.length){
+    body+=`<h2>Powiązane scenariusze</h2>`;
+    relScenarios.forEach(s=>{body+=`<div class="card"><h3>${s.title}</h3><p>${s.desc}</p><div class="tip"><strong>Tip:</strong> ${s.tip}</div></div>`});
+  }
+  if(relTools.length){
+    body+=`<h2>Rekomendowane narzędzia</h2>`;
+    relTools.slice(0,4).forEach(x=>{body+=`<div class="card"><span class="badge" style="background:#f59e0b20;color:#f59e0b">${x.type}</span><h3>${x.name}</h3><p>${x.desc}</p></div>`});
+  }
+  downloadAsHTML(`Trend: ${t.name}`,body,`flux-trend-${t.name.toLowerCase().replace(/\s+/g,'-')}.html`);
+}
+
+// ===== CROSS-LINKS: TRENDS ↔ SCENARIOS =====
+function getTrendScenarios(trendName){
+  const t=TRENDS.find(tr=>tr.name===trendName);if(!t)return[];
+  return SCENARIOS.filter(s=>s.area.some(a=>t.flux.includes(a))).map(s=>{
+    // Score relevance: shared FLUX areas + keyword match in desc/title
+    let score=0;
+    s.area.forEach(a=>{if(t.flux.includes(a))score+=3});
+    const tWords=t.name.toLowerCase().split(/\s+/);
+    tWords.forEach(w=>{if(w.length>3&&(s.desc.toLowerCase().includes(w)||s.title.toLowerCase().includes(w)))score+=5});
+    return{...s,_score:score};
+  }).filter(s=>s._score>0).sort((a,b)=>b._score-a._score).slice(0,4);
+}
+
+function getScenarioTrends(scenario){
+  return TRENDS.filter(t=>t.flux.some(f=>scenario.area.includes(f))).map(t=>{
+    let score=0;
+    t.flux.forEach(f=>{if(scenario.area.includes(f))score+=3});
+    const words=scenario.title.toLowerCase().split(/\s+/);
+    words.forEach(w=>{if(w.length>3&&(t.desc.toLowerCase().includes(w)||t.name.toLowerCase().includes(w)))score+=5});
+    return{...t,_score:score};
+  }).filter(t=>t._score>0).sort((a,b)=>b._score-a._score).slice(0,5);
+}
+
+// ===== SCROLL TO TOP =====
+function checkScrollTop(){
+  const btn=document.getElementById('scroll-top');
+  if(btn)btn.classList.toggle('show',window.scrollY>400);
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded',()=>{
   initFilterChips();
@@ -1655,8 +2038,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
   const ttEl=document.getElementById('flux-tooltip');
   if(ttEl){ttEl.addEventListener('mouseenter',keepWheelTooltip);ttEl.addEventListener('mouseleave',hideWheelTooltip);}
-  // Add red border temporarily for debug (remove later)
-  //if(ttEl)ttEl.style.border='2px solid red';
+  // Keyboard shortcuts
+  document.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch()}
+    if(e.key==='Escape'){closeSearch();closeSettings();document.getElementById('trend-popup')?.remove();document.getElementById('mini-tooltip')?.remove()}
+    if(e.key==='/'&&!e.target.matches('input,textarea')){e.preventDefault();openSearch()}
+  });
+  // Scroll to top
+  window.addEventListener('scroll',checkScrollTop,{passive:true});
 });
 </script>
 </body>
