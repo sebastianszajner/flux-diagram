@@ -336,7 +336,7 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
     <button onclick="filterTrends('unlearn')" class="tf px-3 py-1 rounded-full text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">UNLEARN</button>
     <button onclick="filterTrends('experiment')" class="tf px-3 py-1 rounded-full text-[11px] bg-violet-500/10 text-violet-400 border border-violet-500/20">EXPERIMENT</button>
   </div>
-  <div class="flex justify-center"><div class="w-full max-w-[700px] aspect-square"><svg id="trend-map" viewBox="0 0 1000 1000" class="w-full h-full"></svg></div></div>
+  <div class="flex justify-center"><div class="w-full max-w-[900px]" style="aspect-ratio:1/1"><svg id="trend-map" viewBox="0 0 1400 1400" class="w-full h-full"></svg></div></div>
   <div id="trend-filters" class="mt-4 max-w-3xl mx-auto"></div>
   <div class="flex justify-center gap-6 mt-4 text-[10px] text-slate-500 flex-wrap">
     <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white/30"></span>NOW</span>
@@ -1063,59 +1063,107 @@ function renderExplore(){
 
 // ===== TREND MAP (Hatalska 2025) =====
 function renderTrends(){
-  const svg=document.getElementById('trend-map');const cx=500,cy=500;
-  const rings={now:180,new:280,next:370,beyond:450};
-  // Assign angles dynamically by megaworld sector
+  const svg=document.getElementById('trend-map');
+  const cx=700,cy=700;
+  const rings={now:250,new:390,next:510,beyond:620};
+  // 6 megaworld sectors — each gets 60° (wider spacing)
   const mwSectors={spoleczny:[-90,-30],ai:[-30,30],lustrzany:[30,90],zrownowazony:[90,150],zdrowie:[150,210],wojny:[210,270]};
-  let h=`<circle cx="${cx}" cy="${cy}" r="460" fill="#0c0f1a" stroke="#1e293b" stroke-width=".5"/>`;
-  Object.entries(rings).forEach(([k,r])=>{h+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,${k==='now'?.12:k==='new'?.08:k==='next'?.05:.03})" stroke-width="1" ${k!=='now'?'stroke-dasharray="4 2"':''}/>`;});
-  h+=`<text x="${cx+5}" y="${cy-rings.now-5}" fill="#475569" font-size="10" letter-spacing="2">NOW</text>`;
-  h+=`<text x="${cx+5}" y="${cy-rings.new-5}" fill="#334155" font-size="10" letter-spacing="2">NEW 1-5 lat</text>`;
-  h+=`<text x="${cx+5}" y="${cy-rings.next-5}" fill="#1e293b" font-size="10" letter-spacing="2">NEXT 5-15 lat</text>`;
-  h+=`<text x="${cx+5}" y="${cy-rings.beyond-5}" fill="#1e293b" font-size="10" letter-spacing="2">BEYOND 15+</text>`;
-  // Sector dividers (6 sectors for megaworlds)
+  let h=`<circle cx="${cx}" cy="${cy}" r="${rings.beyond+50}" fill="#0c0f1a" stroke="#1e293b" stroke-width=".5"/>`;
+  // Ring circles
+  Object.entries(rings).forEach(([k,r])=>{
+    const opMap={now:.14,new:.09,next:.06,beyond:.03};
+    h+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,${opMap[k]})" stroke-width="1" ${k!=='now'?'stroke-dasharray="6 3"':''}/>`;
+  });
+  // Ring labels
+  h+=`<text x="${cx+8}" y="${cy-rings.now-8}" fill="#64748b" font-size="13" font-weight="600" letter-spacing="3">NOW</text>`;
+  h+=`<text x="${cx+8}" y="${cy-rings.new-8}" fill="#475569" font-size="13" font-weight="600" letter-spacing="3">NEW 1–5 lat</text>`;
+  h+=`<text x="${cx+8}" y="${cy-rings.next-8}" fill="#334155" font-size="12" letter-spacing="2">NEXT 5–15 lat</text>`;
+  h+=`<text x="${cx+8}" y="${cy-rings.beyond-8}" fill="#1e293b" font-size="12" letter-spacing="2">BEYOND 15+</text>`;
+  // Sector dividers
   Object.values(mwSectors).forEach(([start])=>{
     const a=start*Math.PI/180;
-    h+=`<line x1="${cx+60*Math.cos(a)}" y1="${cy+60*Math.sin(a)}" x2="${cx+460*Math.cos(a)}" y2="${cy+460*Math.sin(a)}" stroke="#1e293b" stroke-width=".5"/>`;
+    h+=`<line x1="${cx+80*Math.cos(a)}" y1="${cy+80*Math.sin(a)}" x2="${cx+650*Math.cos(a)}" y2="${cy+650*Math.sin(a)}" stroke="#1e293b" stroke-width=".5"/>`;
   });
-  // Sector fills + labels
+  // Sector fills + megaworld labels
   Object.entries(mwSectors).forEach(([mwId,[start,end]])=>{
     const mw=MEGAWORLDS[mwId];
     const a1=start*Math.PI/180,a2=end*Math.PI/180;
     const mid=(start+end)/2*Math.PI/180;
-    h+=`<path d="M${cx},${cy} L${cx+460*Math.cos(a1)},${cy+460*Math.sin(a1)} A460,460 0 0,1 ${cx+460*Math.cos(a2)},${cy+460*Math.sin(a2)} Z" fill="${mw.color}" opacity=".04"/>`;
-    const lx=cx+395*Math.cos(mid),ly=cy+395*Math.sin(mid);
-    h+=`<text x="${lx}" y="${ly}" text-anchor="middle" fill="${mw.color}" font-size="7" font-weight="600" opacity=".6">${mw.icon} ${mw.name}</text>`;
+    h+=`<path d="M${cx},${cy} L${cx+650*Math.cos(a1)},${cy+650*Math.sin(a1)} A650,650 0 0,1 ${cx+650*Math.cos(a2)},${cy+650*Math.sin(a2)} Z" fill="${mw.color}" opacity=".04"/>`;
+    const lx=cx+590*Math.cos(mid),ly=cy+590*Math.sin(mid);
+    h+=`<text x="${lx}" y="${ly}" text-anchor="middle" fill="${mw.color}" font-size="12" font-weight="700" opacity=".7">${mw.icon} ${mw.name}</text>`;
   });
-  // Plot trends
+  // Build trend positions with collision avoidance
   const trendsByMw={};
   TRENDS.forEach(t=>{if(!trendsByMw[t.mw])trendsByMw[t.mw]={};if(!trendsByMw[t.mw][t.ring])trendsByMw[t.mw][t.ring]=[];trendsByMw[t.mw][t.ring].push(t)});
-  TRENDS.forEach(t=>{
+  // Collision detection for labels
+  const placedLabels=[];
+  function hasCollision(lx,ly,lw,lh){
+    for(const p of placedLabels){
+      if(Math.abs(lx-p.x)<(lw+p.w)/2+6 && Math.abs(ly-p.y)<(lh+p.h)/2+2) return true;
+    }
+    return false;
+  }
+  // Sort: outer rings first (fewer items, easier to place), then NOW
+  const ringOrder=['beyond','next','new','now'];
+  const sortedTrends=[...TRENDS].sort((a,b)=>ringOrder.indexOf(a.ring)-ringOrder.indexOf(b.ring));
+  // Plot each trend
+  sortedTrends.forEach(t=>{
     const sector=mwSectors[t.mw];if(!sector)return;
     const ringTrends=trendsByMw[t.mw]?.[t.ring]||[];
     const idx=ringTrends.indexOf(t);
-    const spread=sector[1]-sector[0]-4;
+    const pad=3;
+    const spread=sector[1]-sector[0]-pad*2;
     const step=ringTrends.length>1?spread/(ringTrends.length-1):0;
-    const angle=sector[0]+2+(step*idx);
-    const r=rings[t.ring],a=angle*Math.PI/180,x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);
-    const sz=t.ring==='now'?5:t.ring==='new'?4:t.ring==='next'?3.5:3;
-    const op=t.ring==='now'?.9:t.ring==='new'?.65:t.ring==='next'?.4:.25;
+    const baseAngle=sector[0]+pad+(ringTrends.length===1?spread/2:step*idx);
+    const r=rings[t.ring];
+    // Stagger dots radially for dense rings
+    const stagger=ringTrends.length>4?(idx%3-1)*28:ringTrends.length>2?(idx%2===0?16:-16):0;
+    const dotR=r+stagger;
+    const a=baseAngle*Math.PI/180;
+    const dotX=cx+dotR*Math.cos(a),dotY=cy+dotR*Math.sin(a);
+    const sz=t.ring==='now'?6:t.ring==='new'?5:t.ring==='next'?4.5:4;
+    const op=t.ring==='now'?1:t.ring==='new'?.8:t.ring==='next'?.6:.4;
     const mw=MEGAWORLDS[t.mw];
-    // Filtering
     const showMw=mwFilter==='all'||mwFilter===t.mw;
     const showFlux=trendFilter==='all'||t.flux.includes(trendFilter);
     const showHr=!hrOnly||t.hr;
     const show=showMw&&showFlux&&showHr;
-    const dotColor=mw.color;
-    h+=`<g class="cursor-pointer" onclick="showTrendPopup(event,'${t.name.replace(/'/g,"\\'")}')" style="opacity:${show?1:.06};transition:opacity .4s">
-      <circle cx="${x}" cy="${y}" r="${sz}" fill="${dotColor}" opacity="${op}"/>
-      ${t.hr?`<circle cx="${x}" cy="${y}" r="${sz+2}" fill="none" stroke="#eab308" stroke-width="1" opacity="${op*.7}"/>`:''}
-      <text x="${x}" y="${y-sz-4}" text-anchor="middle" fill="${dotColor}" font-size="7" opacity="${op*.85}" font-weight="500">${t.name}</text>
+    // Label: place radially outward, then nudge to avoid collisions
+    const labelDist=sz+20+(t.ring==='now'?35:t.ring==='new'?20:10);
+    const labelBaseR=dotR+labelDist;
+    let lx=cx+labelBaseR*Math.cos(a);
+    let ly=cy+labelBaseR*Math.sin(a);
+    const isRight=Math.cos(a)>=0;
+    const anchor=isRight?'start':'end';
+    const estW=t.name.length*7;
+    const estH=14;
+    // Try nudging: alternate between vertical shifts and radial pushes
+    let attempts=0;
+    let nudgeY=0,nudgeR=0;
+    while(hasCollision(lx+(isRight?estW/2:-estW/2),ly+nudgeY,estW,estH)&&attempts<20){
+      if(attempts%3===0)nudgeR+=25;
+      else nudgeY+=(attempts%2===0?1:-1)*(Math.floor(attempts/2)+1)*15;
+      const nr=labelBaseR+nudgeR;
+      lx=cx+nr*Math.cos(a);
+      ly=cy+nr*Math.sin(a)+nudgeY;
+      attempts++;
+    }
+    ly+=nudgeY;
+    placedLabels.push({x:lx+(isRight?estW/2:-estW/2),y:ly,w:estW,h:estH});
+    const fontSize=t.ring==='now'?12:t.ring==='new'?11:10;
+    h+=`<g class="cursor-pointer" onclick="showTrendPopup(event,'${t.name.replace(/'/g,"\\'")}')" style="opacity:${show?1:.04};transition:opacity .4s">
+      <circle cx="${dotX}" cy="${dotY}" r="${sz}" fill="${mw.color}" opacity="${op}"/>
+      ${t.hr?`<circle cx="${dotX}" cy="${dotY}" r="${sz+3}" fill="none" stroke="#eab308" stroke-width="1.5" opacity="${op*.5}"/>`:''}
+      <line x1="${dotX}" y1="${dotY}" x2="${lx}" y2="${ly}" stroke="${mw.color}" stroke-width=".6" opacity=".2"/>
+      <text x="${lx}" y="${ly+4}" text-anchor="${anchor}" fill="${mw.color}" font-size="${fontSize}" opacity="${Math.min(op+.1,1)}" font-weight="${t.hr?'700':'500'}">${t.name}</text>
     </g>`;
   });
-  h+=`<circle cx="${cx}" cy="${cy}" r="55" fill="#111827" stroke="#334155"/><text x="${cx}" y="${cy-3}" text-anchor="middle" fill="white" font-size="20" font-weight="900" letter-spacing="4">FLUX</text><text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#64748b" font-size="7" letter-spacing="2">MAPA TRENDÓW 2025</text>`;
+  // Center
+  h+=`<circle cx="${cx}" cy="${cy}" r="72" fill="#111827" stroke="#334155"/>`;
+  h+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="white" font-size="28" font-weight="900" letter-spacing="5">FLUX</text>`;
+  h+=`<text x="${cx}" y="${cy+16}" text-anchor="middle" fill="#64748b" font-size="10" letter-spacing="3">MAPA TRENDÓW 2025</text>`;
   svg.innerHTML=h;
-  // Render filters below
   renderTrendFilters();
 }
 function renderTrendFilters(){
