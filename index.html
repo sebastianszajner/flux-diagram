@@ -89,6 +89,49 @@ body{background:#0c0f1a;margin:0}
   .chat-panel{right:12px;left:12px;width:auto;bottom:80px}
   .chat-toggle{bottom:16px;right:16px;width:46px;height:46px}
 }
+
+/* Projector-friendly base */
+html{font-size:18px}
+html.projector{font-size:24px}
+html.projector .chat-toggle,html.projector .chat-panel{display:none!important}
+
+/* Toggle switch */
+.tgl{position:relative;width:44px;height:24px;background:#334155;border-radius:12px;cursor:pointer;transition:background .3s;flex-shrink:0}
+.tgl.on{background:#f59e0b}
+.tgl::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:transform .3s}
+.tgl.on::after{transform:translateX(20px)}
+
+/* Progress bar */
+.flux-progress{position:fixed;top:3.5rem;left:0;right:0;height:3px;z-index:49;background:#1e293b;display:none}
+.flux-progress-fill{height:100%;background:linear-gradient(90deg,#f59e0b,#06b6d4,#10b981,#8b5cf6);transition:width .5s;border-radius:0 2px 2px 0}
+
+/* Module group card */
+.mod-group{border:1px solid #1e293b;border-radius:1rem;padding:1.25rem;margin-bottom:1rem}
+.mod-row{display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid rgba(30,41,59,.5)}
+.mod-row:last-child{border-bottom:none}
+
+/* Reflection FAB */
+.refl-fab{position:fixed;bottom:1.5rem;left:1.5rem;width:3rem;height:3rem;border-radius:50%;background:linear-gradient(135deg,#10b981,#06b6d4);cursor:pointer;z-index:9997;display:none;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(16,185,129,.4);transition:transform .3s}
+.refl-fab:hover{transform:scale(1.1)}
+
+/* Overlays */
+.overlay-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.overlay-modal.open{display:flex}
+
+/* Diagnostic scale buttons */
+.scale-btn{width:2.5rem;height:2.5rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#94a3b8;cursor:pointer;font-weight:700;transition:all .2s}
+.scale-btn:hover{border-color:#f59e0b;color:#f59e0b}
+.scale-btn.selected{background:#f59e0b;color:#0c0f1a;border-color:#f59e0b}
+
+/* ROPES wizard */
+.ropes-indicator{display:flex;gap:.5rem;justify-content:center;margin-bottom:1rem}
+.ropes-dot{width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:2px solid #334155;color:#64748b;transition:all .3s}
+.ropes-dot.active{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.1)}
+.ropes-dot.done{border-color:#10b981;color:#10b981;background:rgba(16,185,129,.1)}
+
+/* Projector toggle btn */
+.projector-btn{transition:all .2s}
+.projector-btn.on{color:#f59e0b!important}
 </style>
 </head>
 <body class="min-h-screen text-slate-100">
@@ -108,6 +151,9 @@ body{background:#0c0f1a;margin:0}
       <a onclick="nav('trends')" class="nav-link text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="trends">Trendy</a>
       <a onclick="nav('research')" class="nav-link text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="research">Badania</a>
       <a onclick="nav('tools')" class="nav-link text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="tools">Narzędzia</a>
+      <button onclick="toggleProjector()" class="projector-btn text-slate-500 hover:text-white transition-colors" title="Tryb projektorowy">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      </button>
       <button onclick="openSettings()" class="text-slate-500 hover:text-white transition-colors" title="Ustawienia">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       </button>
@@ -132,8 +178,8 @@ body{background:#0c0f1a;margin:0}
 <section id="view-home" class="view active pt-16">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
   <div class="text-center mb-6">
-    <h1 class="text-3xl sm:text-4xl font-black"><span class="text-amber-400">F</span><span class="text-cyan-400">L</span><span class="text-emerald-400">U</span><span class="text-violet-400">X</span> <span class="text-white">Model</span></h1>
-    <p class="text-slate-400 text-sm sm:text-base mt-1 max-w-xl mx-auto">Rama kompetencyjno-operacyjna do funkcjonowania w świecie zmienności.</p>
+    <h1 class="text-4xl sm:text-5xl font-black"><span class="text-amber-400">F</span><span class="text-cyan-400">L</span><span class="text-emerald-400">U</span><span class="text-violet-400">X</span> <span class="text-white">Model</span></h1>
+    <p class="text-slate-400 text-base sm:text-lg mt-2 max-w-xl mx-auto">Rama kompetencyjno-operacyjna do funkcjonowania w świecie zmienności.</p>
   </div>
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
     <!-- Left cards -->
@@ -213,38 +259,38 @@ body{background:#0c0f1a;margin:0}
   <div class="bg-dark-900 border border-dark-700 rounded-xl p-4 mb-6 space-y-3" id="filter-bar">
     <!-- FLUX Area -->
     <div>
-      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Obszar FLUX</p>
+      <p class="text-xs uppercase tracking-widest text-slate-500 mb-2">Obszar FLUX</p>
       <div class="flex flex-wrap gap-1.5">
-        <span class="chip on text-[11px] px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700" style="--ring:#94a3b8" data-f="area" data-v="all" onclick="toggleFilter(this)">Wszystkie</span>
-        <span class="chip text-[11px] px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20" style="--ring:#f59e0b" data-f="area" data-v="fast" onclick="toggleFilter(this)">F — FAST</span>
-        <span class="chip text-[11px] px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" style="--ring:#06b6d4" data-f="area" data-v="liquid" onclick="toggleFilter(this)">L — LIQUID</span>
-        <span class="chip text-[11px] px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" style="--ring:#10b981" data-f="area" data-v="unlearn" onclick="toggleFilter(this)">U — UNLEARN</span>
-        <span class="chip text-[11px] px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20" style="--ring:#8b5cf6" data-f="area" data-v="experiment" onclick="toggleFilter(this)">X — EXPERIMENT</span>
+        <span class="chip on text-sm px-4 py-1.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700" style="--ring:#94a3b8" data-f="area" data-v="all" onclick="toggleFilter(this)">Wszystkie</span>
+        <span class="chip text-sm px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20" style="--ring:#f59e0b" data-f="area" data-v="fast" onclick="toggleFilter(this)">F — FAST</span>
+        <span class="chip text-sm px-4 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" style="--ring:#06b6d4" data-f="area" data-v="liquid" onclick="toggleFilter(this)">L — LIQUID</span>
+        <span class="chip text-sm px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" style="--ring:#10b981" data-f="area" data-v="unlearn" onclick="toggleFilter(this)">U — UNLEARN</span>
+        <span class="chip text-sm px-4 py-1.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20" style="--ring:#8b5cf6" data-f="area" data-v="experiment" onclick="toggleFilter(this)">X — EXPERIMENT</span>
       </div>
     </div>
     <!-- Industry -->
     <div>
-      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Branża</p>
+      <p class="text-xs uppercase tracking-widest text-slate-500 mb-2">Branża</p>
       <div class="flex flex-wrap gap-1.5" id="industry-chips"></div>
     </div>
     <!-- Role type -->
     <div>
-      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Rola / Stanowisko</p>
+      <p class="text-xs uppercase tracking-widest text-slate-500 mb-2">Rola / Stanowisko</p>
       <div class="flex flex-wrap gap-1.5" id="role-chips"></div>
     </div>
     <!-- Situation -->
     <div>
-      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Sytuacja</p>
+      <p class="text-xs uppercase tracking-widest text-slate-500 mb-2">Sytuacja</p>
       <div class="flex flex-wrap gap-1.5" id="situation-chips"></div>
     </div>
     <!-- Life context -->
     <div>
-      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Kontekst życiowy</p>
+      <p class="text-xs uppercase tracking-widest text-slate-500 mb-2">Kontekst życiowy</p>
       <div class="flex flex-wrap gap-1.5" id="context-chips"></div>
     </div>
     <!-- Challenge type -->
     <div>
-      <p class="text-[10px] uppercase tracking-widest text-slate-600 mb-1.5">Typ wyzwania</p>
+      <p class="text-xs uppercase tracking-widest text-slate-500 mb-2">Typ wyzwania</p>
       <div class="flex flex-wrap gap-1.5" id="challenge-chips"></div>
     </div>
     <div class="flex justify-between items-center pt-2 border-t border-dark-700">
@@ -310,6 +356,85 @@ body{background:#0c0f1a;margin:0}
 </div>
 </section>
 
+<!-- ========== DIAGNOSTIC ========== -->
+<section id="view-diagnostic" class="view pt-16">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+  <div class="text-center mb-6">
+    <h2 class="text-2xl sm:text-3xl font-black">Diagnostyka <span class="text-amber-400">FLUX</span></h2>
+    <p class="text-slate-400 text-sm">Oceń swoje kompetencje w 4 obszarach FLUX (skala 1-5).</p>
+  </div>
+  <div id="diagnostic-content"></div>
+</div>
+</section>
+
+<!-- ========== ACTION PLAN ========== -->
+<section id="view-actionplan" class="view pt-16">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+  <div class="text-center mb-6">
+    <h2 class="text-2xl sm:text-3xl font-black">Action Plan <span class="text-amber-400">Builder</span></h2>
+    <p class="text-slate-400 text-sm">Zaplanuj konkretne działania z deadlinami i metrykami sukcesu.</p>
+  </div>
+  <div id="actionplan-content"></div>
+</div>
+</section>
+
+<!-- ========== TRAINER ========== -->
+<section id="view-trainer" class="view pt-16">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+  <div class="text-center mb-6">
+    <h2 class="text-2xl sm:text-3xl font-black">Trainer <span class="text-violet-400">Dashboard</span></h2>
+    <p class="text-slate-400 text-sm">Panel trenera: QR code, diagnostyki, gap analysis.</p>
+  </div>
+  <div id="trainer-content"></div>
+</div>
+</section>
+
+<!-- ========== MODULES ========== -->
+<section id="view-modules" class="view pt-16">
+<div class="max-w-3xl mx-auto px-4 sm:px-6 py-6">
+  <div class="text-center mb-6">
+    <h2 class="text-2xl sm:text-3xl font-black">Moduły <span class="text-amber-400">FLUX</span></h2>
+    <p class="text-slate-400 text-sm">Włączaj i wyłączaj funkcje aplikacji wg potrzeb.</p>
+  </div>
+  <div id="modules-content"></div>
+</div>
+</section>
+
+<!-- ========== PROGRESS BAR ========== -->
+<div class="flux-progress" id="progress-bar"><div class="flux-progress-fill" id="progress-fill" style="width:0%"></div></div>
+
+<!-- ========== ONBOARDING MODAL ========== -->
+<div class="overlay-modal" id="onboarding-overlay">
+  <div class="bg-dark-900 border border-dark-700 rounded-2xl p-6 max-w-lg w-full mx-4">
+    <div id="onboarding-content"></div>
+  </div>
+</div>
+
+<!-- ========== REFLECTION MODAL ========== -->
+<div class="overlay-modal" id="reflection-overlay" onclick="if(event.target===this)closeReflection()">
+  <div class="bg-dark-900 border border-dark-700 rounded-2xl p-6 max-w-lg w-full mx-4">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-bold text-slate-200">Refleksja 3-2-1</h3>
+      <button onclick="closeReflection()" class="text-slate-500 hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="space-y-3">
+      <div><label class="text-xs text-amber-400 font-medium">3 rzeczy, które zapamiętam</label><textarea id="refl-3" rows="2" class="w-full mt-1 bg-dark-950 border border-dark-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-amber-500 resize-none"></textarea></div>
+      <div><label class="text-xs text-cyan-400 font-medium">2 pytania, które mam</label><textarea id="refl-2" rows="2" class="w-full mt-1 bg-dark-950 border border-dark-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-500 resize-none"></textarea></div>
+      <div><label class="text-xs text-emerald-400 font-medium">1 działanie, które podejmę</label><textarea id="refl-1" rows="2" class="w-full mt-1 bg-dark-950 border border-dark-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-emerald-500 resize-none"></textarea></div>
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="saveReflection()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium py-2 rounded-lg">Zapisz</button>
+      <button onclick="saveAndAskAI()" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium py-2 rounded-lg">Zapisz + Zapytaj AI</button>
+    </div>
+    <p id="refl-status" class="text-xs mt-2 h-4"></p>
+  </div>
+</div>
+
+<!-- ========== REFLECTION FAB ========== -->
+<div class="refl-fab" id="refl-fab" onclick="openReflection()" title="Refleksja 3-2-1">
+  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+</div>
+
 <!-- ========== GEMINI CHAT WIDGET ========== -->
 <div class="chat-toggle" onclick="toggleChat()" title="Zapytaj AI o FLUX">
   <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
@@ -355,6 +480,83 @@ body{background:#0c0f1a;margin:0}
 // ===== COLORS & CLASSES =====
 const C={fast:'#f59e0b',liquid:'#06b6d4',unlearn:'#10b981',experiment:'#8b5cf6'};
 const CC={fast:{t:'text-amber-400',bg:'bg-amber-500/10',b:'border-amber-500/20'},liquid:{t:'text-cyan-400',bg:'bg-cyan-500/10',b:'border-cyan-500/20'},unlearn:{t:'text-emerald-400',bg:'bg-emerald-500/10',b:'border-emerald-500/20'},experiment:{t:'text-violet-400',bg:'bg-violet-500/10',b:'border-violet-500/20'}};
+
+// ===== MODULE SYSTEM =====
+const MODULES=[
+  {id:'diagnostic',name:'Diagnostyka FLUX',group:'Wiedza',icon:'📊',desc:'Autodiagnoza 16 pytań + radar chart',nav:true},
+  {id:'radar',name:'Radar Chart',group:'Wiedza',icon:'🎯',desc:'Spider chart profilu FLUX'},
+  {id:'actionplan',name:'Action Plan Builder',group:'Wiedza',icon:'📋',desc:'Działania z deadlinami i metrykami',nav:true},
+  {id:'trainer',name:'Trainer Dashboard',group:'Wiedza',icon:'🎓',desc:'QR, gap analysis, eksport raportu',nav:true},
+  {id:'casestudies',name:'Deep Case Studies',group:'Ścieżka',icon:'📖',desc:'Rozbudowane analizy SCAR'},
+  {id:'evidence',name:'Evidence Cards',group:'Ścieżka',icon:'🔬',desc:'Tier badań przy scenariuszach'},
+  {id:'antipatterns',name:'Antywzorce Detector',group:'Ścieżka',icon:'🚨',desc:'Interaktywna diagnoza antywzorców'},
+  {id:'frameworks',name:'Personal Frameworks',group:'Ścieżka',icon:'🧩',desc:'NVC, STOP→THINK→ACT, Atomic Habits'},
+  {id:'exercises',name:'Interactive Exercises',group:'Ścieżka',icon:'🏋️',desc:'Quiz, speed round, ranking'},
+  {id:'canvases',name:'Downloadable Canvases',group:'Ścieżka',icon:'📥',desc:'Pobierz canvasy do druku'},
+  {id:'ropes',name:'ROPES Learning Path',group:'UX',icon:'🧭',desc:'5-krokowy wizard nauki'},
+  {id:'onboarding',name:'Onboarding Wizard',group:'UX',icon:'👋',desc:'Profil roli, branży, wyzwania'},
+  {id:'reflection',name:'Refleksja 3-2-1',group:'UX',icon:'💭',desc:'3 rzeczy / 2 pytania / 1 działanie'},
+  {id:'progress',name:'Progress Tracker',group:'UX',icon:'📈',desc:'Śledzenie postępów, bookmarki'},
+  {id:'mobileux',name:'Mobile UX',group:'UX',icon:'📱',desc:'Bottom nav, sticky filters'}
+];
+
+function getModuleState(){try{return JSON.parse(localStorage.getItem('flux_modules')||'{}')}catch(e){return{}}}
+function setModuleState(s){localStorage.setItem('flux_modules',JSON.stringify(s))}
+function isModuleOn(id){return getModuleState()[id]===true}
+function toggleModule(id){const s=getModuleState();s[id]=!s[id];setModuleState(s);applyModules()}
+
+function applyModules(){
+  renderNav();
+  // Progress bar
+  document.getElementById('progress-bar').style.display=isModuleOn('progress')?'block':'none';
+  if(isModuleOn('progress'))updateProgressBar();
+  // Reflection FAB
+  document.getElementById('refl-fab').style.display=isModuleOn('reflection')?'flex':'none';
+  // Onboarding check
+  if(isModuleOn('onboarding')&&!localStorage.getItem('flux_profile'))showOnboarding();
+  // Re-render current view if module-dependent
+  renderModulesView();
+}
+
+function renderNav(){
+  const base=[
+    {id:'home',label:'Model'},{id:'explore',label:'Eksplorator'},{id:'trends',label:'Trendy'},
+    {id:'research',label:'Badania'},{id:'tools',label:'Narzędzia'}
+  ];
+  const modNav=MODULES.filter(m=>m.nav&&isModuleOn(m.id)).map(m=>({id:m.id,label:m.name.split(' ')[0]}));
+  const all=[...base,...modNav,{id:'modules',label:'Moduły'}];
+  // Desktop
+  const dNav=document.querySelector('.hidden.md\\:flex');
+  if(dNav){
+    const btns=dNav.querySelectorAll('button');
+    const btnHtml=Array.from(btns).map(b=>b.outerHTML).join('');
+    dNav.innerHTML=all.map(n=>`<a onclick="nav('${n.id}')" class="nav-link text-xs font-medium text-slate-400 hover:text-white cursor-pointer" data-v="${n.id}">${n.label}</a>`).join('')+btnHtml;
+  }
+  // Mobile
+  const mMenu=document.querySelector('.mobile-menu .py-3');
+  if(mMenu)mMenu.innerHTML=all.map(n=>`<a onclick="nav('${n.id}');toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">${n.label}</a>`).join('')+`<a onclick="openSettings();toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">Ustawienia Gemini</a>`;
+}
+
+function renderModulesView(){
+  const el=document.getElementById('modules-content');if(!el)return;
+  const state=getModuleState();
+  const groups=['Wiedza','Ścieżka','UX'];
+  el.innerHTML=groups.map(g=>{
+    const mods=MODULES.filter(m=>m.group===g);
+    return`<div class="mod-group"><h3 class="text-sm font-bold text-slate-300 mb-3">${g}</h3>${mods.map(m=>`<div class="mod-row"><div class="flex items-center gap-3"><span class="text-lg">${m.icon}</span><div><p class="text-sm font-medium text-slate-200">${m.name}</p><p class="text-xs text-slate-500">${m.desc}</p></div></div><div class="tgl ${state[m.id]?'on':''}" onclick="toggleModule('${m.id}');renderModulesView()"></div></div>`).join('')}</div>`;
+  }).join('')+`<div class="text-center mt-4"><button onclick="enableAllModules()" class="text-xs text-amber-400 hover:underline mr-4">Włącz wszystkie</button><button onclick="disableAllModules()" class="text-xs text-slate-500 hover:underline">Wyłącz wszystkie</button></div>`;
+}
+
+function enableAllModules(){const s={};MODULES.forEach(m=>s[m.id]=true);setModuleState(s);applyModules()}
+function disableAllModules(){setModuleState({});applyModules()}
+
+// Projector mode
+function toggleProjector(){
+  document.documentElement.classList.toggle('projector');
+  const on=document.documentElement.classList.contains('projector');
+  localStorage.setItem('flux_projector',on?'1':'0');
+  document.querySelector('.projector-btn')?.classList.toggle('on',on);
+}
 
 // ===== FLUX CORE DATA =====
 const FLUX={
@@ -518,6 +720,11 @@ function nav(v){
   if(v==='trends')renderTrends();
   if(v==='research')renderResearch();
   if(v==='tools')renderTools();
+  if(v==='modules')renderModulesView();
+  if(v==='diagnostic')renderDiagnosticView();
+  if(v==='actionplan')renderActionPlanView();
+  if(v==='trainer')renderTrainerView();
+  if(isModuleOn('progress'))trackViewVisit(v);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function toggleMobile(){
@@ -545,10 +752,21 @@ function renderDetail(){
   if(event?.target)event.target.style.borderBottomColor=d.color;
 
   if(curTab==='overview'){
+    let antiHtml='';
+    if(isModuleOn('antipatterns')){
+      antiHtml=`<div class="bg-dark-900 rounded-xl p-5 border border-dark-700 md:col-span-2"><p class="text-xs uppercase tracking-widest text-slate-500 mb-3">Antywzorce — zaznacz te, które obserwujesz</p><div class="grid grid-cols-1 md:grid-cols-2 gap-2">${d.anti.map((a,i)=>`<label class="flex gap-2 items-start cursor-pointer"><input type="checkbox" class="mt-1 accent-red-400" onchange="updateAntiDetector('${curArea}')"><span class="text-sm text-slate-400">${a}</span></label>`).join('')}</div><div id="anti-recommendations" class="mt-3"></div></div>`;
+    } else {
+      antiHtml=`<div class="bg-dark-900 rounded-xl p-5 border border-dark-700 md:col-span-2"><p class="text-xs uppercase tracking-widest text-slate-500 mb-3">Antywzorce</p><div class="grid grid-cols-1 md:grid-cols-2 gap-2">${d.anti.map(a=>`<div class="flex gap-2 items-start"><span class="text-red-400 text-sm mt-0.5">✕</span><span class="text-sm text-slate-400">${a}</span></div>`).join('')}</div></div>`;
+    }
+    let exerciseHtml='';
+    if(isModuleOn('exercises')){
+      const areaExercises=EXERCISES.filter(e=>e.area===curArea);
+      if(areaExercises.length)exerciseHtml=`<div class="md:col-span-2"><p class="text-xs uppercase tracking-widest text-slate-500 mb-3 mt-2">Ćwiczenia interaktywne</p>${areaExercises.map(e=>renderExercise(e.id)).join('')}</div>`;
+    }
     el.innerHTML=`<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-dark-900 rounded-xl p-4 border border-dark-700"><p class="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Kluczowe pytanie</p><p class="${c.t} font-medium">${d.q}</p></div>
-      <div class="bg-dark-900 rounded-xl p-4 border border-dark-700"><p class="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Poziomy</p>${d.levels.map((l,i)=>`<div class="flex gap-2 items-start mb-2"><span class="w-5 h-5 rounded-full ${c.bg} flex items-center justify-center flex-shrink-0"><span class="${c.t} text-[10px] font-bold">${i+1}</span></span><div><span class="text-xs font-semibold text-slate-300">${l.l}</span><p class="text-[11px] text-slate-500">${l.d}</p></div></div>`).join('')}</div>
-      <div class="bg-dark-900 rounded-xl p-4 border border-dark-700 md:col-span-2"><p class="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Antywzorce</p><div class="grid grid-cols-1 md:grid-cols-2 gap-2">${d.anti.map(a=>`<div class="flex gap-1.5 items-start"><span class="text-red-400 text-xs mt-0.5">✕</span><span class="text-xs text-slate-400">${a}</span></div>`).join('')}</div></div></div>`;
+      <div class="bg-dark-900 rounded-xl p-5 border border-dark-700"><p class="text-xs uppercase tracking-widest text-slate-500 mb-2">Kluczowe pytanie</p><p class="${c.t} font-medium text-base">${d.q}</p></div>
+      <div class="bg-dark-900 rounded-xl p-5 border border-dark-700"><p class="text-xs uppercase tracking-widest text-slate-500 mb-2">Poziomy</p>${d.levels.map((l,i)=>`<div class="flex gap-2 items-start mb-3"><span class="w-6 h-6 rounded-full ${c.bg} flex items-center justify-center flex-shrink-0"><span class="${c.t} text-xs font-bold">${i+1}</span></span><div><span class="text-sm font-semibold text-slate-300">${l.l}</span><p class="text-xs text-slate-500">${l.d}</p></div></div>`).join('')}</div>
+      ${antiHtml}${exerciseHtml}</div>`;
   }
   if(curTab==='research'){
     const r=RESEARCH.filter(x=>x.area===curArea);
@@ -556,7 +774,18 @@ function renderDetail(){
   }
   if(curTab==='industries'){
     const s=SCENARIOS.filter(x=>x.area.includes(curArea));
-    el.innerHTML=s.map(x=>`<div class="bg-dark-900 rounded-xl p-4 border border-dark-700 mb-3"><h4 class="text-sm font-semibold text-slate-200 mb-1">${x.title}</h4><p class="text-xs text-slate-400 mb-2">${x.desc}</p><div class="flex flex-wrap gap-1 mb-2">${x.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${ind.icon} ${ind.name}</span>`:''}).join('')}${x.context.map(c=>`<span class="text-[9px] px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-400">${LIFE_CONTEXTS.find(z=>z.id===c)?.icon||''} ${LIFE_CONTEXTS.find(z=>z.id===c)?.name||c}</span>`).join('')}</div><div class="bg-dark-950 rounded-lg p-3 text-xs text-emerald-400/80"><strong>Tip:</strong> ${x.tip}</div></div>`).join('');
+    el.innerHTML=s.map(x=>{
+      let extra='';
+      // Evidence badge
+      if(isModuleOn('evidence')&&EVIDENCE_MAP[x.title]){const ev=EVIDENCE_MAP[x.title];extra+=`<span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 ml-1" title="${EVIDENCE_TIERS[ev.tier]}">${EVIDENCE_TIERS[ev.tier]}</span>`}
+      // Case study
+      let csHtml='';
+      if(isModuleOn('casestudies')&&CASE_STUDIES[x.title]){const cs=CASE_STUDIES[x.title];csHtml=`<details class="mt-2 bg-dark-950 rounded-lg border border-dark-700"><summary class="p-3 text-sm text-amber-400 cursor-pointer font-medium">📖 Deep Case Study</summary><div class="p-3 pt-0 space-y-2"><p class="text-sm text-slate-300"><strong class="text-slate-400">Sytuacja:</strong> ${cs.situation}</p><p class="text-sm text-slate-300"><strong class="text-slate-400">Kontekst:</strong> ${cs.context}</p><p class="text-sm text-slate-300"><strong class="text-slate-400">Działanie:</strong> ${cs.action}</p><p class="text-sm text-emerald-400"><strong class="text-slate-400">Rezultat:</strong> ${cs.result}</p>${cs.debrief?`<div class="border-t border-dark-700 pt-2 mt-2"><p class="text-xs text-slate-500 font-bold mb-1">Pytania debriefingowe:</p>${cs.debrief.map(q=>`<p class="text-xs text-slate-400">→ ${q}</p>`).join('')}</div>`:''}</div></details>`}
+      // Frameworks
+      let fwHtml='';
+      if(isModuleOn('frameworks')){const fws=Object.entries(FRAMEWORKS).filter(([_,f])=>x.context.some(c=>f.contexts.includes(c)));if(fws.length)fwHtml=`<div class="flex flex-wrap gap-1 mt-2">${fws.map(([k,f])=>`<details class="inline"><summary class="text-xs px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 cursor-pointer">🧩 ${f.name}</summary><div class="bg-dark-950 rounded-lg p-2 mt-1 text-xs text-slate-400">${f.steps.map(s=>`<p>→ ${s}</p>`).join('')}</div></details>`).join('')}</div>`}
+      return`<div class="bg-dark-900 rounded-xl p-5 border border-dark-700 mb-3"><div class="flex items-center flex-wrap gap-1 mb-2"><h4 class="text-sm font-semibold text-slate-200">${x.title}</h4>${extra}</div><p class="text-sm text-slate-400 mb-2">${x.desc}</p><div class="flex flex-wrap gap-1.5 mb-2">${x.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">${ind.icon} ${ind.name}</span>`:''}).join('')}${x.context.map(ctx=>`<span class="text-xs px-2 py-0.5 rounded bg-violet-500/10 text-violet-400">${LIFE_CONTEXTS.find(z=>z.id===ctx)?.icon||''} ${LIFE_CONTEXTS.find(z=>z.id===ctx)?.name||ctx}</span>`).join('')}</div><div class="bg-dark-950 rounded-lg p-3 text-sm text-emerald-400/80"><strong>Tip:</strong> ${x.tip}</div>${csHtml}${fwHtml}</div>`;
+    }).join('');
   }
   if(curTab==='tools'){
     const t=TOOLS.filter(x=>x.area===curArea);
@@ -567,8 +796,8 @@ function renderDetail(){
 // ===== EXPLORE (FILTERS + SCENARIOS) =====
 function initFilterChips(){
   const mk=(arr,fld,cont)=>{
-    let h=`<span class="chip on text-[11px] px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700" style="--ring:#94a3b8" data-f="${fld}" data-v="all" onclick="toggleFilter(this)">Wszystkie</span>`;
-    arr.forEach(x=>{h+=`<span class="chip text-[11px] px-3 py-1 rounded-full bg-slate-800/50 text-slate-400 border border-slate-700/50" style="--ring:#94a3b8" data-f="${fld}" data-v="${x.id}" onclick="toggleFilter(this)">${x.icon||''} ${x.name}</span>`});
+    let h=`<span class="chip on text-sm px-4 py-1.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700" style="--ring:#94a3b8" data-f="${fld}" data-v="all" onclick="toggleFilter(this)">Wszystkie</span>`;
+    arr.forEach(x=>{h+=`<span class="chip text-sm px-4 py-1.5 rounded-full bg-slate-800/50 text-slate-400 border border-slate-700/50" style="--ring:#94a3b8" data-f="${fld}" data-v="${x.id}" onclick="toggleFilter(this)">${x.icon||''} ${x.name}</span>`});
     document.getElementById(cont).innerHTML=h;
   };
   mk(INDUSTRIES,'industry','industry-chips');
@@ -606,12 +835,14 @@ function renderExplore(){
   document.getElementById('explore-results').innerHTML=results.length?results.map(s=>{
     const areaColors=s.area.map(a=>C[a]||'#94a3b8');
     const mainArea=s.area[0];const c=CC[mainArea]||CC.fast;
-    return`<div class="scenario-card bg-dark-900 rounded-xl p-4 border border-dark-700 hover:${c.b}">
-      <div class="flex items-center gap-1.5 mb-2">${s.area.map(a=>`<span class="text-[10px] px-1.5 py-0.5 rounded-full ${CC[a].bg} ${CC[a].t} font-bold">${FLUX[a].letter}</span>`).join('')}</div>
+    const bookmarked=isModuleOn('progress')&&getProgress().bookmarks.includes(s.title);
+    let evidBadge='';if(isModuleOn('evidence')&&EVIDENCE_MAP[s.title]){const ev=EVIDENCE_MAP[s.title];evidBadge=`<span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">${EVIDENCE_TIERS[ev.tier]}</span>`}
+    return`<div class="scenario-card bg-dark-900 rounded-xl p-5 border border-dark-700 hover:${c.b}">
+      <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-1.5">${s.area.map(a=>`<span class="text-xs px-2 py-0.5 rounded-full ${CC[a].bg} ${CC[a].t} font-bold">${FLUX[a].letter}</span>`).join('')}${evidBadge}</div>${isModuleOn('progress')?`<button onclick="event.stopPropagation();toggleBookmark('${s.title.replace(/'/g,"\\'")}');renderExplore()" class="text-lg ${bookmarked?'text-amber-400':'text-slate-600 hover:text-amber-400'}" title="Bookmark">${bookmarked?'★':'☆'}</button>`:''}</div>
       <h4 class="text-sm font-semibold text-slate-200 mb-1">${s.title}</h4>
-      <p class="text-xs text-slate-400 mb-3">${s.desc}</p>
-      <div class="flex flex-wrap gap-1 mb-3">${s.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${ind.icon} ${ind.name}</span>`:''}).join('')}${s.role.map(r=>{const rl=ROLES.find(z=>z.id===r);return rl?`<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${rl.name}</span>`:''}).join('')}${s.context.map(x=>{const lc=LIFE_CONTEXTS.find(z=>z.id===x);return lc?`<span class="text-[9px] px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-400">${lc.icon} ${lc.name}</span>`:''}).join('')}${s.situation.map(x=>{const st=SITUATIONS.find(z=>z.id===x);return st?`<span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400">${st.icon} ${st.name}</span>`:''}).join('')}</div>
-      <div class="bg-dark-950 rounded-lg p-3 text-[11px] text-emerald-400/80"><strong>Tip:</strong> ${s.tip}</div>
+      <p class="text-sm text-slate-400 mb-3">${s.desc}</p>
+      <div class="flex flex-wrap gap-1.5 mb-3">${s.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">${ind.icon} ${ind.name}</span>`:''}).join('')}${s.role.map(r=>{const rl=ROLES.find(z=>z.id===r);return rl?`<span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">${rl.name}</span>`:''}).join('')}${s.context.map(x=>{const lc=LIFE_CONTEXTS.find(z=>z.id===x);return lc?`<span class="text-xs px-2 py-0.5 rounded bg-violet-500/10 text-violet-400">${lc.icon} ${lc.name}</span>`:''}).join('')}${s.situation.map(x=>{const st=SITUATIONS.find(z=>z.id===x);return st?`<span class="text-xs px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400">${st.icon} ${st.name}</span>`:''}).join('')}</div>
+      <div class="bg-dark-950 rounded-lg p-3 text-sm text-emerald-400/80"><strong>Tip:</strong> ${s.tip}</div>
     </div>`;
   }).join(''):`<div class="col-span-2 text-center py-12 text-slate-500 text-sm">Brak scenariuszy dla wybranych filtrów. <button onclick="resetFilters()" class="text-amber-400 hover:underline">Resetuj</button></div>`;
 }
@@ -661,7 +892,7 @@ function filterRes(f){resFilter=f;document.querySelectorAll('.rf').forEach(b=>b.
 function renderTools(){
   const areas=['fast','liquid','unlearn','experiment'];
   document.getElementById('tools-grid').innerHTML=areas.map(a=>{const d=FLUX[a],c=CC[a],t=TOOLS.filter(x=>x.area===a);
-    return`<div class="mb-6"><div class="flex items-center gap-2 mb-3"><div class="w-6 h-6 rounded ${c.bg} flex items-center justify-center"><span class="${c.t} font-black text-xs">${d.letter}</span></div><span class="${c.t} font-bold text-sm">${d.name}</span><span class="text-[10px] text-slate-600">${t.length} narzędzi</span></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">${t.map(x=>`<div class="bg-dark-900 rounded-xl p-4 border border-dark-700"><span class="text-[10px] px-2 py-0.5 rounded-full ${c.bg} ${c.t}">${x.type}</span><h4 class="text-sm font-semibold text-slate-200 mt-2 mb-1">${x.name}</h4><p class="text-[11px] text-slate-400 mb-2">${x.desc}</p><p class="text-[10px] text-slate-500 border-t border-dark-700 pt-2"><span class="text-slate-400">Kiedy:</span> ${x.use}</p></div>`).join('')}</div></div>`;
+    return`<div class="mb-6"><div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 rounded-lg ${c.bg} flex items-center justify-center"><span class="${c.t} font-black">${d.letter}</span></div><span class="${c.t} font-bold">${d.name}</span><span class="text-xs text-slate-600">${t.length} narzędzi</span></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">${t.map(x=>{const idx=TOOLS.indexOf(x);return`<div class="bg-dark-900 rounded-xl p-5 border border-dark-700"><span class="text-xs px-2 py-0.5 rounded-full ${c.bg} ${c.t}">${x.type}</span><h4 class="text-sm font-semibold text-slate-200 mt-2 mb-1">${x.name}</h4><p class="text-sm text-slate-400 mb-2">${x.desc}</p><p class="text-xs text-slate-500 border-t border-dark-700 pt-2"><span class="text-slate-400">Kiedy:</span> ${x.use}</p>${isModuleOn('canvases')?`<button onclick="downloadCanvas(${idx})" class="mt-2 text-xs text-amber-400 hover:underline">📥 Pobierz Canvas</button>`:''}</div>`}).join('')}</div></div>`;
   }).join('');
 }
 
@@ -714,8 +945,364 @@ function closeSettings(){document.getElementById('settings-overlay').classList.r
 function saveApiKey(){const k=document.getElementById('api-key-input').value.trim();if(!k)return;localStorage.setItem('flux_gemini_key',k);document.getElementById('settings-status').innerHTML='<span class="text-emerald-400">Zapisano!</span>';setTimeout(closeSettings,1000)}
 function clearApiKey(){localStorage.removeItem('flux_gemini_key');document.getElementById('api-key-input').value='';document.getElementById('settings-status').innerHTML='<span class="text-slate-400">Wyczyszczono.</span>'}
 
+// ===== MODULE: DIAGNOSTIC + RADAR (#1, #15) =====
+const DIAGNOSTIC_QUESTIONS=[
+  {area:'fast',q:'Jak szybko Twój zespół przechodzi od identyfikacji problemu do działania?'},
+  {area:'fast',q:'Czy masz jasne kryteria "good enough" do podjęcia decyzji?'},
+  {area:'fast',q:'Jak często decyzje są blokowane przez oczekiwanie na pełne dane?'},
+  {area:'fast',q:'Czy Twój zespół ma uprawnienia do podejmowania decyzji bez eskalacji?'},
+  {area:'liquid',q:'Czy ludzie otwarcie mówią o błędach bez obawy o konsekwencje?'},
+  {area:'liquid',q:'Jak sprawnie informacja przepływa między zespołami/działami?'},
+  {area:'liquid',q:'Czy feedback jest regularny, dwustronny i konstruktywny?'},
+  {area:'liquid',q:'Czy spotkania kończą się konkretnymi action items z właścicielami?'},
+  {area:'unlearn',q:'Kiedy ostatnio Twój zespół świadomie porzucił stary proces?'},
+  {area:'unlearn',q:'Jak otwarte są postawy wobec AI i nowych technologii?'},
+  {area:'unlearn',q:'Czy regularnie przeglądacie i aktualizujecie kompetencje?'},
+  {area:'unlearn',q:'Czy organizacja traktuje uczenie się jako proces ciągły?'},
+  {area:'experiment',q:'Ile eksperymentów przeprowadziliście w ostatnim kwartale?'},
+  {area:'experiment',q:'Czy błąd eksperymentu jest traktowany jako źródło danych, nie porażka?'},
+  {area:'experiment',q:'Czy macie budżet i czas na testowanie nowych pomysłów?'},
+  {area:'experiment',q:'Czy dokumentujecie wyniki eksperymentów systematycznie?'}
+];
+let diagnosticAnswers={};
+
+function renderDiagnosticView(){
+  const el=document.getElementById('diagnostic-content');if(!el)return;
+  const saved=localStorage.getItem('flux_diagnostic');
+  if(saved&&!window._diagRetake){
+    const d=JSON.parse(saved);
+    renderDiagnosticResults(d);return;
+  }
+  const areas=['fast','liquid','unlearn','experiment'];
+  el.innerHTML=areas.map(a=>{
+    const qs=DIAGNOSTIC_QUESTIONS.filter(q=>q.area===a);const d=FLUX[a],c=CC[a];
+    return`<div class="bg-dark-900 rounded-xl p-5 border border-dark-700 mb-4">
+      <div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 rounded-lg ${c.bg} flex items-center justify-center"><span class="${c.t} font-black">${d.letter}</span></div><span class="${c.t} font-bold">${d.name}</span></div>
+      ${qs.map((q,i)=>{const idx=DIAGNOSTIC_QUESTIONS.indexOf(q);return`<div class="mb-4"><p class="text-sm text-slate-300 mb-2">${i+1}. ${q.q}</p><div class="flex gap-2">${[1,2,3,4,5].map(v=>`<button class="scale-btn ${diagnosticAnswers[idx]===v?'selected':''}" onclick="setDiagAnswer(${idx},${v})">${v}</button>`).join('')}</div></div>`}).join('')}
+    </div>`;
+  }).join('')+`<div class="text-center"><button onclick="submitDiagnostic()" class="bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold px-8 py-3 rounded-xl text-sm transition-colors">Sprawdź wyniki</button></div>`;
+}
+
+function setDiagAnswer(idx,val){diagnosticAnswers[idx]=val;renderDiagnosticView()}
+
+function submitDiagnostic(){
+  if(Object.keys(diagnosticAnswers).length<16){alert('Odpowiedz na wszystkie 16 pytań.');return}
+  const scores={};
+  ['fast','liquid','unlearn','experiment'].forEach(a=>{
+    const qs=DIAGNOSTIC_QUESTIONS.map((q,i)=>({...q,i})).filter(q=>q.area===a);
+    scores[a]=+(qs.reduce((s,q)=>s+diagnosticAnswers[q.i],0)/qs.length).toFixed(1);
+  });
+  const result={timestamp:Date.now(),scores};
+  localStorage.setItem('flux_diagnostic',JSON.stringify(result));
+  // Save to history
+  const hist=JSON.parse(localStorage.getItem('flux_diagnostic_history')||'[]');
+  hist.push(result);localStorage.setItem('flux_diagnostic_history',JSON.stringify(hist));
+  window._diagRetake=false;diagnosticAnswers={};
+  renderDiagnosticResults(result);
+}
+
+function renderDiagnosticResults(result){
+  const el=document.getElementById('diagnostic-content');const s=result.scores;
+  const avg=+((s.fast+s.liquid+s.unlearn+s.experiment)/4).toFixed(1);
+  const level=avg>=4?'Zaawansowany':avg>=2.5?'Praktyk':'Początkujący';
+  const levelColor=avg>=4?'text-emerald-400':avg>=2.5?'text-amber-400':'text-red-400';
+  el.innerHTML=`
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-dark-900 rounded-xl p-5 border border-dark-700 text-center">
+        <p class="text-xs text-slate-500 mb-1">Twój poziom FLUX</p>
+        <p class="text-2xl font-black ${levelColor}">${level}</p>
+        <p class="text-sm text-slate-400 mt-1">Średnia: ${avg}/5</p>
+      </div>
+      <div class="bg-dark-900 rounded-xl p-5 border border-dark-700">
+        <div class="grid grid-cols-2 gap-3">
+          ${['fast','liquid','unlearn','experiment'].map(a=>`<div class="text-center"><span class="${CC[a].t} font-black text-lg">${s[a]}</span><p class="text-xs text-slate-500">${FLUX[a].name}</p></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    ${isModuleOn('radar')?`<div class="bg-dark-900 rounded-xl p-5 border border-dark-700 mb-6"><p class="text-xs text-slate-500 mb-3 text-center">Profil FLUX — Radar Chart</p><div class="flex justify-center"><svg viewBox="0 0 400 400" class="radar-svg" style="max-width:350px;width:100%">${renderRadarChart(s)}</svg></div></div>`:''}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">${['fast','liquid','unlearn','experiment'].map(a=>{
+      const v=s[a],bar=v/5*100,c=CC[a];
+      return`<div class="bg-dark-900 rounded-xl p-4 border border-dark-700"><div class="flex justify-between items-center mb-2"><span class="${c.t} font-bold text-sm">${FLUX[a].name}</span><span class="${c.t} font-bold">${v}/5</span></div><div class="w-full h-2 bg-dark-700 rounded-full"><div class="h-full rounded-full" style="width:${bar}%;background:${C[a]}"></div></div><p class="text-xs text-slate-500 mt-1">${v>=4?'Mocna strona — utrzymuj!':v>=2.5?'Dobra baza — rozwijaj':'Priorytet do rozwoju'}</p></div>`;
+    }).join('')}</div>
+    <div class="text-center"><button onclick="window._diagRetake=true;diagnosticAnswers={};renderDiagnosticView()" class="text-sm text-amber-400 hover:underline">Wykonaj ponownie</button></div>`;
+}
+
+function renderRadarChart(scores){
+  const cx=200,cy=200,maxR=150,areas=['fast','liquid','unlearn','experiment'];
+  const angles=areas.map((_,i)=>-Math.PI/2+i*(2*Math.PI/4));
+  let h='';
+  // Grid rings
+  [1,2,3,4,5].forEach(l=>{const r=maxR*l/5;
+    h+=`<polygon points="${angles.map(a=>`${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`).join(' ')}" fill="none" stroke="#1e293b" stroke-width="1"/>`;
+    if(l%2===1)h+=`<text x="${cx+4}" y="${cy-r+4}" fill="#334155" font-size="9">${l}</text>`;
+  });
+  // Axis lines + labels
+  areas.forEach((a,i)=>{const ang=angles[i];
+    h+=`<line x1="${cx}" y1="${cy}" x2="${cx+maxR*Math.cos(ang)}" y2="${cy+maxR*Math.sin(ang)}" stroke="#1e293b" stroke-width="1"/>`;
+    const lx=cx+(maxR+25)*Math.cos(ang),ly=cy+(maxR+25)*Math.sin(ang);
+    h+=`<text x="${lx}" y="${ly}" text-anchor="middle" fill="${C[a]}" font-size="12" font-weight="700">${FLUX[a].letter}</text>`;
+  });
+  // Score polygon
+  const pts=areas.map((a,i)=>{const r=maxR*scores[a]/5;return`${cx+r*Math.cos(angles[i])},${cy+r*Math.sin(angles[i])}`}).join(' ');
+  h+=`<polygon points="${pts}" fill="rgba(245,158,11,.15)" stroke="#f59e0b" stroke-width="2"/>`;
+  // Score dots
+  areas.forEach((a,i)=>{const r=maxR*scores[a]/5;
+    h+=`<circle cx="${cx+r*Math.cos(angles[i])}" cy="${cy+r*Math.sin(angles[i])}" r="5" fill="${C[a]}" stroke="#0c0f1a" stroke-width="2"/>`;
+  });
+  return h;
+}
+
+// ===== MODULE: ONBOARDING (#11) =====
+let onboardingStep=0;
+const ONBOARDING_ROLES=['Manager','Team Lead','Specjalista','Handlowiec','HR','Trener','Founder','Agent'];
+const ONBOARDING_INDUSTRIES=['Automotive','E-commerce','Farmacja','Ubezpieczenia','OZE','FMCG','Start-up','IT','Bankowość','Retail'];
+const ONBOARDING_CHALLENGES=['Szybkość decyzji','Współpraca w zespole','Adaptacja do zmian','Innowacyjność','Komunikacja','Budowanie zaufania'];
+
+function showOnboarding(){onboardingStep=0;document.getElementById('onboarding-overlay').classList.add('open');renderOnboardingStep()}
+function closeOnboarding(){document.getElementById('onboarding-overlay').classList.remove('open')}
+
+function renderOnboardingStep(){
+  const el=document.getElementById('onboarding-content');
+  const steps=[
+    {title:'Kim jesteś?',desc:'Wybierz swoją rolę:',items:ONBOARDING_ROLES,key:'role'},
+    {title:'Twoja branża?',desc:'Wybierz branżę:',items:ONBOARDING_INDUSTRIES,key:'industry'},
+    {title:'Twoje wyzwanie?',desc:'Co jest najważniejsze?',items:ONBOARDING_CHALLENGES,key:'challenge'}
+  ];
+  const s=steps[onboardingStep];
+  el.innerHTML=`
+    <div class="flex justify-center gap-2 mb-4">${steps.map((_,i)=>`<div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${i===onboardingStep?'bg-amber-500 text-dark-950':i<onboardingStep?'bg-emerald-500/20 text-emerald-400':'bg-dark-700 text-slate-500'}">${i+1}</div>`).join('')}</div>
+    <h3 class="text-lg font-bold text-slate-200 text-center mb-1">${s.title}</h3>
+    <p class="text-sm text-slate-400 text-center mb-4">${s.desc}</p>
+    <div class="grid grid-cols-2 gap-2">${s.items.map(item=>`<button onclick="selectOnboarding('${s.key}','${item}')" class="bg-dark-950 border border-dark-700 rounded-lg py-3 px-4 text-sm text-slate-300 hover:border-amber-500 hover:text-amber-400 transition-all">${item}</button>`).join('')}</div>
+    ${onboardingStep>0?'<button onclick="onboardingStep--;renderOnboardingStep()" class="text-xs text-slate-500 hover:text-white mt-3 block mx-auto">← Wstecz</button>':''}`;
+}
+
+function selectOnboarding(key,val){
+  const profile=JSON.parse(localStorage.getItem('flux_profile')||'{}');
+  profile[key]=val;localStorage.setItem('flux_profile',JSON.stringify(profile));
+  if(onboardingStep<2){onboardingStep++;renderOnboardingStep()}
+  else finishOnboarding(profile);
+}
+
+function finishOnboarding(profile){
+  closeOnboarding();
+  const challengeMap={'Szybkość decyzji':'fast','Współpraca w zespole':'liquid','Adaptacja do zmian':'unlearn','Innowacyjność':'experiment','Komunikacja':'liquid','Budowanie zaufania':'liquid'};
+  const area=challengeMap[profile.challenge]||'fast';
+  if(isModuleOn('diagnostic'))nav('diagnostic');else showDetail(area);
+}
+
+// ===== MODULE: PROGRESS (#13) =====
+function getProgress(){try{return JSON.parse(localStorage.getItem('flux_progress')||'{"viewed":[],"bookmarks":[],"reflections":[],"exercises":0}')}catch(e){return{viewed:[],bookmarks:[],reflections:[],exercises:0}}}
+function saveProgress(p){localStorage.setItem('flux_progress',JSON.stringify(p))}
+
+function trackViewVisit(v){
+  if(!isModuleOn('progress'))return;
+  const p=getProgress();if(!p.viewed.includes(v)){p.viewed.push(v);saveProgress(p)}updateProgressBar();
+}
+
+function updateProgressBar(){
+  if(!isModuleOn('progress'))return;
+  const p=getProgress();
+  const totalViews=5+MODULES.filter(m=>m.nav&&isModuleOn(m.id)).length;
+  const pct=Math.min(100,Math.round(p.viewed.length/totalViews*40+p.reflections.length*10+p.exercises*5+p.bookmarks.length*3));
+  document.getElementById('progress-fill').style.width=pct+'%';
+}
+
+function toggleBookmark(title){
+  if(!isModuleOn('progress'))return;
+  const p=getProgress();const i=p.bookmarks.indexOf(title);
+  if(i===-1)p.bookmarks.push(title);else p.bookmarks.splice(i,1);
+  saveProgress(p);updateProgressBar();
+}
+
+// ===== MODULE: REFLECTION (#12) =====
+function openReflection(){document.getElementById('reflection-overlay').classList.add('open')}
+function closeReflection(){document.getElementById('reflection-overlay').classList.remove('open')}
+function saveReflection(){
+  const r3=document.getElementById('refl-3').value,r2=document.getElementById('refl-2').value,r1=document.getElementById('refl-1').value;
+  if(!r3&&!r2&&!r1){return}
+  const p=getProgress();p.reflections.push({ts:Date.now(),three:r3,two:r2,one:r1});saveProgress(p);
+  document.getElementById('refl-status').innerHTML='<span class="text-emerald-400">Zapisano refleksję!</span>';
+  updateProgressBar();setTimeout(closeReflection,1500);
+}
+function saveAndAskAI(){
+  saveReflection();
+  const r3=document.getElementById('refl-3').value,r2=document.getElementById('refl-2').value;
+  if(r2){document.getElementById('chat-input').value=r2;toggleChat();setTimeout(sendChat,500)}
+}
+
+// ===== MODULE: ACTION PLAN (#2) =====
+function getActions(){try{return JSON.parse(localStorage.getItem('flux_actions')||'[]')}catch(e){return[]}}
+function saveActions(a){localStorage.setItem('flux_actions',JSON.stringify(a))}
+
+function renderActionPlanView(){
+  const el=document.getElementById('actionplan-content');if(!el)return;
+  const actions=getActions();
+  el.innerHTML=`
+    <div class="bg-dark-900 rounded-xl p-5 border border-dark-700 mb-4">
+      <h3 class="text-sm font-bold text-slate-300 mb-3">Dodaj nowe działanie</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+        <input id="ap-action" placeholder="Działanie..." class="bg-dark-950 border border-dark-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-amber-500">
+        <input id="ap-deadline" type="date" class="bg-dark-950 border border-dark-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-amber-500">
+        <input id="ap-metric" placeholder="Metryka sukcesu..." class="bg-dark-950 border border-dark-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none focus:border-amber-500">
+      </div>
+      <button onclick="addAction()" class="bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold px-6 py-2 rounded-lg text-sm">Dodaj</button>
+    </div>
+    ${actions.length?`<div class="bg-dark-900 rounded-xl border border-dark-700 overflow-hidden">
+      <table class="w-full text-sm"><thead><tr class="border-b border-dark-700"><th class="text-left p-3 text-slate-500 text-xs">Działanie</th><th class="text-left p-3 text-slate-500 text-xs">Deadline</th><th class="text-left p-3 text-slate-500 text-xs">Metryka</th><th class="p-3 text-slate-500 text-xs">Status</th><th class="p-3"></th></tr></thead>
+      <tbody>${actions.map((a,i)=>`<tr class="border-b border-dark-700/50 ${a.done?'opacity-50':''}"><td class="p-3 text-slate-300 ${a.done?'line-through':''}">${a.action}</td><td class="p-3 text-slate-400">${a.deadline||'—'}</td><td class="p-3 text-slate-400">${a.metric||'—'}</td><td class="p-3 text-center"><button onclick="toggleAction(${i})" class="text-lg">${a.done?'✅':'⬜'}</button></td><td class="p-3 text-center"><button onclick="removeAction(${i})" class="text-red-400 hover:text-red-300 text-xs">✕</button></td></tr>`).join('')}</tbody></table>
+    </div>
+    <div class="text-center mt-4"><button onclick="exportActions()" class="text-xs text-amber-400 hover:underline">Eksportuj do .txt</button></div>`:`<div class="text-center py-8 text-slate-500 text-sm">Brak działań. Dodaj pierwsze powyżej.</div>`}`;
+}
+
+function addAction(){
+  const action=document.getElementById('ap-action').value.trim();if(!action)return;
+  const deadline=document.getElementById('ap-deadline').value;
+  const metric=document.getElementById('ap-metric').value.trim();
+  const actions=getActions();actions.push({action,deadline,metric,done:false});saveActions(actions);renderActionPlanView();
+}
+function toggleAction(i){const a=getActions();a[i].done=!a[i].done;saveActions(a);renderActionPlanView()}
+function removeAction(i){const a=getActions();a.splice(i,1);saveActions(a);renderActionPlanView()}
+function exportActions(){
+  const a=getActions();const txt=a.map((x,i)=>`${x.done?'[✓]':'[ ]'} ${x.action} | ${x.deadline||'brak'} | ${x.metric||'brak'}`).join('\n');
+  const blob=new Blob(['FLUX Action Plan\n'+new Date().toLocaleDateString('pl')+'\n\n'+txt],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);const a2=document.createElement('a');a2.href=url;a2.download='flux-action-plan.txt';a2.click();URL.revokeObjectURL(url);
+}
+
+// ===== MODULE: TRAINER DASHBOARD (#3) =====
+function renderTrainerView(){
+  const el=document.getElementById('trainer-content');if(!el)return;
+  const url=window.location.href;
+  const hist=JSON.parse(localStorage.getItem('flux_diagnostic_history')||'[]');
+  el.innerHTML=`
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-dark-900 rounded-xl p-5 border border-dark-700 text-center">
+        <p class="text-xs text-slate-500 mb-3">QR Code — udostępnij uczestnikom</p>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}&bgcolor=111827&color=f59e0b" alt="QR" class="mx-auto rounded-lg" style="max-width:200px">
+        <p class="text-xs text-slate-400 mt-2 break-all">${url}</p>
+      </div>
+      <div class="bg-dark-900 rounded-xl p-5 border border-dark-700">
+        <p class="text-xs text-slate-500 mb-3">Statystyki diagnostyk</p>
+        <div class="text-center">
+          <span class="text-3xl font-black text-amber-400">${hist.length}</span>
+          <p class="text-sm text-slate-400">wypełnionych diagnostyk</p>
+        </div>
+        ${hist.length?`<div class="mt-4 space-y-2">${['fast','liquid','unlearn','experiment'].map(a=>{
+          const avg=+(hist.reduce((s,h)=>s+h.scores[a],0)/hist.length).toFixed(1);
+          return`<div class="flex items-center gap-2"><span class="${CC[a].t} font-bold text-xs w-8">${FLUX[a].letter}</span><div class="flex-1 h-2 bg-dark-700 rounded-full"><div class="h-full rounded-full" style="width:${avg/5*100}%;background:${C[a]}"></div></div><span class="text-xs text-slate-400 w-8">${avg}</span></div>`;
+        }).join('')}</div>`:'<p class="text-xs text-slate-500 mt-4 text-center">Brak danych — poproś uczestników o wypełnienie diagnostyki.</p>'}
+      </div>
+    </div>
+    <div class="text-center"><button onclick="exportTrainerReport()" class="bg-violet-600 hover:bg-violet-500 text-white font-bold px-6 py-2 rounded-lg text-sm">Eksportuj raport HTML</button></div>`;
+}
+
+function exportTrainerReport(){
+  const hist=JSON.parse(localStorage.getItem('flux_diagnostic_history')||'[]');
+  const areas=['fast','liquid','unlearn','experiment'];
+  const avgs=areas.map(a=>+(hist.reduce((s,h)=>s+h.scores[a],0)/Math.max(1,hist.length)).toFixed(1));
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FLUX Trainer Report</title><style>body{font-family:Inter,sans-serif;max-width:800px;margin:auto;padding:2rem;background:#0c0f1a;color:#e2e8f0}h1{color:#f59e0b}.bar{height:1.5rem;border-radius:.5rem;margin:.5rem 0}</style></head><body><h1>FLUX Trainer Report</h1><p>Data: ${new Date().toLocaleDateString('pl')}</p><p>Diagnostyk: ${hist.length}</p><h2>Średnie wyniki</h2>${areas.map((a,i)=>`<p><strong style="color:${C[a]}">${FLUX[a].name}</strong>: ${avgs[i]}/5</p><div class="bar" style="width:${avgs[i]/5*100}%;background:${C[a]}"></div>`).join('')}</body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='flux-trainer-report.html';a.click();URL.revokeObjectURL(url);
+}
+
+// ===== MODULE: CASE STUDIES (#4) =====
+const CASE_STUDIES={
+  'Decyzja cenowa pod presją':{situation:'Kierownik sprzedaży automotive dostaje alert: konkurencja obniżyła cenę o 12%.',context:'Q4, cele roczne niezrealizowane w 85%, centralny pricing wymaga 48h na zmianę.',action:'Użył Decyzji 15 min: zidentyfikował 3 opcje (rabat, pakiet, wartość dodana), wybrał pakiet z serwisem VIP w 2h.',result:'Zamknął deal w 24h, marża -3% ale retencja klienta +100%. Centrala zatwierdziła post-factum.',debrief:['Co by się stało gdyby czekał na centralę?','Jakie "good enough" kryteria zastosował?','Jak udokumentować tę decyzję dla przyszłych case\'ów?']},
+  'Bezpieczeństwo psychologiczne w IT':{situation:'Junior developer odkrył krytyczny bug w kodzie tech leada, ale boi się zgłosić.',context:'Ostatni dev który zgłosił problem dostał publiczną krytykę na standup. Zespół 12 osób.',action:'Wdrożono PS Radar (anonimowy). Wynik: 2.1/5. Team lead przeszedł coaching na feedbacku. Wprowadzono "Bug Bounty wewnętrzny".',result:'PS wzrosło do 3.8/5 po kwartale. Liczba zgłoszonych bugów x3. Time-to-fix spadł o 40%.',debrief:['Dlaczego anonimowość była kluczowa w pierwszym kroku?','Jak mierzyć PS bez ankiet?','Co zmienić jeśli lider nie chce coachingu?']},
+  'Wdrożenie AI w zespole sprzedaży':{situation:'Handlowcy FMCG (30 osób) boją się AI — "zastąpi nas", "to zabawka".',context:'Firma kupiła licencje ChatGPT Enterprise. Po miesiącu: 3 osoby używają, reszta ignoruje.',action:'AI Prompt Pack: 5 gotowych promptów (podsumowanie spotkania, follow-up mail, analiza CRM). Warsztat 2h: pokaz live efektu WOW.',result:'Adopcja po 6 tyg: 73%. Średni czas na follow-up z 24h do 2h. NPS wewnętrzny szkolenia: 9.2.',debrief:['Dlaczego "pokaż, nie mów" zadziałało lepiej?','Jak dobrać prompty do konkretnej roli?','Co z osobami które nadal nie adoptują?']},
+  'Test nowego formatu szkolenia':{situation:'Trener testuje 4×2h online vs 1×8h offline — który format lepszy?',context:'Budżet na 2 grupy pilotażowe. Temat: komunikacja w zespole. Grupy po 16 osób.',action:'Hypothesis Builder: "4×2h → NPS>8 i retencja wiedzy po 30d >60%". Pre/post test. Dziennik stosowania.',result:'4×2h: NPS 8.4, retencja 67%. 8h offline: NPS 7.9, retencja 52%. Ale engagement offline wyższy.',debrief:['Czy NPS to wystarczająca metryka?','Jak zmierzyć transfer do praktyki?','Jakie inne formaty warto testować?']}
+};
+
+// ===== MODULE: EVIDENCE MAP (#5) =====
+const EVIDENCE_MAP={
+  'Decyzja cenowa pod presją':{research:0,tier:2},
+  'Priorytety backlogu w sprincie':{research:1,tier:2},
+  'Bezpieczeństwo psychologiczne w IT':{research:3,tier:1},
+  'Feedback między agentami':{research:4,tier:1},
+  'Trudna rozmowa z partnerem':{research:4,tier:1},
+  'Wdrożenie AI w zespole sprzedaży':{research:8,tier:1},
+  'Test nowego formatu szkolenia':{research:10,tier:2},
+  'Stare nawyki żywieniowe':{research:9,tier:1}
+};
+const EVIDENCE_TIERS={1:'★★★ Meta-analiza',2:'★★ Empiryczne',3:'★ Eksperckie'};
+
+// ===== MODULE: FRAMEWORKS (#7) =====
+const FRAMEWORKS={
+  'NVC':{name:'Nonviolent Communication',steps:['Obserwacja (fakty, nie oceny)','Uczucia (co czuję?)','Potrzeby (czego potrzebuję?)','Prośba (konkretna, wykonalna)'],contexts:['husband','father','professional','leader']},
+  'STOP':{name:'STOP → THINK → ACT',steps:['STOP — zatrzymaj automatyczną reakcję','THINK — jaki jest mój cel? jakie opcje?','ACT — wybierz najlepszą opcję i działaj'],contexts:['fast','crisis','health','father']},
+  'Atomic':{name:'Atomic Habits (Clear)',steps:['1% lepiej codziennie','Stack na istniejącym nawyku','Środowisko > motywacja','Tożsamość > wyniki'],contexts:['health','finance','learner','hobby']},
+  '52Notatki':{name:'52 Notatki (Gerschmann)',steps:['Systematyczność > kwota','Automatyczny przelew co miesiąc','3 słoiki: bezpieczeństwo/wzrost/wolność','Edukacja finansowa co tydzień'],contexts:['finance']}
+};
+
+// ===== MODULE: EXERCISES (#8) =====
+const EXERCISES=[
+  {id:'eq1',area:'fast',type:'quiz',q:'Zespół czeka na pełne dane od 3 tygodni. Co robisz?',opts:['Czekam dalej — dane są kluczowe','Podejmuję decyzję z tym co mam','Organizuję jeszcze jedno spotkanie','Deleguję decyzję w górę'],correct:1,feedback:'Decyzja z 80% danych > perfekcyjna za 3 tygodnie. Eisenhardt 1989: szybkie zespoły zbierają WIĘCEJ info ale decydują SZYBCIEJ.'},
+  {id:'eq2',area:'fast',type:'quiz',q:'Jaki jest największy wróg szybkich decyzji?',opts:['Brak danych','Paraliż analityczny','Zły lider','Brak budżetu'],correct:1,feedback:'Paraliż analityczny — czekanie na "idealne" dane. FAST = good enough + action + learn.'},
+  {id:'lq1',area:'liquid',type:'quiz',q:'Co jest fundamentem Psychological Safety wg Edmondson?',opts:['Brak konfliktów','Prawo do błędu bez konsekwencji','Miłe relacje w zespole','Anonimowość feedbacku'],correct:1,feedback:'PS = ludzie czują się bezpiecznie podejmując ryzyko interpersonalne. Nie chodzi o "bycie miłym" ale o prawo do błędu.'},
+  {id:'lq2',area:'liquid',type:'quiz',q:'Jak najszybciej poprawić przepływ wiedzy w zespole?',opts:['Więcej spotkań','Collaboration Flow Map','Nowe narzędzie IT','Zmiana lidera'],correct:1,feedback:'Collaboration Flow Map identyfikuje bottlenecki. Narzędzie IT bez mapy procesów = chaos z nowym narzędziem.'},
+  {id:'uq1',area:'unlearn',type:'quiz',q:'Co oznacza "unlearn" w kontekście FLUX?',opts:['Zapomnieć wszystko','Świadomie porzucić przestarzałe modele','Uczyć się od nowa','Ignorować doświadczenie'],correct:1,feedback:'Unlearn = świadome porzucanie. Nie "zapomnieć" ale "zdecydować że X już nie działa i wybrać Y".'},
+  {id:'uq2',area:'unlearn',type:'quiz',q:'Brynjolfsson 2023 (NBER) — kto zyskał NAJWIĘCEJ na AI?',opts:['Eksperci','Początkujący pracownicy','Managerowie','Programiści'],correct:1,feedback:'+14% produktywność, ale NAJWIĘKSZY zysk dla najmniej doświadczonych. AI = equalizer.'},
+  {id:'xq1',area:'experiment',type:'quiz',q:'Co jest kluczowe w kulturze eksperymentów?',opts:['Duży budżet na R&D','Traktowanie błędu jako źródła danych','Zatrudnienie innowatorów','Osobny dział innowacji'],correct:1,feedback:'van Dyck 2005: kultura zarządzania błędami (nie unikania!) → lepsza wydajność. Błąd = data point.'},
+  {id:'xq2',area:'experiment',type:'quiz',q:'Jak poprawnie sformułować hipotezę eksperymentu?',opts:['"Sprawdzimy nowy proces"','"Jeśli X to Y ponieważ Z"','"Zrobimy pilot i zobaczymy"','"Nowy sposób będzie lepszy"'],correct:1,feedback:'Hypothesis Builder: Jeśli [interwencja] to [wynik] ponieważ [mechanizm]. Metryka + timeline.'}
+];
+
+function renderExercise(exId){
+  const ex=EXERCISES.find(e=>e.id===exId);if(!ex)return'';
+  const c=CC[ex.area];
+  return`<div class="bg-dark-900 rounded-xl p-5 border border-dark-700 mb-3" id="ex-${ex.id}">
+    <div class="flex items-center gap-2 mb-3"><span class="text-sm px-2 py-0.5 rounded-full ${c.bg} ${c.t} font-bold">${FLUX[ex.area].letter}</span><span class="text-xs text-slate-500">Quiz</span></div>
+    <p class="text-sm font-medium text-slate-200 mb-3">${ex.q}</p>
+    <div class="space-y-2">${ex.opts.map((o,i)=>`<button onclick="checkExercise('${ex.id}',${i})" class="ex-opt w-full text-left bg-dark-950 border border-dark-700 rounded-lg px-4 py-2.5 text-sm text-slate-300 hover:border-amber-500 transition-all">${o}</button>`).join('')}</div>
+    <div id="ex-feedback-${ex.id}" class="hidden mt-3 p-3 rounded-lg text-sm"></div></div>`;
+}
+
+function checkExercise(exId,chosen){
+  const ex=EXERCISES.find(e=>e.id===exId);if(!ex)return;
+  const fb=document.getElementById('ex-feedback-'+exId);
+  const correct=chosen===ex.correct;
+  fb.className='mt-3 p-3 rounded-lg text-sm '+(correct?'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20':'bg-red-500/10 text-red-400 border border-red-500/20');
+  fb.innerHTML=(correct?'✓ Dokładnie! ':'✕ Nie tym razem. ')+ex.feedback;
+  // Highlight correct
+  const btns=document.querySelectorAll(`#ex-${exId} .ex-opt`);
+  btns.forEach((b,i)=>{b.disabled=true;if(i===ex.correct)b.classList.add('border-emerald-500','text-emerald-400');else if(i===chosen&&!correct)b.classList.add('border-red-500','text-red-400')});
+  if(isModuleOn('progress')){const p=getProgress();p.exercises=(p.exercises||0)+1;saveProgress(p);updateProgressBar()}
+}
+
+// ===== MODULE: ANTIPATTERNS DETECTOR (#6) =====
+function updateAntiDetector(area){
+  const checks=document.querySelectorAll(`#detail-content input[type="checkbox"]`);
+  const checked=Array.from(checks).filter(c=>c.checked).length;
+  const rec=document.getElementById('anti-recommendations');if(!rec)return;
+  if(checked===0){rec.innerHTML='';return}
+  const tools=TOOLS.filter(t=>t.area===area);
+  rec.innerHTML=`<div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mt-3"><p class="text-sm text-amber-400 font-medium">${checked}/${checks.length} antywzorców zaznaczonych</p><p class="text-xs text-slate-400 mt-1">Rekomendowane narzędzia:</p><div class="flex flex-wrap gap-1 mt-2">${tools.slice(0,3).map(t=>`<span class="text-xs px-2 py-1 rounded-full bg-dark-950 text-amber-400 border border-amber-500/20">${t.name}</span>`).join('')}</div></div>`;
+}
+
+// ===== MODULE: CANVASES (#9) =====
+function downloadCanvas(toolIdx){
+  const t=TOOLS[toolIdx];if(!t)return;
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${t.name} — FLUX Canvas</title>
+<style>*{font-family:Inter,sans-serif;box-sizing:border-box}body{max-width:800px;margin:auto;padding:2rem}h1{color:#f59e0b;border-bottom:3px solid #f59e0b;padding-bottom:.5rem}
+.field{border:2px solid #e2e8f0;border-radius:8px;padding:1.5rem;margin:1rem 0;min-height:120px}.label{font-weight:700;margin-bottom:.5rem;color:#334155}
+@media print{body{padding:1cm}.field{page-break-inside:avoid}}</style></head>
+<body><h1>${t.name}</h1><p style="color:#64748b">${t.type} — Model FLUX / ${FLUX[t.area].name}</p>
+<div class="field"><div class="label">Opis</div><p>${t.desc}</p></div>
+<div class="field"><div class="label">Kiedy stosować</div><p>${t.use}</p></div>
+<div class="field"><div class="label">Notatki / Obserwacje</div><p style="color:#94a3b8;font-style:italic">Twoje notatki...</p></div>
+<div class="field"><div class="label">Action Items</div><p style="color:#94a3b8;font-style:italic">1.<br>2.<br>3.</p></div>
+<p style="color:#94a3b8;font-size:12px;margin-top:2rem">Wygenerowano z FLUX App | ${new Date().toLocaleDateString('pl')}</p></body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=t.name.toLowerCase().replace(/\s+/g,'-')+'-canvas.html';a.click();URL.revokeObjectURL(url);
+}
+
 // ===== INIT =====
-document.addEventListener('DOMContentLoaded',()=>{initFilterChips()});
+document.addEventListener('DOMContentLoaded',()=>{
+  initFilterChips();
+  // Restore projector mode
+  if(localStorage.getItem('flux_projector')==='1'){document.documentElement.classList.add('projector');document.querySelector('.projector-btn')?.classList.add('on')}
+  // Apply modules (renders nav, shows/hides elements)
+  applyModules();
+});
 </script>
 </body>
 </html>
