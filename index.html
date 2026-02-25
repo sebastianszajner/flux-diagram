@@ -132,6 +132,23 @@ html.projector .chat-toggle,html.projector .chat-panel{display:none!important}
 /* Projector toggle btn */
 .projector-btn{transition:all .2s}
 .projector-btn.on{color:#f59e0b!important}
+
+/* Cloud Tooltip on FLUX wheel */
+.flux-tooltip{position:fixed;z-index:100;max-width:320px;max-height:360px;overflow-y:auto;padding:1.25rem;background:rgba(17,24,39,.95);backdrop-filter:blur(12px);border:1px solid rgba(51,65,85,.5);border-radius:1rem;box-shadow:0 20px 60px -10px rgba(0,0,0,.7);opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s;pointer-events:none}
+.flux-tooltip.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+.flux-tooltip::after{content:'';position:absolute;width:12px;height:12px;background:rgba(17,24,39,.95);border:1px solid rgba(51,65,85,.5);transform:rotate(45deg)}
+.flux-tooltip.tt-fast::after{bottom:-7px;left:30%;border-top:none;border-left:none}
+.flux-tooltip.tt-liquid::after{top:-7px;left:30%;border-bottom:none;border-right:none}
+.flux-tooltip.tt-unlearn::after{top:-7px;right:30%;border-bottom:none;border-left:none}
+.flux-tooltip.tt-experiment::after{bottom:-7px;right:30%;border-top:none;border-right:none}
+html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
+@media(max-width:768px){.flux-tooltip{max-width:280px;padding:1rem}}
+
+/* Mini tooltip for FLUX badges */
+#mini-tooltip{animation:fadeUp .2s ease}
+
+/* Megaworld badge */
+.mw-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:600;white-space:nowrap}
 </style>
 </head>
 <body class="min-h-screen text-slate-100">
@@ -194,7 +211,7 @@ html.projector .chat-toggle,html.projector .chat-panel{display:none!important}
       </div>
     </div>
     <!-- Diagram -->
-    <div class="flex justify-center order-1 lg:order-2">
+    <div class="flex justify-center order-1 lg:order-2" style="position:relative">
       <div class="w-full max-w-[440px] aspect-square">
         <svg viewBox="0 0 800 800" class="w-full h-full">
           <defs><radialGradient id="cg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#1e293b"/><stop offset="100%" stop-color="#0c0f1a"/></radialGradient></defs>
@@ -206,6 +223,8 @@ html.projector .chat-toggle,html.projector .chat-panel{display:none!important}
           <g class="flux-quadrant" onclick="showDetail('liquid')"><path d="M400,400 L750,400 A350,350 0 0,1 400,750 Z" class="qf" fill="#06b6d4" opacity=".12"/><text x="570" y="580" text-anchor="middle" fill="#06b6d4" font-size="24" font-weight="800" letter-spacing="3">LIQUID</text><text x="570" y="600" text-anchor="middle" fill="#06b6d4" font-size="9" opacity=".5">Współpraca</text></g>
           <g class="flux-quadrant" onclick="showDetail('unlearn')"><path d="M400,400 L400,750 A350,350 0 0,1 50,400 Z" class="qf" fill="#10b981" opacity=".12"/><text x="230" y="580" text-anchor="middle" fill="#10b981" font-size="20" font-weight="800" letter-spacing="2">UNLEARN</text><text x="230" y="600" text-anchor="middle" fill="#10b981" font-size="9" opacity=".5">Adaptacja</text></g>
           <g class="flux-quadrant" onclick="showDetail('experiment')"><path d="M400,400 L50,400 A350,350 0 0,1 400,50 Z" class="qf" fill="#8b5cf6" opacity=".12"/><text x="220" y="210" text-anchor="middle" fill="#8b5cf6" font-size="18" font-weight="800" letter-spacing="2">EXPERIMENT</text><text x="220" y="230" text-anchor="middle" fill="#8b5cf6" font-size="9" opacity=".5">Innowacje</text></g>
+          <!-- Trend dots (dynamically populated) -->
+          <g id="wheel-trend-dots"></g>
           <circle cx="400" cy="400" r="65" fill="url(#cg)" stroke="#334155" stroke-width="1"/>
           <circle cx="400" cy="400" r="70" fill="none" stroke="#f59e0b" stroke-width=".5" opacity=".3" class="center-pulse"/>
           <text x="400" y="395" text-anchor="middle" fill="white" font-size="26" font-weight="900" letter-spacing="5">FLUX</text>
@@ -318,6 +337,7 @@ html.projector .chat-toggle,html.projector .chat-panel{display:none!important}
     <button onclick="filterTrends('experiment')" class="tf px-3 py-1 rounded-full text-[11px] bg-violet-500/10 text-violet-400 border border-violet-500/20">EXPERIMENT</button>
   </div>
   <div class="flex justify-center"><div class="w-full max-w-[700px] aspect-square"><svg id="trend-map" viewBox="0 0 1000 1000" class="w-full h-full"></svg></div></div>
+  <div id="trend-filters" class="mt-4 max-w-3xl mx-auto"></div>
   <div class="flex justify-center gap-6 mt-4 text-[10px] text-slate-500 flex-wrap">
     <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white/30"></span>NOW</span>
     <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>NEW 1–2y</span>
@@ -475,6 +495,9 @@ html.projector .chat-toggle,html.projector .chat-panel{display:none!important}
   </div>
 </div>
 
+<!-- Wheel tooltip (fixed position, appended to body) -->
+<div id="flux-tooltip" class="flux-tooltip"></div>
+
 <!-- ========== SCRIPTS ========== -->
 <script>
 // ===== COLORS & CLASSES =====
@@ -617,40 +640,40 @@ const CHALLENGE_TYPES=[
 // ===== SCENARIOS (multi-tagged) =====
 const SCENARIOS=[
   // FAST - professional
-  {title:'Decyzja cenowa pod presją',desc:'Kierownik sprzedaży musi odpowiedzieć na ofertę konkurencji w 24h — bez czekania na centralę.',area:['fast'],industry:['automotive','fmcg'],role:['manager','sales'],situation:['offline','crisis'],context:['professional','leader'],challenge:['decision','speed'],tip:'Użyj checklisty "Decyzja w 15 min": co wiem → czego nie wiem → konsekwencje bezczynności.'},
-  {title:'Priorytety backlogu w sprincie',desc:'Team lead reaguje na dane z testów A/B i przesuwa priorytety w środku sprintu.',area:['fast'],industry:['ecommerce','it','startup'],role:['teamlead','specialist'],situation:['online','group'],context:['professional'],challenge:['decision','speed'],tip:'Decision Log po każdej zmianie priorytetów — 2 min na rationale.'},
-  {title:'Zmiana regulacji w 48h',desc:'Regionalny musi zmienić przekaz po decyzji regulatora — w 48h, bez centralnego briefu.',area:['fast','unlearn'],industry:['pharma'],role:['manager','sales'],situation:['offline'],context:['professional'],challenge:['decision','adaptation'],tip:'Signal Scanning Ritual: co ta zmiana oznacza dla naszych klientów? Nowy skrypt w 24h.'},
-  {title:'Decyzja inwestycyjna w niepewności',desc:'Head of Dev decyduje o projekcie, gdy przepisy mogą się zmienić w kwartał.',area:['fast'],industry:['oze'],role:['manager','founder'],situation:['offline','group'],context:['professional','leader'],challenge:['decision'],tip:'Scenariusze: co jeśli TAK, co jeśli NIE? Decision Tempo Tracker dla całego pipeline.'},
-  {title:'Odpowiedź na ofertę w rozmowie',desc:'Agent ubezpieczeniowy musi podjąć decyzję o ofercie na spotkaniu z klientem — teraz, bez "wrócę z odpowiedzią".',area:['fast'],industry:['insurance','banking'],role:['agent','sales'],situation:['offline','one2one'],context:['professional'],challenge:['decision','speed'],tip:'Przygotuj "decision tree" dla najczęstszych scenariuszy przed spotkaniem.'},
+  {title:'Decyzja cenowa pod presją',desc:'Kierownik sprzedaży musi odpowiedzieć na ofertę konkurencji w 24h — bez czekania na centralę.',area:['fast'],industry:['automotive','fmcg'],role:['manager','sales'],situation:['offline','crisis'],context:['professional','leader'],challenge:['decision','speed'],tip:'Użyj checklisty "Decyzja w 15 min": co wiem → czego nie wiem → konsekwencje bezczynności.',fluxWhy:'FAST: 24h okno decyzyjne wymaga eliminacji zbędnych eskalacji — checklista zamiast komitetu.'},
+  {title:'Priorytety backlogu w sprincie',desc:'Team lead reaguje na dane z testów A/B i przesuwa priorytety w środku sprintu.',area:['fast'],industry:['ecommerce','it','startup'],role:['teamlead','specialist'],situation:['online','group'],context:['professional'],challenge:['decision','speed'],tip:'Decision Log po każdej zmianie priorytetów — 2 min na rationale.',fluxWhy:'FAST: Dane real-time wymagają natychmiastowej zmiany priorytetów — opóźnienie = strata.'},
+  {title:'Zmiana regulacji w 48h',desc:'Regionalny musi zmienić przekaz po decyzji regulatora — w 48h, bez centralnego briefu.',area:['fast','unlearn'],industry:['pharma'],role:['manager','sales'],situation:['offline'],context:['professional'],challenge:['decision','adaptation'],tip:'Signal Scanning Ritual: co ta zmiana oznacza dla naszych klientów? Nowy skrypt w 24h.',fluxWhy:'FAST: 48h na zmianę przekazu — nie ma czasu na centralny brief. UNLEARN: stary skrypt nie działa po zmianie regulacji.'},
+  {title:'Decyzja inwestycyjna w niepewności',desc:'Head of Dev decyduje o projekcie, gdy przepisy mogą się zmienić w kwartał.',area:['fast'],industry:['oze'],role:['manager','founder'],situation:['offline','group'],context:['professional','leader'],challenge:['decision'],tip:'Scenariusze: co jeśli TAK, co jeśli NIE? Decision Tempo Tracker dla całego pipeline.',fluxWhy:'FAST: Niepewność regulacyjna wymaga szybkich scenariuszy zamiast czekania na pewność.'},
+  {title:'Odpowiedź na ofertę w rozmowie',desc:'Agent ubezpieczeniowy musi podjąć decyzję o ofercie na spotkaniu z klientem — teraz, bez "wrócę z odpowiedzią".',area:['fast'],industry:['insurance','banking'],role:['agent','sales'],situation:['offline','one2one'],context:['professional'],challenge:['decision','speed'],tip:'Przygotuj "decision tree" dla najczęstszych scenariuszy przed spotkaniem.',fluxWhy:'FAST: Decyzja musi zapaść TU I TERAZ — „wrócę z odpowiedzią" = utrata klienta.'},
   // FAST - personal
-  {title:'Pilna decyzja finansowa',desc:'Okazja inwestycyjna z 48h oknem — jak szybko podjąć decyzję, nie rezygnując z analizy?',area:['fast'],industry:[],role:[],situation:['one2one'],context:['finance'],challenge:['decision','speed'],tip:'52 Notatki: masz swoją strategię — sprawdź czy mieści się w niej ta okazja. TAK/NIE w 30 min.'},
-  {title:'Kryzys zdrowotny na szkoleniu',desc:'Ból pleców/migrena przed prowadzeniem 8h warsztatu. Szybka decyzja: jechać, zmienić format, odwołać?',area:['fast'],industry:[],role:['trainer'],situation:['crisis'],context:['health','professional'],challenge:['decision','speed'],tip:'STOP → 3 opcje → wybierz tę z najmniejszym kosztem długoterminowym.'},
+  {title:'Pilna decyzja finansowa',desc:'Okazja inwestycyjna z 48h oknem — jak szybko podjąć decyzję, nie rezygnując z analizy?',area:['fast'],industry:[],role:[],situation:['one2one'],context:['finance'],challenge:['decision','speed'],tip:'52 Notatki: masz swoją strategię — sprawdź czy mieści się w niej ta okazja. TAK/NIE w 30 min.',fluxWhy:'FAST: 48h okno inwestycyjne wymaga szybkiej decyzji w ramach gotowej strategii.'},
+  {title:'Kryzys zdrowotny na szkoleniu',desc:'Ból pleców/migrena przed prowadzeniem 8h warsztatu. Szybka decyzja: jechać, zmienić format, odwołać?',area:['fast'],industry:[],role:['trainer'],situation:['crisis'],context:['health','professional'],challenge:['decision','speed'],tip:'STOP → 3 opcje → wybierz tę z najmniejszym kosztem długoterminowym.',fluxWhy:'FAST: Kryzys wymaga natychmiastowej decyzji z 3 wariantów — nie ma czasu na analizę.'},
   // LIQUID - professional
-  {title:'Przekaz leadów bez strat',desc:'Lead z digital trafia do salonu — kto przejmuje, jak szybko, z jakim kontekstem?',area:['liquid'],industry:['automotive'],role:['manager','teamlead','sales'],situation:['hybrid'],context:['professional'],challenge:['communication','trust'],tip:'Collaboration Flow Map: kto → komu → co → jak szybko. Zidentyfikuj bottlenecki.'},
-  {title:'Spójność komunikacji w terenie',desc:'30 przedstawicieli w 5 regionach mówi różne rzeczy o tym samym produkcie.',area:['liquid'],industry:['pharma','fmcg'],role:['manager','sales'],situation:['offline','group'],context:['professional','leader'],challenge:['communication'],tip:'Cross-Team Sync: wspólny brief + cotygodniowy flash update z centrali.'},
-  {title:'Bezpieczeństwo psychologiczne w IT',desc:'Junior developer boi się zgłosić bug w kodzie seniora.',area:['liquid'],industry:['it','startup'],role:['teamlead','specialist'],situation:['online','group'],context:['professional','leader'],challenge:['trust'],tip:'PS Radar co kwartał + retrospektywa: "co utrudnia nam mówienie prawdy?"'},
-  {title:'Feedback między agentami',desc:'Doświadczony agent nie dzieli się technikami z nowymi — „niech się sami nauczą".',area:['liquid'],industry:['insurance','banking'],role:['agent','trainer'],situation:['offline','group'],context:['professional'],challenge:['trust','communication'],tip:'Liquid Collaboration Canvas: zmapuj przepływy wiedzy. Kto jest bottleneckiem?'},
+  {title:'Przekaz leadów bez strat',desc:'Lead z digital trafia do salonu — kto przejmuje, jak szybko, z jakim kontekstem?',area:['liquid'],industry:['automotive'],role:['manager','teamlead','sales'],situation:['hybrid'],context:['professional'],challenge:['communication','trust'],tip:'Collaboration Flow Map: kto → komu → co → jak szybko. Zidentyfikuj bottlenecki.',fluxWhy:'LIQUID: Przepływ informacji między kanałami (digital→salon) wymaga płynnej struktury i jasnych ról.'},
+  {title:'Spójność komunikacji w terenie',desc:'30 przedstawicieli w 5 regionach mówi różne rzeczy o tym samym produkcie.',area:['liquid'],industry:['pharma','fmcg'],role:['manager','sales'],situation:['offline','group'],context:['professional','leader'],challenge:['communication'],tip:'Cross-Team Sync: wspólny brief + cotygodniowy flash update z centrali.',fluxWhy:'LIQUID: 30 osób × 5 regionów = chaos bez wspólnego przepływu wiedzy i synchronizacji.'},
+  {title:'Bezpieczeństwo psychologiczne w IT',desc:'Junior developer boi się zgłosić bug w kodzie seniora.',area:['liquid'],industry:['it','startup'],role:['teamlead','specialist'],situation:['online','group'],context:['professional','leader'],challenge:['trust'],tip:'PS Radar co kwartał + retrospektywa: "co utrudnia nam mówienie prawdy?"',fluxWhy:'LIQUID: Brak PS blokuje przepływ informacji o błędach — kluczowy element jakości kodu.'},
+  {title:'Feedback między agentami',desc:'Doświadczony agent nie dzieli się technikami z nowymi — „niech się sami nauczą".',area:['liquid'],industry:['insurance','banking'],role:['agent','trainer'],situation:['offline','group'],context:['professional'],challenge:['trust','communication'],tip:'Liquid Collaboration Canvas: zmapuj przepływy wiedzy. Kto jest bottleneckiem?',fluxWhy:'LIQUID: Blokada przepływu wiedzy między doświadczonymi a nowymi — bottleneck kompetencji.'},
   // LIQUID - personal
-  {title:'Trudna rozmowa z partnerem',desc:'Ola czuje się zaniedbana po tygodniu intensywnych szkoleń. Jak rozmawiać, nie eskalując?',area:['liquid'],industry:[],role:[],situation:['one2one','offline'],context:['husband'],challenge:['communication','trust'],tip:'NVC: obserwacja → uczucia → potrzeby → prośba. Mów "czuję X, potrzebuję Y" nie "Ty zawsze..."'},
-  {title:'Budowanie zaufania z synem',desc:'Syn (przedszkolak/szkolak) nie chce opowiadać co było w szkole.',area:['liquid'],industry:[],role:[],situation:['one2one','offline'],context:['father'],challenge:['trust','communication'],tip:'15 min "just us" bez ekranów, bez pytań. Obecność > przesłuchanie. Mów o swoim dniu pierwszy.'},
-  {title:'Feedback w zespole NM',desc:'Chcesz dać feedback liderowi z NM, który stosuje metody, z którymi się nie zgadzasz.',area:['liquid'],industry:[],role:['trainer'],situation:['one2one','offline'],context:['professional','leader'],challenge:['communication','trust'],tip:'SBI: Sytuacja → Zachowanie → Wpływ. Konkretnie, bez osądzania.'},
+  {title:'Trudna rozmowa z partnerem',desc:'Ola czuje się zaniedbana po tygodniu intensywnych szkoleń. Jak rozmawiać, nie eskalując?',area:['liquid'],industry:[],role:[],situation:['one2one','offline'],context:['husband'],challenge:['communication','trust'],tip:'NVC: obserwacja → uczucia → potrzeby → prośba. Mów "czuję X, potrzebuję Y" nie "Ty zawsze..."',fluxWhy:'LIQUID: Emocje i potrzeby wymagają płynnego, niehierarchicznego przepływu komunikacji.'},
+  {title:'Budowanie zaufania z synem',desc:'Syn (przedszkolak/szkolak) nie chce opowiadać co było w szkole.',area:['liquid'],industry:[],role:[],situation:['one2one','offline'],context:['father'],challenge:['trust','communication'],tip:'15 min "just us" bez ekranów, bez pytań. Obecność > przesłuchanie. Mów o swoim dniu pierwszy.',fluxWhy:'LIQUID: Zaufanie = fundament przepływu komunikacji. Bez bezpieczeństwa psychologicznego syn milczy.'},
+  {title:'Feedback w zespole NM',desc:'Chcesz dać feedback liderowi z NM, który stosuje metody, z którymi się nie zgadzasz.',area:['liquid'],industry:[],role:['trainer'],situation:['one2one','offline'],context:['professional','leader'],challenge:['communication','trust'],tip:'SBI: Sytuacja → Zachowanie → Wpływ. Konkretnie, bez osądzania.',fluxWhy:'LIQUID: Feedback między liderami wymaga bezpiecznej struktury komunikacji peer-to-peer.'},
   // UNLEARN - professional
-  {title:'Wdrożenie AI w zespole sprzedaży',desc:'Handlowcy boją się AI — „zastąpi nas". Jak zmienić mindset?',area:['unlearn'],industry:['fmcg','automotive','insurance'],role:['manager','sales','hr'],situation:['group','offline'],context:['professional','leader'],challenge:['adaptation','learning'],tip:'AI Prompt Pack: pokaż konkretne use cases (podsumowanie CRM, mail follow-up). Efekt WOW > teoria.'},
-  {title:'Zmiana ścieżki klienta na digital-first',desc:'Klienci kupują online, ale zespół wciąż optymalizuje proces offline.',area:['unlearn'],industry:['automotive','retail','ecommerce'],role:['manager','teamlead'],situation:['group','hybrid'],context:['professional'],challenge:['adaptation'],tip:'Learning Cycle Canvas: co się sprawdza vs co nie — dane, nie opinie. Skill Gap Analyzer na dzisiaj.'},
-  {title:'Nowy produkt, stare skrypty',desc:'Nowa terapia wymaga przebudowy pitchu. Stare argumenty nie działają.',area:['unlearn'],industry:['pharma','insurance'],role:['sales','trainer'],situation:['offline','group'],context:['professional'],challenge:['adaptation','learning'],tip:'Adaptive Learning Loop: Działaj → Obserwuj → Reflektuj → Adaptuj. 3 tygodnie na nowy skrypt.'},
+  {title:'Wdrożenie AI w zespole sprzedaży',desc:'Handlowcy boją się AI — „zastąpi nas". Jak zmienić mindset?',area:['unlearn'],industry:['fmcg','automotive','insurance'],role:['manager','sales','hr'],situation:['group','offline'],context:['professional','leader'],challenge:['adaptation','learning'],tip:'AI Prompt Pack: pokaż konkretne use cases (podsumowanie CRM, mail follow-up). Efekt WOW > teoria.',fluxWhy:'UNLEARN: Lęk przed AI (AI-fobia) wymaga porzucenia mitu „AI zastąpi ludzi" na rzecz „AI wspiera ludzi".'},
+  {title:'Zmiana ścieżki klienta na digital-first',desc:'Klienci kupują online, ale zespół wciąż optymalizuje proces offline.',area:['unlearn'],industry:['automotive','retail','ecommerce'],role:['manager','teamlead'],situation:['group','hybrid'],context:['professional'],challenge:['adaptation'],tip:'Learning Cycle Canvas: co się sprawdza vs co nie — dane, nie opinie. Skill Gap Analyzer na dzisiaj.',fluxWhy:'UNLEARN: Zespół musi porzucić model offline-first i nauczyć się digital-first — dane > przyzwyczajenia.'},
+  {title:'Nowy produkt, stare skrypty',desc:'Nowa terapia wymaga przebudowy pitchu. Stare argumenty nie działają.',area:['unlearn'],industry:['pharma','insurance'],role:['sales','trainer'],situation:['offline','group'],context:['professional'],challenge:['adaptation','learning'],tip:'Adaptive Learning Loop: Działaj → Obserwuj → Reflektuj → Adaptuj. 3 tygodnie na nowy skrypt.',fluxWhy:'UNLEARN: Stary skrypt to mentalny model — trzeba go świadomie odrzucić, by nowy miał szansę.'},
   // UNLEARN - personal
-  {title:'Stare nawyki żywieniowe',desc:'Wiesz co jest zdrowe, ale wciąż jesz to co zawsze. Jak zmienić?',area:['unlearn'],industry:[],role:[],situation:['one2one'],context:['health'],challenge:['adaptation','learning'],tip:'Atomic Habits: 1 zmiana na 3 tygodnie. Stack na istniejącym nawyku: "po kawie → szklanka wody".'},
-  {title:'Porzucenie przestarzałej rutyny ojcowskiej',desc:'„Jak byłem mały to nikt ze mną nie rozmawiał i wyrosłem". Ale Twój syn potrzebuje inaczej.',area:['unlearn'],industry:[],role:[],situation:['one2one','offline'],context:['father'],challenge:['adaptation'],tip:'STOP → THINK → ACT. Co syn potrzebuje TERAZ? Modelowanie > instrukcja.'},
-  {title:'Zmiana podejścia do finansów',desc:'„Kiedyś zacznę oszczędzać" — ale kiedy? Zmiana mentalnego modelu pieniędzy.',area:['unlearn'],industry:[],role:[],situation:['one2one'],context:['finance'],challenge:['adaptation','learning'],tip:'52 Notatki: systematyczność > kwota. Zacznij od 100 zł/msc, automatyczny przelew.'},
+  {title:'Stare nawyki żywieniowe',desc:'Wiesz co jest zdrowe, ale wciąż jesz to co zawsze. Jak zmienić?',area:['unlearn'],industry:[],role:[],situation:['one2one'],context:['health'],challenge:['adaptation','learning'],tip:'Atomic Habits: 1 zmiana na 3 tygodnie. Stack na istniejącym nawyku: "po kawie → szklanka wody".',fluxWhy:'UNLEARN: Nawyki żywieniowe to głęboko zakorzenione wzorce — bez oduczenia nowe nie wejdą.'},
+  {title:'Porzucenie przestarzałej rutyny ojcowskiej',desc:'„Jak byłem mały to nikt ze mną nie rozmawiał i wyrosłem". Ale Twój syn potrzebuje inaczej.',area:['unlearn'],industry:[],role:[],situation:['one2one','offline'],context:['father'],challenge:['adaptation'],tip:'STOP → THINK → ACT. Co syn potrzebuje TERAZ? Modelowanie > instrukcja.',fluxWhy:'UNLEARN: Model ojcostwa odziedziczony po rodzicach może nie pasować do potrzeb Twojego dziecka.'},
+  {title:'Zmiana podejścia do finansów',desc:'„Kiedyś zacznę oszczędzać" — ale kiedy? Zmiana mentalnego modelu pieniędzy.',area:['unlearn'],industry:[],role:[],situation:['one2one'],context:['finance'],challenge:['adaptation','learning'],tip:'52 Notatki: systematyczność > kwota. Zacznij od 100 zł/msc, automatyczny przelew.',fluxWhy:'UNLEARN: „Kiedyś zacznę" to model mentalny do porzucenia — systematyczność > jednorazowy zryw.'},
   // EXPERIMENT - professional
-  {title:'Test nowego formatu szkolenia',desc:'Chcesz sprawdzić czy 4×2h online > 1×8h offline. Jak zmierzyć?',area:['experiment'],industry:[],role:['trainer','hr'],situation:['online','group'],context:['professional'],challenge:['innovation','error'],tip:'Hypothesis Builder: "Jeśli 4×2h to NPS będzie >8 ponieważ mniej zmęczenia". Mierz, nie zgaduj.'},
-  {title:'A/B test komunikatu sprzedażowego',desc:'Dwa warianty pitch\'a — który konwertuje lepiej? Jak testować w terenie?',area:['experiment'],industry:['fmcg','automotive','insurance'],role:['sales','manager'],situation:['offline'],context:['professional'],challenge:['innovation'],tip:'Experiment Design Kit: grupa A vs B, 2 tygodnie, ta sama baza klientów. Log wyników.'},
-  {title:'Pilotaż nowego procesu',desc:'Nowy workflow w jednym zespole przed skalowaniem na organizację.',area:['experiment'],industry:['it','startup','banking'],role:['teamlead','manager','founder'],situation:['group','hybrid'],context:['professional','leader'],challenge:['innovation','error'],tip:'Safe-to-fail probe: 1 zespół, 4 tygodnie, jasne metryki. Pre-mortem: co może pójść nie tak?'},
-  {title:'MVP produktu w start-upie',desc:'Founder decyduje o pivocie na podstawie danych z 2 tygodni, nie 2 kwartałów.',area:['experiment','fast'],industry:['startup'],role:['founder','teamlead'],situation:['hybrid','crisis'],context:['professional'],challenge:['innovation','decision','speed'],tip:'Experiment Outcome Log: hipoteza → test → wynik → wniosek → następny krok. Nie pivot bez danych.'},
+  {title:'Test nowego formatu szkolenia',desc:'Chcesz sprawdzić czy 4×2h online > 1×8h offline. Jak zmierzyć?',area:['experiment'],industry:[],role:['trainer','hr'],situation:['online','group'],context:['professional'],challenge:['innovation','error'],tip:'Hypothesis Builder: "Jeśli 4×2h to NPS będzie >8 ponieważ mniej zmęczenia". Mierz, nie zgaduj.',fluxWhy:'EXPERIMENT: Format szkolenia to hipoteza — testuj z metrykami zamiast zakładać co działa.'},
+  {title:'A/B test komunikatu sprzedażowego',desc:'Dwa warianty pitch\'a — który konwertuje lepiej? Jak testować w terenie?',area:['experiment'],industry:['fmcg','automotive','insurance'],role:['sales','manager'],situation:['offline'],context:['professional'],challenge:['innovation'],tip:'Experiment Design Kit: grupa A vs B, 2 tygodnie, ta sama baza klientów. Log wyników.',fluxWhy:'EXPERIMENT: Dwa pitche = dwie hipotezy. Kontrolowany test w terenie daje twarde dane.'},
+  {title:'Pilotaż nowego procesu',desc:'Nowy workflow w jednym zespole przed skalowaniem na organizację.',area:['experiment'],industry:['it','startup','banking'],role:['teamlead','manager','founder'],situation:['group','hybrid'],context:['professional','leader'],challenge:['innovation','error'],tip:'Safe-to-fail probe: 1 zespół, 4 tygodnie, jasne metryki. Pre-mortem: co może pójść nie tak?',fluxWhy:'EXPERIMENT: Pilotaż = safe-to-fail probe. 1 zespół testuje, cała organizacja uczy się z wyniku.'},
+  {title:'MVP produktu w start-upie',desc:'Founder decyduje o pivocie na podstawie danych z 2 tygodni, nie 2 kwartałów.',area:['experiment','fast'],industry:['startup'],role:['founder','teamlead'],situation:['hybrid','crisis'],context:['professional'],challenge:['innovation','decision','speed'],tip:'Experiment Outcome Log: hipoteza → test → wynik → wniosek → następny krok. Nie pivot bez danych.',fluxWhy:'EXPERIMENT: MVP to eksperyment z ograniczonym ryzykiem. FAST: 2 tygodnie danych > 2 kwartały opinii.'},
   // EXPERIMENT - personal
-  {title:'Test nowego hobby',desc:'RC Cars czy fotografia? Nie musisz wybierać od razu — testuj.',area:['experiment'],industry:[],role:[],situation:['offline'],context:['hobby'],challenge:['innovation'],tip:'2 tygodnie: 1 hobby. Notuj flow state (skala 1-10). Po miesiącu porównaj.'},
-  {title:'Eksperyment z rutyną poranną',desc:'Wstać o 5:30 i ćwiczyć? Albo medytacja? Test 21 dni.',area:['experiment'],industry:[],role:[],situation:['one2one'],context:['health'],challenge:['innovation'],tip:'Hypothesis Builder: "Jeśli wstanę o 5:30 to energia do 14:00 wzrośnie". Mierz przez 3 tygodnie.'},
-  {title:'Nowy format randki z Olą',desc:'Zamiast kina — escape room, gotowanie razem, wspólny projekt? Testuj co daje więcej.',area:['experiment'],industry:[],role:[],situation:['one2one','offline'],context:['husband'],challenge:['innovation'],tip:'1 nowe doświadczenie/miesiąc. Refleksja: co dało więcej bliskości? Konto emocjonalne: + czy -?'},
+  {title:'Test nowego hobby',desc:'RC Cars czy fotografia? Nie musisz wybierać od razu — testuj.',area:['experiment'],industry:[],role:[],situation:['offline'],context:['hobby'],challenge:['innovation'],tip:'2 tygodnie: 1 hobby. Notuj flow state (skala 1-10). Po miesiącu porównaj.',fluxWhy:'EXPERIMENT: Nie wybieraj — testuj. 2 tygodnie na hobby z pomiarem flow state to kontrolowany test.'},
+  {title:'Eksperyment z rutyną poranną',desc:'Wstać o 5:30 i ćwiczyć? Albo medytacja? Test 21 dni.',area:['experiment'],industry:[],role:[],situation:['one2one'],context:['health'],challenge:['innovation'],tip:'Hypothesis Builder: "Jeśli wstanę o 5:30 to energia do 14:00 wzrośnie". Mierz przez 3 tygodnie.',fluxWhy:'EXPERIMENT: Rutyna poranna to hipoteza do sprawdzenia — 21 dni pomiaru energii da odpowiedź.'},
+  {title:'Nowy format randki z Olą',desc:'Zamiast kina — escape room, gotowanie razem, wspólny projekt? Testuj co daje więcej.',area:['experiment'],industry:[],role:[],situation:['one2one','offline'],context:['husband'],challenge:['innovation'],tip:'1 nowe doświadczenie/miesiąc. Refleksja: co dało więcej bliskości? Konto emocjonalne: + czy -?',fluxWhy:'EXPERIMENT: Relacja to żywy organizm — nowe formy randek testują co generuje więcej bliskości.'},
 ];
 
 // ===== RESEARCH =====
@@ -688,26 +711,216 @@ const TOOLS=[
   {area:'experiment',name:'Experiment Design Kit',type:'Framework',desc:'MVP canvas, A/B template, pilot protocol, failure pre-mortem.',use:'Warsztaty innowacyjne.'},
 ];
 
-// ===== TRENDS =====
+// ===== MEGAWORLDS (Hatalska 2025) =====
+const MEGAWORLDS={
+  spoleczny:    {name:'Przeobrażenia Społeczne', color:'#6366f1', icon:'👥'},
+  ai:           {name:'Świat AI',                color:'#3b82f6', icon:'🤖'},
+  lustrzany:    {name:'Świat Lustrzany',         color:'#a78bfa', icon:'🪞'},
+  zrownowazony: {name:'Zrównoważony Świat',      color:'#22c55e', icon:'🌍'},
+  zdrowie:      {name:'Kryzys Zdrowotny',        color:'#ef4444', icon:'🏥'},
+  wojny:        {name:'Świat Wojen',             color:'#64748b', icon:'⚔️'}
+};
+
+// ===== TRENDS (Mapa Trendów Hatalska 2025) =====
 const TRENDS=[
-  {name:'Sprint planning',area:'fast',ring:'now',angle:-60},{name:'Decyzje real-time',area:'fast',ring:'now',angle:-30},
-  {name:'AI-assisted decisions',area:'fast',ring:'new',angle:-70},{name:'Real-time analytics',area:'fast',ring:'new',angle:-20},
-  {name:'Predictive ops',area:'fast',ring:'next',angle:-55},{name:'Autonomous teams',area:'fast',ring:'next',angle:-35},
-  {name:'Cognitive augmentation',area:'fast',ring:'beyond',angle:-50},
-  {name:'Psychological Safety',area:'liquid',ring:'now',angle:15},{name:'Cross-functional',area:'liquid',ring:'now',angle:45},
-  {name:'Remote-first collab',area:'liquid',ring:'new',angle:20},{name:'AI knowledge mgmt',area:'liquid',ring:'new',angle:55},
-  {name:'Liquid org structures',area:'liquid',ring:'next',angle:35},{name:'Collective intelligence',area:'liquid',ring:'beyond',angle:40},
-  {name:'AI literacy',area:'unlearn',ring:'now',angle:105},{name:'Growth mindset',area:'unlearn',ring:'now',angle:135},
-  {name:'GenAI w pracy',area:'unlearn',ring:'new',angle:110},{name:'Continuous learning',area:'unlearn',ring:'new',angle:150},
-  {name:'Skill obsolescence',area:'unlearn',ring:'next',angle:125},{name:'Neural interfaces',area:'unlearn',ring:'beyond',angle:130},
-  {name:'A/B testing',area:'experiment',ring:'now',angle:195},{name:'Error management',area:'experiment',ring:'now',angle:225},
-  {name:'Rapid prototyping',area:'experiment',ring:'new',angle:200},{name:'Innovation labs',area:'experiment',ring:'new',angle:240},
-  {name:'Experiment culture',area:'experiment',ring:'next',angle:215},{name:'Autonomous innovation',area:'experiment',ring:'beyond',angle:230}
+  // === ŚWIAT PRZEOBRAŻEŃ SPOŁECZNYCH ===
+  {name:'Polaryzacja',mw:'spoleczny',ring:'now',flux:['unlearn'],hr:true,desc:'Pogłębianie podziałów społecznych, politycznych i kulturowych.'},
+  {name:'Nierówności społeczne',mw:'spoleczny',ring:'now',flux:['liquid'],hr:true,desc:'Narastające nierówności socjoekonomiczne widoczne globalnie.'},
+  {name:'Kryzys demokracji',mw:'spoleczny',ring:'now',flux:['unlearn','liquid'],hr:false,desc:'Spadek zaufania obywateli, popularność ruchów autorytarnych i populistycznych.'},
+  {name:'Wojny międzypokoleniowe',mw:'spoleczny',ring:'now',flux:['liquid','unlearn'],hr:true,desc:'Napięcia między pokoleniami w kwestii wartości, pracy i zasobów.'},
+  {name:'Dyktat produktywności',mw:'spoleczny',ring:'now',flux:['fast','unlearn'],hr:true,desc:'Produktywność jako priorytet kosztem dobrostanu. AI wspiera automatyzację rutyn.'},
+  {name:'Płynność tożsamości',mw:'spoleczny',ring:'now',flux:['liquid','unlearn'],hr:false,desc:'Rozmywanie tradycyjnych ról, tożsamości i granic społecznych.'},
+  {name:'Posteuropocentryzm',mw:'spoleczny',ring:'now',flux:['unlearn'],hr:false,desc:'Przesunięcie centrum kulturowego i ekonomicznego poza Europę.'},
+  {name:'Starzejące się społeczeństwo',mw:'spoleczny',ring:'new',flux:['liquid','unlearn'],hr:true,desc:'Rosnący odsetek ludzi 65+ zmienia rynek pracy i opiekę zdrowotną.'},
+  {name:'Depopulacja',mw:'spoleczny',ring:'new',flux:['liquid'],hr:false,desc:'Spadek liczby ludności w wielu krajach, zmiany regulacyjne i społeczne.'},
+  {name:'Nowe modele rodziny',mw:'spoleczny',ring:'next',flux:['unlearn'],hr:false,desc:'Ewolucja struktury rodziny wykraczająca poza tradycyjne modele.'},
+  {name:'Rozpad państwowości',mw:'spoleczny',ring:'next',flux:['liquid'],hr:false,desc:'Narastające napięcia geopolityczne podważające instytucje państw.'},
+  // === ŚWIAT AI ===
+  {name:'Algokracja',mw:'ai',ring:'now',flux:['fast','unlearn'],hr:true,desc:'Rosnący wpływ algorytmów na decyzje, procesy i polaryzację społeczną.'},
+  {name:'Bezrobocie technologiczne',mw:'ai',ring:'now',flux:['fast','unlearn'],hr:true,desc:'Zastępowanie pracowników przez AI w usługach, produkcji i logistyce.'},
+  {name:'Ekonomia twórców',mw:'ai',ring:'now',flux:['liquid','experiment'],hr:false,desc:'Demokratyzacja kompetencji twórczych dzięki generatywnej AI.'},
+  {name:'Niestabilność rynku pracy',mw:'ai',ring:'now',flux:['fast','unlearn'],hr:true,desc:'Automatyzacja i AI transformują rynek pracy — reskilling i upskilling.'},
+  {name:'Etyczna AI',mw:'ai',ring:'new',flux:['unlearn','experiment'],hr:false,desc:'Budowanie AI zgodnej z wartościami etycznymi, wolnej od uprzedzeń.'},
+  {name:'Citizen Developer Era',mw:'ai',ring:'new',flux:['liquid','experiment'],hr:false,desc:'Demokratyzacja tworzenia oprogramowania dzięki no-code i AI-driven development.'},
+  {name:'Human-like AI',mw:'ai',ring:'new',flux:['unlearn','experiment'],hr:false,desc:'AI coraz bardziej przypominająca człowieka w myśleniu i interakcji.'},
+  {name:'Inteligencja kolektywna',mw:'ai',ring:'new',flux:['liquid'],hr:false,desc:'Synergia ludzkiej intuicji i zdolności AI do analizy złożonych problemów.'},
+  {name:'Autonomiczność 2.0',mw:'ai',ring:'next',flux:['fast','experiment'],hr:false,desc:'Systemy AI zdolne do samodzielnego podejmowania decyzji i adaptacji.'},
+  {name:'Ogólna sztuczna inteligencja (AGI)',mw:'ai',ring:'beyond',flux:['fast','experiment'],hr:false,desc:'AI o zdolnościach poznawczych porównywalnych z ludzkim umysłem.'},
+  {name:'Sztuczna superinteligencja',mw:'ai',ring:'beyond',flux:['experiment'],hr:false,desc:'AI przewyższająca ludzkie zdolności we wszystkich domenach.'},
+  // === ŚWIAT LUSTRZANY ===
+  {name:'Chroniczinie online',mw:'lustrzany',ring:'now',flux:['unlearn'],hr:true,desc:'Izolacja społeczna, spadek empatii, zaburzenia zdrowia psychicznego.'},
+  {name:'Zniekształcona rzeczywistość',mw:'lustrzany',ring:'now',flux:['unlearn'],hr:false,desc:'Manipulacja informacją, deepfakes, zaburzenie granicy prawda/fałsz.'},
+  {name:'Antytech',mw:'lustrzany',ring:'now',flux:['unlearn'],hr:true,desc:'Sprzeciw wobec wpływu tech-gigantów. Świadome ograniczanie technologii.'},
+  {name:'Analfabetyzm funkcjonalny',mw:'lustrzany',ring:'now',flux:['unlearn','liquid'],hr:true,desc:'Obniżenie zdolności czytania ze zrozumieniem i formułowania myśli.'},
+  {name:'Antynauka',mw:'lustrzany',ring:'now',flux:['unlearn'],hr:true,desc:'Kwestionowanie nauki, rozprzestrzenianie teorii spiskowych i fake newsów.'},
+  {name:'Datafikacja społeczeństwa',mw:'lustrzany',ring:'new',flux:['fast','liquid'],hr:false,desc:'Przekształcanie życia społecznego w dane — algorytmy i inwigiliacja.'},
+  {name:'Syntetyczna rzeczywistość',mw:'lustrzany',ring:'new',flux:['experiment'],hr:false,desc:'Generowane przez AI środowiska zastępujące doświadczenie fizyczne.'},
+  {name:'Społeczeństwo hybrydowe',mw:'lustrzany',ring:'new',flux:['liquid'],hr:false,desc:'Życie jednocześnie w świecie fizycznym i cyfrowym jako norma.'},
+  {name:'Internet istot',mw:'lustrzany',ring:'new',flux:['experiment','liquid'],hr:false,desc:'Rozszerzenie IoT na organizmy żywe — zbieranie i analiza danych biologicznych.'},
+  // === ZRÓWNOWAŻONY ŚWIAT ===
+  {name:'Dekarbonizacja',mw:'zrownowazony',ring:'now',flux:['experiment','fast'],hr:false,desc:'Redukcja emisji CO₂ i zastosowanie innowacyjnych technologii klimatycznych.'},
+  {name:'Hiperlokalność',mw:'zrownowazony',ring:'now',flux:['liquid'],hr:false,desc:'Lokalna produkcja, krótkie łańcuchy dostaw, budowanie sieci lokalnych.'},
+  {name:'Decentralizacja',mw:'zrownowazony',ring:'now',flux:['liquid','experiment'],hr:false,desc:'Zwiększenie odporności systemów przez rozproszenie zasobów i władzy.'},
+  {name:'Regeneratywne miasta',mw:'zrownowazony',ring:'new',flux:['experiment'],hr:false,desc:'Miasta aktywnie odbudowujące ekosystemy, nie tylko minimalizujące szkody.'},
+  {name:'Rezyliencja energetyczna',mw:'zrownowazony',ring:'new',flux:['experiment','fast'],hr:false,desc:'Odporność systemów energetycznych na kryzysy i zakłócenia.'},
+  {name:'Nowe materiały',mw:'zrownowazony',ring:'next',flux:['experiment'],hr:false,desc:'Biomateriały, materiały postkrzemowe, programowalne substancje.'},
+  {name:'Biocomputing',mw:'zrownowazony',ring:'beyond',flux:['experiment'],hr:false,desc:'Przetwarzanie danych na strukturach biologicznych — DNA, białka, komórki.'},
+  // === ŚWIAT KRYZYSÓW ZDROWOTNYCH ===
+  {name:'Kryzys zdrowia psychicznego',mw:'zdrowie',ring:'now',flux:['unlearn','liquid'],hr:true,desc:'Stale nasilający się stres, lęki, depresja — szczególnie wśród młodych.'},
+  {name:'Społeczeństwo wypalenia',mw:'zdrowie',ring:'now',flux:['unlearn','fast'],hr:true,desc:'Chroniczny stres i przepracowanie jako norma społeczna.'},
+  {name:'Osamotnienie',mw:'zdrowie',ring:'now',flux:['liquid','unlearn'],hr:true,desc:'Epidemia samotności mimo hiperłączności cyfrowej.'},
+  {name:'Dehumanizacja relacji',mw:'zdrowie',ring:'now',flux:['liquid','unlearn'],hr:false,desc:'Spadek umiejętności komunikacyjnych, izolacja i zanik empatii.'},
+  {name:'Dobrostan',mw:'zdrowie',ring:'now',flux:['liquid','experiment'],hr:false,desc:'Podejście holistyczne do zdrowia — fizyczne, psychiczne, społeczne.'},
+  {name:'Społeczeństwo uzależnionych',mw:'zdrowie',ring:'now',flux:['unlearn'],hr:true,desc:'Uzależnienia od technologii, substancji, mediów społecznościowych.'},
+  {name:'Lekooporność',mw:'zdrowie',ring:'new',flux:['experiment'],hr:false,desc:'Oporność bakterii na antybiotyki jako kolejny globalny kryzys zdrowotny.'},
+  {name:'Medycyna regeneratywna',mw:'zdrowie',ring:'new',flux:['experiment'],hr:false,desc:'Terapie oparte na regeneracji komórek, tkanek i narządów.'},
+  {name:'Epidemia chorób mózgu',mw:'zdrowie',ring:'next',flux:['experiment','unlearn'],hr:false,desc:'Wzrost chorób neurodegeneracyjnych: Alzheimer, Parkinson, ALS.'},
+  {name:'Wellaging',mw:'zdrowie',ring:'next',flux:['experiment'],hr:false,desc:'Opóźnianie, hamowanie lub odwracanie procesów starzenia.'},
+  {name:'Eliminacja starości',mw:'zdrowie',ring:'next',flux:['experiment'],hr:false,desc:'Dążenie naukowe do spowolnienia biologicznego starzenia.'},
+  // === ŚWIAT WOJEN ===
+  {name:'Erozja ładu jednobiegunowego',mw:'wojny',ring:'now',flux:['fast','liquid'],hr:false,desc:'Spadek zaufania do instytucji, wielobiegunowy i niestabilny świat.'},
+  {name:'Imperializm technologiczny',mw:'wojny',ring:'now',flux:['fast'],hr:false,desc:'Państwa z przewagą AI i robotyki uzyskują globalną dominację.'},
+  {name:'Militaryzacja AI',mw:'wojny',ring:'now',flux:['fast','experiment'],hr:false,desc:'Automatyzacja procesów decyzyjnych w działaniach zbrojnych.'},
+  {name:'Deglobalizacja',mw:'wojny',ring:'now',flux:['liquid','unlearn'],hr:false,desc:'Osłabienie integracji globalnej — napięcia handlowe i geopolityczne.'},
+  {name:'Kryzys wodny',mw:'wojny',ring:'now',flux:['fast','experiment'],hr:false,desc:'Eskalacja niedoboru zasobów wodnych między państwami.'},
+  {name:'Wojny kognitywne',mw:'wojny',ring:'now',flux:['unlearn'],hr:false,desc:'Manipulacja percepcją i przekonaniami jako broń współczesna.'},
+  {name:'Era nadmiaru danych',mw:'wojny',ring:'now',flux:['fast','unlearn'],hr:false,desc:'Lawinowy wzrost danych i trudności z ich przetwarzaniem i selekcją.'},
+  {name:'Wyścig kosmiczny 2.0',mw:'wojny',ring:'next',flux:['experiment','fast'],hr:false,desc:'Rywalizacja o zasoby i dominację w przestrzeni kosmicznej.'},
+  {name:'Geopolityka kosmosu',mw:'wojny',ring:'next',flux:['fast'],hr:false,desc:'Regulacje orbitalne, cyberzagrożenia satelitarne, broń antysatelitarna.'},
+  // === CROSS-DOMAIN (pojawiają się w wielu megaświatach) ===
+  {name:'AI-fobia',mw:'ai',ring:'now',flux:['unlearn'],hr:true,desc:'Lęk przed AI, utratą kontroli, FOBO — Fear of Becoming Obsolete.'},
+  {name:'Korpokracja',mw:'spoleczny',ring:'now',flux:['liquid','fast'],hr:false,desc:'Przejmowanie władzy przez korporacje technologiczne kosztem demokracji.'},
+  {name:'Migracje',mw:'wojny',ring:'now',flux:['liquid','unlearn'],hr:false,desc:'Złożoność migracji wymagająca strategicznego podejścia i adaptacji.'},
+  {name:'Biologia syntetyczna',mw:'zrownowazony',ring:'next',flux:['experiment'],hr:false,desc:'Projektowanie i modyfikowanie organizmów biologicznych na zamówienie.'},
+  {name:'Lab Grown',mw:'zrownowazony',ring:'next',flux:['experiment'],hr:false,desc:'Produkty wytwarzane w laboratorium — mięso, materiały, leki.'},
+  {name:'Człowiek+',mw:'zdrowie',ring:'new',flux:['experiment','unlearn'],hr:false,desc:'Polepszanie ludzkiego ciała i umysłu przez technologię i genetykę.'},
+  {name:'Rewolucja neurotechnologiczna',mw:'zdrowie',ring:'beyond',flux:['experiment'],hr:false,desc:'Interfejsy mózg-maszyna, implanty neuronowe, terapie neuromodulacyjne.'},
+  {name:'Prawa istot pozaludzkich',mw:'zrownowazony',ring:'beyond',flux:['unlearn','experiment'],hr:false,desc:'Regulacje prawne dla AI i zwierząt, redefinicja podmiotowości.'}
 ];
 
 // ===== STATE =====
 let filters={area:'all',industry:'all',role:'all',situation:'all',context:'all',challenge:'all'};
-let trendFilter='all',resFilter='all';
+let trendFilter='all',resFilter='all',mwFilter='all',hrOnly=false;
+let tooltipTimer=null;
+
+// ===== FLUX BADGE (reusable clickable badge) =====
+function fluxBadge(area,opts={}){
+  const {size='sm',showName=false,clickAction='tooltip'}=opts;
+  const d=FLUX[area],c=CC[area];
+  const sz=size==='md'?'text-sm px-3 py-1':'text-xs px-2 py-0.5';
+  const label=showName?d.letter+' — '+d.name:d.letter;
+  let action;
+  if(clickAction==='detail')action="showDetail('"+area+"')";
+  else if(clickAction==='filter')action="nav('explore');filters.area='"+area+"';renderExplore()";
+  else action="event.stopPropagation();showMiniTooltip(event,'"+area+"')";
+  return '<span class="'+sz+' rounded-full '+c.bg+' '+c.t+' font-bold cursor-pointer hover:brightness-125 transition-all" onclick="'+action+'" title="'+d.name+': '+d.full+'">'+label+'</span>';
+}
+
+// ===== WHEEL CLOUD TOOLTIP =====
+function showWheelTooltip(area){
+  clearTimeout(tooltipTimer);
+  const tt=document.getElementById('flux-tooltip');
+  if(!tt)return;
+  const d=FLUX[area],c=CC[area];
+  const count=SCENARIOS.filter(s=>{
+    if(!s.area.includes(area))return false;
+    if(filters.industry!=='all'&&!s.industry.includes(filters.industry)&&s.industry.length>0)return false;
+    if(filters.role!=='all'&&!s.role.includes(filters.role)&&s.role.length>0)return false;
+    return true;
+  }).length;
+  const relTrends=TRENDS.filter(t=>t.flux&&t.flux.includes(area)).slice(0,5);
+  tt.innerHTML=`
+    <div class="flex items-center gap-2 mb-2">
+      <span class="w-10 h-10 rounded-lg ${c.bg} flex items-center justify-center"><span class="${c.t} font-black text-xl">${d.letter}</span></span>
+      <div><h4 class="${c.t} font-bold text-sm">${d.name}</h4><p class="text-slate-500 text-xs">${d.full}</p></div>
+    </div>
+    <p class="text-xs text-slate-400 mb-3">${d.def.substring(0,120)}...</p>
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-xs px-2 py-0.5 rounded-full ${c.bg} ${c.t} cursor-pointer hover:brightness-125" onclick="hideWheelTooltip();nav('explore');filters.area='${area}';renderExplore()">${count} scenariuszy →</span>
+    </div>
+    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Antywzorce</p>
+    <div class="space-y-0.5 mb-3">${d.anti.slice(0,2).map(a=>'<p class="text-xs text-red-400/70">✕ '+a.split('—')[0].trim()+'</p>').join('')}</div>
+    ${relTrends.length?`<p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Trendy 2025</p>
+    <div class="flex flex-wrap gap-1 mb-2">${relTrends.slice(0,4).map(t=>{
+      const mw=MEGAWORLDS[t.mw];
+      return '<span class="text-[10px] px-1.5 py-0.5 rounded" style="background:'+mw.color+'20;color:'+mw.color+'">'+(t.hr?'⚡ ':'')+t.name+'</span>';
+    }).join('')}</div>`:''}
+    <p class="text-xs text-slate-500 mt-1 italic cursor-pointer" onclick="hideWheelTooltip();showDetail('${area}')">Szczegóły →</p>`;
+  tt.className='flux-tooltip tt-'+area;
+  // Dynamic positioning based on wheel quadrant center
+  const svg=document.querySelector('#view-home svg');
+  if(svg){
+    const sr=svg.getBoundingClientRect();
+    const cx=sr.left+sr.width/2,cy=sr.top+sr.height/2;
+    const qr=sr.width/4; // quadrant radius
+    const vw=document.documentElement.clientWidth;
+    const vh=document.documentElement.clientHeight;
+    let tx,ty;
+    if(area==='fast'){tx=cx+qr/2;ty=cy-qr*1.5;} // top-right → tooltip right of center
+    else if(area==='liquid'){tx=cx+qr/2;ty=cy+qr/2;} // bottom-right
+    else if(area==='unlearn'){tx=cx-qr*1.5-160;ty=cy+qr/2;} // bottom-left
+    else{tx=cx-qr*1.5-160;ty=cy-qr*1.5;} // experiment top-left
+    // Clamp to viewport
+    tx=Math.max(8,Math.min(tx,vw-328));
+    ty=Math.max(60,Math.min(ty,vh-380));
+    Object.assign(tt.style,{top:ty+'px',left:tx+'px',bottom:'',right:''});
+  }
+  requestAnimationFrame(()=>tt.classList.add('visible'));
+}
+function hideWheelTooltip(){
+  tooltipTimer=setTimeout(()=>{const tt=document.getElementById('flux-tooltip');if(tt)tt.classList.remove('visible');},200);
+}
+function keepWheelTooltip(){clearTimeout(tooltipTimer);}
+
+// ===== MINI TOOLTIP (for inline badges) =====
+function showMiniTooltip(ev,area){
+  ev.stopPropagation();
+  document.getElementById('mini-tooltip')?.remove();
+  const d=FLUX[area],c=CC[area];
+  const div=document.createElement('div');
+  div.id='mini-tooltip';
+  div.className='fixed z-[10002] max-w-xs p-3 bg-dark-900/95 backdrop-blur-md border border-dark-700 rounded-xl shadow-2xl';
+  div.innerHTML=`
+    <div class="flex items-center gap-2 mb-1"><span class="${c.t} font-black text-lg">${d.letter}</span><span class="${c.t} font-bold text-sm">${d.name}</span></div>
+    <p class="text-xs text-slate-400 mb-2">${d.full}</p>
+    <p class="text-xs text-slate-500 mb-2">${d.def.substring(0,100)}...</p>
+    <button class="text-xs ${c.t} hover:underline" onclick="showDetail('${area}');document.getElementById('mini-tooltip')?.remove()">Szczegóły →</button>`;
+  const rect=ev.target.getBoundingClientRect();
+  div.style.left=Math.min(rect.left,window.innerWidth-280)+'px';
+  div.style.top=(rect.bottom+8)+'px';
+  document.body.appendChild(div);
+  setTimeout(()=>{document.addEventListener('click',function h(e){if(!div.contains(e.target)){div.remove();document.removeEventListener('click',h)}})},10);
+}
+
+// ===== WHEEL TREND DOTS (Home view) =====
+function renderWheelTrendDots(){
+  const g=document.getElementById('wheel-trend-dots');if(!g)return;
+  const cx=400,cy=400;
+  // Quadrant angle ranges (center angles for placing dots)
+  const quadrants={fast:{startA:-80,endA:-10,r:[100,170,230]},liquid:{startA:10,endA:80,r:[100,170,230]},unlearn:{startA:100,endA:170,r:[100,170,230]},experiment:{startA:190,endA:260,r:[100,170,230]}};
+  let h='';
+  ['fast','liquid','unlearn','experiment'].forEach(area=>{
+    const hrTrends=TRENDS.filter(t=>t.flux&&t.flux.includes(area)&&t.hr);
+    const topTrends=hrTrends.slice(0,6);
+    const q=quadrants[area];
+    const spread=q.endA-q.startA;
+    topTrends.forEach((t,i)=>{
+      const mw=MEGAWORLDS[t.mw];
+      const rIdx=Math.floor(i/2);
+      const r=q.r[Math.min(rIdx,q.r.length-1)];
+      const angleOffset=spread/(Math.min(topTrends.length,6)+1)*(i+1);
+      const angle=(q.startA+angleOffset)*Math.PI/180;
+      const x=cx+r*Math.cos(angle),y=cy+r*Math.sin(angle);
+      const dotR=t.ring==='now'?4:3;
+      const op=t.ring==='now'?.5:t.ring==='new'?.35:.2;
+      h+=`<g class="cursor-pointer" onclick="event.stopPropagation();nav('trends');trendFilter='${area}';renderTrends()">
+        <circle cx="${x}" cy="${y}" r="${dotR}" fill="${mw.color}" opacity="${op}"/>
+        <text x="${x}" y="${y-dotR-3}" text-anchor="middle" fill="${mw.color}" font-size="5" opacity="${op*.8}" font-weight="500">${t.name.length>14?t.name.substring(0,12)+'…':t.name}</text>
+      </g>`;
+    });
+  });
+  g.innerHTML=h;
+}
 
 // ===== NAVIGATION =====
 function nav(v){
@@ -838,41 +1051,121 @@ function renderExplore(){
     const bookmarked=isModuleOn('progress')&&getProgress().bookmarks.includes(s.title);
     let evidBadge='';if(isModuleOn('evidence')&&EVIDENCE_MAP[s.title]){const ev=EVIDENCE_MAP[s.title];evidBadge=`<span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">${EVIDENCE_TIERS[ev.tier]}</span>`}
     return`<div class="scenario-card bg-dark-900 rounded-xl p-5 border border-dark-700 hover:${c.b}">
-      <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-1.5">${s.area.map(a=>`<span class="text-xs px-2 py-0.5 rounded-full ${CC[a].bg} ${CC[a].t} font-bold">${FLUX[a].letter}</span>`).join('')}${evidBadge}</div>${isModuleOn('progress')?`<button onclick="event.stopPropagation();toggleBookmark('${s.title.replace(/'/g,"\\'")}');renderExplore()" class="text-lg ${bookmarked?'text-amber-400':'text-slate-600 hover:text-amber-400'}" title="Bookmark">${bookmarked?'★':'☆'}</button>`:''}</div>
+      <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-1.5">${s.area.map(a=>fluxBadge(a)).join('')}${evidBadge}</div>${isModuleOn('progress')?`<button onclick="event.stopPropagation();toggleBookmark('${s.title.replace(/'/g,"\\'")}');renderExplore()" class="text-lg ${bookmarked?'text-amber-400':'text-slate-600 hover:text-amber-400'}" title="Bookmark">${bookmarked?'★':'☆'}</button>`:''}</div>
       <h4 class="text-sm font-semibold text-slate-200 mb-1">${s.title}</h4>
       <p class="text-sm text-slate-400 mb-3">${s.desc}</p>
       <div class="flex flex-wrap gap-1.5 mb-3">${s.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">${ind.icon} ${ind.name}</span>`:''}).join('')}${s.role.map(r=>{const rl=ROLES.find(z=>z.id===r);return rl?`<span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">${rl.name}</span>`:''}).join('')}${s.context.map(x=>{const lc=LIFE_CONTEXTS.find(z=>z.id===x);return lc?`<span class="text-xs px-2 py-0.5 rounded bg-violet-500/10 text-violet-400">${lc.icon} ${lc.name}</span>`:''}).join('')}${s.situation.map(x=>{const st=SITUATIONS.find(z=>z.id===x);return st?`<span class="text-xs px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400">${st.icon} ${st.name}</span>`:''}).join('')}</div>
       <div class="bg-dark-950 rounded-lg p-3 text-sm text-emerald-400/80"><strong>Tip:</strong> ${s.tip}</div>
+      ${s.fluxWhy?`<details class="mt-2"><summary class="text-xs text-slate-500 cursor-pointer hover:text-slate-300 transition-colors">Dlaczego ${s.area.map(a=>FLUX[a].letter).join('+')}?</summary><p class="text-xs text-slate-400 mt-1 pl-2 border-l-2 border-dark-700">${s.fluxWhy}</p></details>`:''}
     </div>`;
   }).join(''):`<div class="col-span-2 text-center py-12 text-slate-500 text-sm">Brak scenariuszy dla wybranych filtrów. <button onclick="resetFilters()" class="text-amber-400 hover:underline">Resetuj</button></div>`;
 }
 
-// ===== TREND MAP =====
+// ===== TREND MAP (Hatalska 2025) =====
 function renderTrends(){
   const svg=document.getElementById('trend-map');const cx=500,cy=500;
   const rings={now:180,new:280,next:370,beyond:450};
+  // Assign angles dynamically by megaworld sector
+  const mwSectors={spoleczny:[-90,-30],ai:[-30,30],lustrzany:[30,90],zrownowazony:[90,150],zdrowie:[150,210],wojny:[210,270]};
   let h=`<circle cx="${cx}" cy="${cy}" r="460" fill="#0c0f1a" stroke="#1e293b" stroke-width=".5"/>`;
   Object.entries(rings).forEach(([k,r])=>{h+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,${k==='now'?.12:k==='new'?.08:k==='next'?.05:.03})" stroke-width="1" ${k!=='now'?'stroke-dasharray="4 2"':''}/>`;});
   h+=`<text x="${cx+5}" y="${cy-rings.now-5}" fill="#475569" font-size="10" letter-spacing="2">NOW</text>`;
-  h+=`<text x="${cx+5}" y="${cy-rings.new-5}" fill="#334155" font-size="10" letter-spacing="2">NEW</text>`;
-  h+=`<text x="${cx+5}" y="${cy-rings.next-5}" fill="#1e293b" font-size="10" letter-spacing="2">NEXT</text>`;
-  h+=`<text x="${cx+5}" y="${cy-rings.beyond-5}" fill="#1e293b" font-size="10" letter-spacing="2">BEYOND</text>`;
-  h+=`<line x1="${cx}" y1="${cy-460}" x2="${cx}" y2="${cy-60}" stroke="#1e293b" stroke-width=".5"/><line x1="${cx}" y1="${cy+60}" x2="${cx}" y2="${cy+460}" stroke="#1e293b" stroke-width=".5"/><line x1="${cx-460}" y1="${cy}" x2="${cx-60}" y2="${cy}" stroke="#1e293b" stroke-width=".5"/><line x1="${cx+60}" y1="${cy}" x2="${cx+460}" y2="${cy}" stroke="#1e293b" stroke-width=".5"/>`;
-  h+=`<path d="M${cx},${cx} L${cx},${cy-460} A460,460 0 0,1 ${cx+460},${cy} Z" fill="${C.fast}" opacity=".03"/>`;
-  h+=`<path d="M${cx},${cy} L${cx+460},${cy} A460,460 0 0,1 ${cx},${cy+460} Z" fill="${C.liquid}" opacity=".03"/>`;
-  h+=`<path d="M${cx},${cy} L${cx},${cy+460} A460,460 0 0,1 ${cx-460},${cy} Z" fill="${C.unlearn}" opacity=".03"/>`;
-  h+=`<path d="M${cx},${cy} L${cx-460},${cy} A460,460 0 0,1 ${cx},${cy-460} Z" fill="${C.experiment}" opacity=".03"/>`;
-  TRENDS.forEach(t=>{
-    const r=rings[t.ring],a=t.angle*Math.PI/180,x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);
-    const sz=t.ring==='now'?6:t.ring==='new'?5:t.ring==='next'?4:3;
-    const op=t.ring==='now'?.9:t.ring==='new'?.6:t.ring==='next'?.4:.25;
-    const show=trendFilter==='all'||trendFilter===t.area;
-    h+=`<g style="opacity:${show?1:.08};transition:opacity .4s"><circle cx="${x}" cy="${y}" r="${sz}" fill="${C[t.area]}" opacity="${op}"/><text x="${x}" y="${y-sz-4}" text-anchor="middle" fill="${C[t.area]}" font-size="8" opacity="${op*.9}" font-weight="500">${t.name}</text></g>`;
+  h+=`<text x="${cx+5}" y="${cy-rings.new-5}" fill="#334155" font-size="10" letter-spacing="2">NEW 1-5 lat</text>`;
+  h+=`<text x="${cx+5}" y="${cy-rings.next-5}" fill="#1e293b" font-size="10" letter-spacing="2">NEXT 5-15 lat</text>`;
+  h+=`<text x="${cx+5}" y="${cy-rings.beyond-5}" fill="#1e293b" font-size="10" letter-spacing="2">BEYOND 15+</text>`;
+  // Sector dividers (6 sectors for megaworlds)
+  Object.values(mwSectors).forEach(([start])=>{
+    const a=start*Math.PI/180;
+    h+=`<line x1="${cx+60*Math.cos(a)}" y1="${cy+60*Math.sin(a)}" x2="${cx+460*Math.cos(a)}" y2="${cy+460*Math.sin(a)}" stroke="#1e293b" stroke-width=".5"/>`;
   });
-  h+=`<circle cx="${cx}" cy="${cy}" r="55" fill="#111827" stroke="#334155"/><text x="${cx}" y="${cy-3}" text-anchor="middle" fill="white" font-size="20" font-weight="900" letter-spacing="4">FLUX</text><text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#64748b" font-size="7" letter-spacing="2">TREND MAP</text>`;
+  // Sector fills + labels
+  Object.entries(mwSectors).forEach(([mwId,[start,end]])=>{
+    const mw=MEGAWORLDS[mwId];
+    const a1=start*Math.PI/180,a2=end*Math.PI/180;
+    const mid=(start+end)/2*Math.PI/180;
+    h+=`<path d="M${cx},${cy} L${cx+460*Math.cos(a1)},${cy+460*Math.sin(a1)} A460,460 0 0,1 ${cx+460*Math.cos(a2)},${cy+460*Math.sin(a2)} Z" fill="${mw.color}" opacity=".04"/>`;
+    const lx=cx+395*Math.cos(mid),ly=cy+395*Math.sin(mid);
+    h+=`<text x="${lx}" y="${ly}" text-anchor="middle" fill="${mw.color}" font-size="7" font-weight="600" opacity=".6">${mw.icon} ${mw.name}</text>`;
+  });
+  // Plot trends
+  const trendsByMw={};
+  TRENDS.forEach(t=>{if(!trendsByMw[t.mw])trendsByMw[t.mw]={};if(!trendsByMw[t.mw][t.ring])trendsByMw[t.mw][t.ring]=[];trendsByMw[t.mw][t.ring].push(t)});
+  TRENDS.forEach(t=>{
+    const sector=mwSectors[t.mw];if(!sector)return;
+    const ringTrends=trendsByMw[t.mw]?.[t.ring]||[];
+    const idx=ringTrends.indexOf(t);
+    const spread=sector[1]-sector[0]-4;
+    const step=ringTrends.length>1?spread/(ringTrends.length-1):0;
+    const angle=sector[0]+2+(step*idx);
+    const r=rings[t.ring],a=angle*Math.PI/180,x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);
+    const sz=t.ring==='now'?5:t.ring==='new'?4:t.ring==='next'?3.5:3;
+    const op=t.ring==='now'?.9:t.ring==='new'?.65:t.ring==='next'?.4:.25;
+    const mw=MEGAWORLDS[t.mw];
+    // Filtering
+    const showMw=mwFilter==='all'||mwFilter===t.mw;
+    const showFlux=trendFilter==='all'||t.flux.includes(trendFilter);
+    const showHr=!hrOnly||t.hr;
+    const show=showMw&&showFlux&&showHr;
+    const dotColor=mw.color;
+    h+=`<g class="cursor-pointer" onclick="showTrendPopup(event,'${t.name.replace(/'/g,"\\'")}')" style="opacity:${show?1:.06};transition:opacity .4s">
+      <circle cx="${x}" cy="${y}" r="${sz}" fill="${dotColor}" opacity="${op}"/>
+      ${t.hr?`<circle cx="${x}" cy="${y}" r="${sz+2}" fill="none" stroke="#eab308" stroke-width="1" opacity="${op*.7}"/>`:''}
+      <text x="${x}" y="${y-sz-4}" text-anchor="middle" fill="${dotColor}" font-size="7" opacity="${op*.85}" font-weight="500">${t.name}</text>
+    </g>`;
+  });
+  h+=`<circle cx="${cx}" cy="${cy}" r="55" fill="#111827" stroke="#334155"/><text x="${cx}" y="${cy-3}" text-anchor="middle" fill="white" font-size="20" font-weight="900" letter-spacing="4">FLUX</text><text x="${cx}" y="${cy+12}" text-anchor="middle" fill="#64748b" font-size="7" letter-spacing="2">MAPA TRENDÓW 2025</text>`;
   svg.innerHTML=h;
+  // Render filters below
+  renderTrendFilters();
 }
-function filterTrends(f){trendFilter=f;document.querySelectorAll('.tf').forEach(b=>b.classList.remove('on'));event.target.classList.add('on');renderTrends();}
+function renderTrendFilters(){
+  const el=document.getElementById('trend-filters');if(!el)return;
+  el.innerHTML=`
+    <div class="flex flex-wrap gap-2 items-center justify-center mb-2">
+      <span class="text-[10px] text-slate-500">FLUX:</span>
+      <button onclick="trendFilter='all';renderTrends()" class="tf text-[10px] px-2 py-1 rounded-full border ${trendFilter==='all'?'border-amber-500 text-amber-400':'border-dark-700 text-slate-500'}">Wszystkie</button>
+      ${['fast','liquid','unlearn','experiment'].map(a=>`<button onclick="trendFilter='${a}';renderTrends()" class="tf text-[10px] px-2 py-1 rounded-full border ${trendFilter===a?'border-amber-500 '+CC[a].t:'border-dark-700 text-slate-500'}">${FLUX[a].letter}</button>`).join('')}
+    </div>
+    <div class="flex flex-wrap gap-2 items-center justify-center mb-2">
+      <span class="text-[10px] text-slate-500">Megaświat:</span>
+      <button onclick="mwFilter='all';renderTrends()" class="mf text-[10px] px-2 py-1 rounded-full border ${mwFilter==='all'?'border-amber-500 text-amber-400':'border-dark-700 text-slate-500'}">Wszystkie</button>
+      ${Object.entries(MEGAWORLDS).map(([id,mw])=>`<button onclick="mwFilter='${id}';renderTrends()" class="mf text-[10px] px-2 py-1 rounded-full border" style="border-color:${mwFilter===id?mw.color:'#334155'};color:${mwFilter===id?mw.color:'#64748b'}">${mw.icon} ${mw.name}</button>`).join('')}
+    </div>
+    <div class="flex items-center justify-center gap-3 mb-2">
+      <label class="flex items-center gap-1 cursor-pointer text-[10px] ${hrOnly?'text-amber-400':'text-slate-500'}">
+        <input type="checkbox" ${hrOnly?'checked':''} onchange="hrOnly=this.checked;renderTrends()" class="w-3 h-3 accent-amber-500"> Tylko trendy HR
+      </label>
+    </div>
+    <div class="flex flex-wrap gap-2 items-center justify-center">
+      ${Object.entries(MEGAWORLDS).map(([id,mw])=>`<span class="text-[10px] flex items-center gap-1"><span class="w-2 h-2 rounded-full inline-block" style="background:${mw.color}"></span>${mw.name}</span>`).join('')}
+      <span class="text-[10px] flex items-center gap-1 ml-2"><span class="w-3 h-3 rounded-full border border-amber-500 inline-block"></span>Trend HR</span>
+    </div>`;
+}
+function showTrendPopup(ev,name){
+  ev.stopPropagation();
+  document.getElementById('trend-popup')?.remove();
+  const t=TRENDS.find(tr=>tr.name===name);if(!t)return;
+  const mw=MEGAWORLDS[t.mw];
+  const div=document.createElement('div');
+  div.id='trend-popup';
+  div.className='fixed z-[10002] max-w-sm p-4 bg-dark-900/95 backdrop-blur-md border border-dark-700 rounded-xl shadow-2xl';
+  div.innerHTML=`
+    <div class="flex items-center gap-2 mb-2">
+      <span class="mw-badge" style="background:${mw.color}20;color:${mw.color}">${mw.icon} ${mw.name}</span>
+      <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">${t.ring.toUpperCase()}</span>
+      ${t.hr?'<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400">⚡ Trend HR</span>':''}
+    </div>
+    <h4 class="text-sm font-bold text-slate-200 mb-1">${t.name}</h4>
+    <p class="text-xs text-slate-400 mb-3">${t.desc}</p>
+    <p class="text-[10px] text-slate-500 uppercase mb-1">Wpływ na FLUX</p>
+    <div class="flex gap-1 mb-2">${t.flux.map(a=>fluxBadge(a,{clickAction:'detail'})).join('')}</div>
+    <button class="text-xs text-slate-500 hover:text-white" onclick="document.getElementById('trend-popup')?.remove()">Zamknij ✕</button>`;
+  div.style.left=Math.min(ev.clientX,window.innerWidth-350)+'px';
+  div.style.top=Math.min(ev.clientY-10,window.innerHeight-250)+'px';
+  document.body.appendChild(div);
+  setTimeout(()=>{document.addEventListener('click',function h(e){if(!div.contains(e.target)){div.remove();document.removeEventListener('click',h)}})},10);
+}
+function filterTrends(f){trendFilter=f;renderTrends();}
 
 // ===== RESEARCH VIEW =====
 function renderResearch(){
@@ -1302,6 +1595,20 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(localStorage.getItem('flux_projector')==='1'){document.documentElement.classList.add('projector');document.querySelector('.projector-btn')?.classList.add('on')}
   // Apply modules (renders nav, shows/hides elements)
   applyModules();
+  // Render trend dots on home wheel
+  renderWheelTrendDots();
+  // Wheel tooltip hover events
+  document.querySelectorAll('.flux-quadrant').forEach(g=>{
+    const m=g.getAttribute('onclick')?.match(/showDetail\('(\w+)'\)/);
+    if(m){
+      g.addEventListener('mouseenter',()=>showWheelTooltip(m[1]));
+      g.addEventListener('mouseleave',()=>hideWheelTooltip());
+    }
+  });
+  const ttEl=document.getElementById('flux-tooltip');
+  if(ttEl){ttEl.addEventListener('mouseenter',keepWheelTooltip);ttEl.addEventListener('mouseleave',hideWheelTooltip);}
+  // Add red border temporarily for debug (remove later)
+  //if(ttEl)ttEl.style.border='2px solid red';
 });
 </script>
 </body>
