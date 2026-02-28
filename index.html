@@ -118,6 +118,92 @@ html.projector .chat-toggle,html.projector .chat-panel{display:none!important}
 .overlay-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
 .overlay-modal.open{display:flex}
 
+/* ===== ABOUT PANEL ===== */
+.about-body{--panel-bg:#0f1535;--card-bg:#162042;--line:rgba(255,255,255,0.08);--accent:#e91e63;--accent2:#9c27b0;--txt-main:#e2e8f0;--txt-muted:#64748b;--bg-panel:rgba(255,255,255,0.03);padding:1.5rem;display:flex;flex-direction:column;gap:1.5rem;max-width:900px;margin:0 auto}
+.about-card{background:var(--card-bg);border-radius:1rem;padding:1.5rem;border:1px solid var(--line);display:flex;gap:1.5rem;align-items:flex-start}
+.about-photo-wrap{flex-shrink:0;width:140px;height:140px;border-radius:1rem;overflow:hidden;border:2px solid var(--accent)}
+.about-photo{width:100%;height:100%;object-fit:cover}
+.about-content{flex:1;min-width:0}
+.about-name{font-size:1.5rem;font-weight:800;color:white;margin:0 0 .25rem}
+.about-role{font-size:.8rem;color:var(--txt-muted);margin:0 0 .75rem}
+.about-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem}
+.about-tag{font-size:.65rem;padding:3px 10px;border-radius:99px;background:rgba(233,30,99,.1);color:var(--accent);border:1px solid rgba(233,30,99,.2);white-space:nowrap}
+.about-desc{font-size:.82rem;line-height:1.6;color:var(--txt-main);margin:0 0 .5rem;opacity:.85}
+.about-section-title{font-size:1rem;font-weight:700;color:white;padding-bottom:.5rem;border-bottom:1px solid var(--line)}
+.about-intro-text{font-size:.82rem;color:var(--txt-muted);line-height:1.6;margin:0}
+.group-process-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.group-process-card{background:var(--card-bg);border:1px solid var(--line);border-radius:.75rem;padding:1rem;display:flex;gap:.75rem;align-items:flex-start}
+.group-process-icon{font-size:1.5rem;flex-shrink:0;margin-top:2px}
+.group-process-title{font-size:.82rem;color:white;display:block;margin-bottom:.25rem}
+.group-process-desc{font-size:.75rem;color:var(--txt-muted);line-height:1.5;margin:0}
+.about-psych-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+.about-psych-card{background:var(--card-bg);border:1px solid var(--line);border-radius:.75rem;padding:1rem}
+.about-psych-card--wide{grid-column:span 2}
+.about-psych-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
+.about-psych-badge{font-size:.65rem;padding:3px 8px;border-radius:99px;font-weight:600}
+.rmp-badge{background:rgba(255,87,34,.15);color:#ff5722}
+.perso-badge{background:rgba(33,150,243,.15);color:#2196f3}
+.harrison-badge{background:rgba(76,175,80,.15);color:#4caf50}
+.opto-badge{background:rgba(156,39,176,.15);color:#ce93d8}
+.about-psych-name{font-size:.78rem;color:white;font-weight:600}
+.about-psych-desc{font-size:.75rem;color:var(--txt-muted);line-height:1.5;margin:0 0 .75rem}
+.drives-list{display:flex;flex-direction:column;gap:.75rem}
+.drive-item{display:flex;flex-direction:column;gap:.25rem}
+.drive-top{display:flex;align-items:center;gap:.5rem}
+.drive-icon{font-size:1rem;flex-shrink:0}
+.drive-label{font-size:.75rem;color:white;white-space:nowrap;min-width:120px}
+.drive-track{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.drive-fill{height:100%;border-radius:3px;transition:width .6s}
+.drive-desc{font-size:.7rem;color:var(--txt-muted);line-height:1.4;padding-left:calc(1rem + .5rem + 120px);margin:0}
+.people-chips{display:flex;flex-direction:column;gap:.75rem}
+.people-chip{display:flex;gap:.6rem;align-items:flex-start}
+.people-icon{font-size:1.1rem;flex-shrink:0;margin-top:2px}
+.people-chip strong{font-size:.78rem;color:white;display:block;margin-bottom:.1rem}
+.people-chip p{font-size:.72rem;color:var(--txt-muted);line-height:1.4;margin:0}
+.rmp-bars{display:flex;flex-direction:column;gap:.5rem}
+.rmp-row{display:flex;align-items:center;gap:.5rem}
+.rmp-label{font-size:.72rem;color:var(--txt-main);flex:1;text-align:left}
+.rmp-track{width:80px;height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;flex-shrink:0}
+.rmp-fill{height:100%;border-radius:3px;transition:width .6s}
+.rmp-val{font-size:.65rem;color:var(--txt-muted);width:30px;text-align:right;flex-shrink:0}
+.opto-dims-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.75rem}
+.opto-dim-card{background:var(--bg-panel);border:1px solid var(--line);border-radius:.6rem;padding:.75rem}
+.opto-dim-header{display:flex;flex-direction:column;gap:.4rem}
+.opto-dim-icon{font-size:1.1rem}
+.opto-dim-name{font-size:.78rem;font-weight:700;color:white}
+.opto-dim-bars{display:flex;flex-direction:column;gap:.3rem;margin-top:.25rem}
+.opto-bar-row{display:flex;align-items:center;gap:.4rem}
+.opto-bar-label{font-size:.65rem;color:var(--txt-muted);min-width:100px}
+.opto-bar-track{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.opto-bar-fill{height:100%;border-radius:3px;transition:width .6s}
+.opto-bar-val{font-size:.65rem;font-weight:700;width:20px;text-align:right}
+.opto-dim-desc{font-size:.7rem;color:var(--txt-muted);line-height:1.4;margin:.5rem 0 0}
+.clients-sectors{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.75rem}
+.clients-sector{background:var(--card-bg);border:1px solid var(--line);border-radius:.6rem;padding:.75rem}
+.clients-sector-header{display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem}
+.clients-sector-icon{font-size:1rem}
+.clients-sector-name{font-size:.75rem;font-weight:600;color:white}
+.clients-list{display:flex;flex-wrap:wrap;gap:.3rem}
+.client-chip{font-size:.65rem;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.05);color:var(--txt-muted);border:1px solid var(--line)}
+.about-app-note{background:var(--card-bg);border:1px solid var(--line);border-radius:.75rem;padding:1rem}
+.about-app-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:600;display:block;margin-bottom:.4rem}
+.about-app-note p{font-size:.78rem;color:var(--txt-muted);line-height:1.5;margin:0}
+.about-footer{text-align:center;font-size:.7rem;color:rgba(255,255,255,.25);padding:.5rem 0}
+.training-areas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.75rem}
+.training-area-card{background:var(--card-bg);border:1px solid var(--line);border-radius:.6rem;padding:.75rem;display:flex;flex-direction:column;gap:.5rem}
+.training-area-header{display:flex;align-items:center;gap:.6rem}
+.training-area-icon{font-size:1.5rem;flex-shrink:0}
+.training-area-title{font-size:.82rem;color:white;display:block}
+.training-area-level{font-size:.65rem;color:var(--accent);font-weight:600}
+.training-area-desc{font-size:.75rem;color:var(--txt-muted);line-height:1.5;margin:0}
+.training-area-tags{display:flex;flex-wrap:wrap;gap:.25rem}
+.training-area-tag{font-size:.6rem;padding:2px 7px;border-radius:99px;background:rgba(255,255,255,.05);color:var(--txt-muted);border:1px solid var(--line)}
+.training-methodologies{background:var(--card-bg);border:1px solid var(--line);border-radius:.6rem;padding:.75rem}
+.training-methodologies-label{font-size:.7rem;font-weight:700;color:white;display:block;margin-bottom:.4rem}
+.training-methodologies-list{display:flex;flex-wrap:wrap;gap:.35rem}
+.training-methodology-chip{font-size:.7rem;padding:3px 10px;border-radius:99px;background:rgba(233,30,99,.1);color:var(--accent);border:1px solid rgba(233,30,99,.2);font-weight:600}
+@media(max-width:640px){.about-card{flex-direction:column;align-items:center;text-align:center}.about-photo-wrap{width:110px;height:110px}.about-tags{justify-content:center}.about-psych-grid{grid-template-columns:1fr}.about-psych-card--wide{grid-column:span 1}.drive-desc{padding-left:0}.opto-dims-grid{grid-template-columns:1fr}}
+
 /* Diagnostic scale buttons */
 .scale-btn{width:2.5rem;height:2.5rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#94a3b8;cursor:pointer;font-weight:700;transition:all .2s}
 .scale-btn:hover{border-color:#f59e0b;color:#f59e0b}
@@ -193,6 +279,8 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
       <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 via-cyan-500 to-violet-500 flex items-center justify-center"><span class="text-[10px] font-black text-white">F</span></div>
       <span class="font-bold text-base">FLUX</span>
       <span class="text-slate-600 text-xs hidden sm:inline">| Nowe Motywacje</span>
+      <span class="text-slate-700 text-xs hidden sm:inline">·</span>
+      <a onclick="nav('about')" class="nav-link text-xs font-medium text-slate-500 hover:text-amber-400 cursor-pointer hidden sm:inline" data-v="about">O autorze</a>
     </div>
     <!-- Desktop nav -->
     <div class="hidden md:flex items-center gap-6">
@@ -222,6 +310,7 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
       <a onclick="nav('trends');toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">Trendy</a>
       <a onclick="nav('research');toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">Badania</a>
       <a onclick="nav('tools');toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">Narzędzia</a>
+      <a onclick="nav('about');toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">O mnie</a>
       <a onclick="openSettings();toggleMobile()" class="block py-2 text-sm text-slate-400 hover:text-white cursor-pointer">Ustawienia Gemini</a>
     </div>
   </div>
@@ -453,6 +542,214 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
     <p class="text-slate-400 text-sm">Włączaj i wyłączaj funkcje aplikacji wg potrzeb.</p>
   </div>
   <div id="modules-content"></div>
+</div>
+</section>
+
+<!-- ========== ABOUT ========== -->
+<section id="view-about" class="view pt-16">
+<div class="about-body">
+
+  <!-- Hero card -->
+  <div class="about-card">
+    <div class="about-photo-wrap">
+      <img src="author.jpg" alt="Sebastian Szajner" class="about-photo">
+    </div>
+    <div class="about-content">
+      <h2 class="about-name">Sebastian Szajner</h2>
+      <p class="about-role">Trener · Konsultant · Coach · Psycholog</p>
+      <div class="about-tags">
+        <span class="about-tag">C-level</span>
+        <span class="about-tag">N-1 / N-2</span>
+        <span class="about-tag">Zarządzanie</span>
+        <span class="about-tag">Przywództwo</span>
+        <span class="about-tag">Psychologia sprzedaży</span>
+        <span class="about-tag">Efektywność osobista</span>
+        <span class="about-tag">AI w biznesie</span>
+      </div>
+      <p class="about-desc">
+        Trener i konsultant z ponad <strong>10-letnim doświadczeniem</strong> w obszarze
+        szkoleń i rozwoju (L&amp;D). Wcześniej pracował bezpośrednio w sprzedaży
+        (m.in. Noble Bank), przeszedł pełną ścieżkę — od trenera wewnętrznego,
+        przez L&amp;D Experta i Senior Trenera Sprzedaży, po Kierownika Szkoleń.
+      </p>
+      <p class="about-desc">
+        Specjalizuje się w szkoleniach z zakresu <strong>psychologii sprzedaży</strong>,
+        <strong>efektywności osobistej</strong> i <strong>zarządzania</strong>.
+        Ponad <strong>6 000 godzin</strong> pracy warsztatowej. Od 2023 roku szkoli
+        działy sprzedaży z <strong>efektywnego użycia AI</strong>. Prowadzi szkolenia
+        w języku polskim i angielskim.
+      </p>
+    </div>
+  </div>
+
+  <!-- Podejście do procesu grupowego -->
+  <div class="about-section-title">Podejście do procesu grupowego</div>
+  <p class="about-intro-text">
+    Warsztat to żywy organizm. To, co dzieje się między ludźmi — dynamika, napięcia,
+    energie — ma równie duże znaczenie jak treść merytoryczna. Poniżej kilka zasad,
+    którymi kieruję się podczas pracy z grupą.
+  </p>
+  <div class="group-process-grid">
+    <div class="group-process-card"><div class="group-process-icon">🎲</div><div><strong class="group-process-title">Losowość jako narzędzie, nie chaos</strong><p class="group-process-desc">Podział na grupy i losowanie uczestników to nie tylko "kto z kim" — to świadoma interwencja w dynamikę grupy. Losowość rozbija nieformalne koalicje, wymusza nowe perspektywy i tworzy warunki do autentycznej współpracy.</p></div></div>
+    <div class="group-process-card"><div class="group-process-icon">🌡️</div><div><strong class="group-process-title">Temperatura grupy</strong><p class="group-process-desc">Na każdym etapie warsztatu monitoruję poziom energii, napięcia i zaangażowania. Wiem, kiedy przyspieszyć, kiedy zwolnić — i kiedy potrzebny jest reset. Narzędzia jak losowanie czy koło fortuny pomagają zmieniać rytm i utrzymywać uwagę.</p></div></div>
+    <div class="group-process-card"><div class="group-process-icon">🧱</div><div><strong class="group-process-title">Fazy grupowe — od formowania do działania</strong><p class="group-process-desc">Grupy przechodzą przez przewidywalne fazy: forming → storming → norming → performing. Dobry trener nie omija "stormingu" — pomaga grupie przez niego przejść. Losuję, mieszam składy i prowokuję dialog właśnie wtedy, gdy jest to najbardziej potrzebne.</p></div></div>
+    <div class="group-process-card"><div class="group-process-icon">🎯</div><div><strong class="group-process-title">Struktura, która uwalnia</strong><p class="group-process-desc">Paradoks procesu grupowego: im lepsza struktura, tym więcej swobody twórczej. Jasne zasady losowania, przejrzyste reguły gry i przewidywalny rytm dają uczestnikom poczucie bezpieczeństwa — i przestrzeń do autentycznego zaangażowania.</p></div></div>
+    <div class="group-process-card"><div class="group-process-icon">👁️</div><div><strong class="group-process-title">Uważność na to, co niewidoczne</strong><p class="group-process-desc">Dynamika grupy dzieje się zarówno w słowach, jak i między nimi. Obserwuję, kto milczy, kto dominuje, jakie nieformalne role się tworzą. Narzędzia losowania pomagają mi jako trenerowi — bez tłumaczenia się — zmienić układ sił i dać głos tym, którzy go nie zabierają.</p></div></div>
+  </div>
+
+  <!-- Tematy szkoleniowe & kompetencje -->
+  <div class="about-section-title">Tematy szkoleniowe & kompetencje</div>
+  <p class="about-intro-text">
+    7 głównych obszarów tematycznych, w których prowadzę szkolenia i warsztaty.
+    Każdy temat adaptuję do poziomu grupy — od podstawowego po zaawansowany.
+  </p>
+  <div class="training-areas-grid">
+    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">🤖</span><div><strong class="training-area-title">AI w biznesie</strong><span class="training-area-level">Flagowy temat</span></div></div><p class="training-area-desc">Od podstaw po zaawansowane wdrożenia. Prompt engineering, automatyzacja procesów, AI w sprzedaży i zarządzaniu.</p><div class="training-area-tags"><span class="training-area-tag">ChatGPT</span><span class="training-area-tag">Claude</span><span class="training-area-tag">Gemini</span><span class="training-area-tag">Copilot</span><span class="training-area-tag">Automatyzacja</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">🧠</span><div><strong class="training-area-title">Psychologia sprzedaży</strong><span class="training-area-level">2 dni</span></div></div><p class="training-area-desc">Challenger Sale, SPIN Selling, psychologia decyzji zakupowych, praca z oporem klienta.</p><div class="training-area-tags"><span class="training-area-tag">Challenger Sale</span><span class="training-area-tag">SPIN</span><span class="training-area-tag">Negocjacje</span><span class="training-area-tag">Obiekcje</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">💬</span><div><strong class="training-area-title">Komunikacja</strong><span class="training-area-level">1–2 dni</span></div></div><p class="training-area-desc">Feedback, NVC, prezentacje, storytelling, trudne rozmowy, asertywność.</p><div class="training-area-tags"><span class="training-area-tag">NVC</span><span class="training-area-tag">Feedback</span><span class="training-area-tag">Storytelling</span><span class="training-area-tag">Asertywność</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">👔</span><div><strong class="training-area-title">Zarządzanie & Przywództwo</strong><span class="training-area-level">1–2 dni</span></div></div><p class="training-area-desc">VUCA leadership, zarządzanie zespołem, delegowanie, motywowanie, zarządzanie zmianą.</p><div class="training-area-tags"><span class="training-area-tag">VUCA</span><span class="training-area-tag">Delegowanie</span><span class="training-area-tag">Motywacja</span><span class="training-area-tag">Zmiana</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">⚡</span><div><strong class="training-area-title">Efektywność osobista</strong><span class="training-area-level">1 dzień</span></div></div><p class="training-area-desc">GTD, Deep Work, zarządzanie energią, priorytetyzacja, produktywność w erze AI.</p><div class="training-area-tags"><span class="training-area-tag">GTD</span><span class="training-area-tag">Deep Work</span><span class="training-area-tag">Priorytety</span><span class="training-area-tag">Nawyki</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">👥</span><div><strong class="training-area-title">Praca z grupą</strong><span class="training-area-level">1–2 dni</span></div></div><p class="training-area-desc">Dynamika grupowa, facylitacja, moderowanie dyskusji, zarządzanie konfliktem w grupie.</p><div class="training-area-tags"><span class="training-area-tag">Facylitacja</span><span class="training-area-tag">Dynamika</span><span class="training-area-tag">Tuckman</span><span class="training-area-tag">World Café</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">🎓</span><div><strong class="training-area-title">Train the Trainer</strong><span class="training-area-level">2–3 dni</span></div></div><p class="training-area-desc">Projektowanie szkoleń (ROPES), metody aktywne, praca z energią grupy, ewaluacja.</p><div class="training-area-tags"><span class="training-area-tag">ROPES</span><span class="training-area-tag">Metody aktywne</span><span class="training-area-tag">Ewaluacja</span><span class="training-area-tag">Kirkpatrick</span></div></div>
+  </div>
+
+  <div class="training-methodologies">
+    <span class="training-methodologies-label">Metodologie & frameworki:</span>
+    <div class="training-methodologies-list">
+      <span class="training-methodology-chip">Challenger Sale</span>
+      <span class="training-methodology-chip">SPIN Selling</span>
+      <span class="training-methodology-chip">NVC</span>
+      <span class="training-methodology-chip">Design Thinking</span>
+      <span class="training-methodology-chip">GTD</span>
+      <span class="training-methodology-chip">ROPES</span>
+      <span class="training-methodology-chip">Kirkpatrick</span>
+      <span class="training-methodology-chip">Tuckman</span>
+      <span class="training-methodology-chip">Kolb</span>
+      <span class="training-methodology-chip">DISC</span>
+    </div>
+  </div>
+
+  <!-- Profil osobowościowy -->
+  <div class="about-section-title">Kim jestem — profil osobowościowy</div>
+  <p class="about-intro-text">
+    Poniższy opis powstał na podstawie kilku badań psychometrycznych z ostatnich lat.
+    To nie są wyniki testów — to <strong>obraz tego, jak naprawdę funkcjonuję</strong>,
+    co mnie napędza i jak wchodzę w relacje. Warto to znać, żeby dobrze ze mną współpracować.
+  </p>
+
+  <div class="about-psych-grid">
+
+    <!-- Co mnie napędza -->
+    <div class="about-psych-card about-psych-card--wide">
+      <div class="about-psych-header">
+        <span class="about-psych-badge rmp-badge">🔥 Motywacja</span>
+        <span class="about-psych-name">Co mnie napędza do działania</span>
+      </div>
+      <div class="drives-list">
+        <div class="drive-item"><div class="drive-top"><span class="drive-icon">🏆</span><span class="drive-label">Uznanie &amp; Status</span><div class="drive-track"><div class="drive-fill" style="width:100%;background:#e91e63"></div></div></div><p class="drive-desc">Potrzebuję wiedzieć, że moja praca ma znaczenie i jest dostrzegana. Status nie jest celem samym w sobie — to informacja zwrotna, że idę we właściwym kierunku.</p></div>
+        <div class="drive-item"><div class="drive-top"><span class="drive-icon">💡</span><span class="drive-label">Idealizm &amp; Misja</span><div class="drive-track"><div class="drive-fill" style="width:100%;background:#9c27b0"></div></div></div><p class="drive-desc">Działam z poczuciem sensu. Muszę wierzyć, że to co robię zmienia coś na lepsze — u ludzi, w organizacji, w świecie.</p></div>
+        <div class="drive-item"><div class="drive-top"><span class="drive-icon">⚡</span><span class="drive-label">Władza &amp; Wpływ</span><div class="drive-track"><div class="drive-fill" style="width:90%;background:#ff9800"></div></div></div><p class="drive-desc">Naturalnie przejmuję inicjatywę. Nie po to, by kontrolować — po to, by rzeczy się działy. Brak sprawczości działa na mnie demotywująco.</p></div>
+        <div class="drive-item"><div class="drive-top"><span class="drive-icon">🔍</span><span class="drive-label">Ciekawość &amp; Rozwój</span><div class="drive-track"><div class="drive-fill" style="width:90%;background:#2196f3"></div></div></div><p class="drive-desc">Potrzeba ciągłego uczenia się to mój motor. Nowe idee, nowe dziedziny, intelektualne dyskusje — to mnie ładuje, nie wyczerpuje.</p></div>
+        <div class="drive-item"><div class="drive-top"><span class="drive-icon">🌊</span><span class="drive-label">Napięcie, nie spokój</span><div class="drive-track"><div class="drive-fill" style="width:85%;background:#00bcd4"></div></div></div><p class="drive-desc">Działam najlepiej pod presją i w zmiennym środowisku. Cisza i rutyna mnie nie relaksują — to wyzwania i złożone zadania dają mi energię.</p></div>
+      </div>
+    </div>
+
+    <!-- Jak funkcjonuję z ludźmi -->
+    <div class="about-psych-card">
+      <div class="about-psych-header">
+        <span class="about-psych-badge perso-badge">👥 Relacje</span>
+        <span class="about-psych-name">Jak funkcjonuję z ludźmi</span>
+      </div>
+      <div class="people-chips">
+        <div class="people-chip"><span class="people-icon">🤝</span><div><strong>Zaufanie jako default</strong><p>Wychodzę z założenia, że ludzie są szczerzy i dobrzy w intencjach. Daję kredyt zaufania — i oczekuję tego samego.</p></div></div>
+        <div class="people-chip"><span class="people-icon">❤️</span><div><strong>Wrażliwość społeczna</strong><p>Ciężko mi przejść obojętnie obok kogoś w potrzebie. Angażuję się w sprawy innych — to naturalne, nie wykalkulowane.</p></div></div>
+        <div class="people-chip"><span class="people-icon">⚔️</span><div><strong>Komfort w konflikcie</strong><p>Nie uciekam od trudnych rozmów. Konfrontacja nie jest dla mnie zagrożeniem — to narzędzie do rozwiązywania problemów.</p></div></div>
+        <div class="people-chip"><span class="people-icon">🔄</span><div><strong>Mediator &amp; Partner</strong><p>Szukam rozwiązań korzystnych dla obu stron. Praca zarówno samodzielna, jak i zespołowa przychodzi mi naturalnie.</p></div></div>
+      </div>
+    </div>
+
+    <!-- Jak myślę i działam -->
+    <div class="about-psych-card">
+      <div class="about-psych-header">
+        <span class="about-psych-badge harrison-badge">🧠 Styl działania</span>
+        <span class="about-psych-name">Jak myślę i działam</span>
+      </div>
+      <p class="about-psych-desc">
+        Niekonwencjonalny, otwarty na nowe doświadczenia — w górnym percentylu populacji.
+        Unikam rutyny, chętnie wchodzę w intelektualne spory i eksperymentuję.
+        Wyróżnia mnie duża wrażliwość emocjonalna połączona z komfortem w trudnych sytuacjach.
+      </p>
+      <div class="rmp-bars">
+        <div class="rmp-row"><span class="rmp-label">🎯 Wytrwałość w obliczu przeszkód</span><div class="rmp-track"><div class="rmp-fill" style="width:92%;background:#4caf50"></div></div><span class="rmp-val">92%</span></div>
+        <div class="rmp-row"><span class="rmp-label">🧩 Wszechstronna ciekawość intelektualna</span><div class="rmp-track"><div class="rmp-fill" style="width:98%;background:#4caf50"></div></div><span class="rmp-val">98%</span></div>
+        <div class="rmp-row"><span class="rmp-label">🚀 Inicjatywa i samomotywacja</span><div class="rmp-track"><div class="rmp-fill" style="width:90%;background:#4caf50"></div></div><span class="rmp-val">90%</span></div>
+        <div class="rmp-row"><span class="rmp-label">🎨 Otwartość — nowe idee i doświadczenia</span><div class="rmp-track"><div class="rmp-fill" style="width:98%;background:#4caf50"></div></div><span class="rmp-val">98%</span></div>
+        <div class="rmp-row"><span class="rmp-label">🔬 Refleksyjność i wieloperspektywowość</span><div class="rmp-track"><div class="rmp-fill" style="width:95%;background:#4caf50"></div></div><span class="rmp-val">95%</span></div>
+        <div class="rmp-row"><span class="rmp-label">🛠️ Coaching i praca jeden na jeden</span><div class="rmp-track"><div class="rmp-fill" style="width:82%;background:#4caf50"></div></div><span class="rmp-val">82%</span></div>
+      </div>
+    </div>
+
+    <!-- OPTO by Master — 8 wymiarów -->
+    <div class="about-psych-card about-psych-card--wide">
+      <div class="about-psych-header">
+        <span class="about-psych-badge opto-badge">📊 OPTO · Master</span>
+        <span class="about-psych-name">Profil osobowości — 8 wymiarów (skala 1–10)</span>
+      </div>
+      <p class="about-psych-desc">
+        Badanie OPTO (Master, 06.10.2025) mierzy 8 kluczowych wymiarów osobowości z punktu
+        widzenia efektywności w pracy. Dwa dominujące obszary to <strong>Wpływ</strong> i
+        <strong>Innowacyjność</strong> — co przekłada się na styl pracy: inicjatywa,
+        perswazja, nieustanne kwestionowanie status quo i orientacja na cel maksymalny (10/10).
+      </p>
+      <div class="opto-dims-grid">
+        <div class="opto-dim-card"><div class="opto-dim-header"><span class="opto-dim-icon">📣</span><span class="opto-dim-name">Wpływ</span><div class="opto-dim-bars"><div class="opto-bar-row"><span class="opto-bar-label">Asertywność</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:90%;background:#1565c0"></div></div><span class="opto-bar-val" style="color:#1565c0">9</span></div><div class="opto-bar-row"><span class="opto-bar-label">Komunikacja</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:90%;background:#1565c0"></div></div><span class="opto-bar-val" style="color:#1565c0">9</span></div><div class="opto-bar-row"><span class="opto-bar-label">Pewność siebie</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:80%;background:#1565c0"></div></div><span class="opto-bar-val" style="color:#1565c0">8</span></div></div></div><p class="opto-dim-desc">Bardzo wysoka asertywność (9/10) i komunikatywność (9/10) — naturalnie przejmuję inicjatywę, wiem jak zjednać sobie ludzi i jestem bardzo przekonujący. Pewność siebie w sytuacjach społecznych (8/10).</p></div>
+        <div class="opto-dim-card"><div class="opto-dim-header"><span class="opto-dim-icon">🧱</span><span class="opto-dim-name">Odporność</span><div class="opto-dim-bars"><div class="opto-bar-row"><span class="opto-bar-label">Radzenie sobie ze stresem</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:90%;background:#2e7d32"></div></div><span class="opto-bar-val" style="color:#2e7d32">9</span></div><div class="opto-bar-row"><span class="opto-bar-label">Opanowanie</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:70%;background:#2e7d32"></div></div><span class="opto-bar-val" style="color:#2e7d32">7</span></div></div></div><p class="opto-dim-desc">Najwyższy wynik w radzeniu sobie ze stresem (9/10) — zawsze zachowuję spokój pod presją, w stresie wykazuję się odpornością psychiczną. Opanowanie emocji w pracy (7/10).</p></div>
+        <div class="opto-dim-card"><div class="opto-dim-header"><span class="opto-dim-icon">🎯</span><span class="opto-dim-name">Efektywność</span><div class="opto-dim-bars"><div class="opto-bar-row"><span class="opto-bar-label">Orientacja na cel</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:100%;background:#e65100"></div></div><span class="opto-bar-val" style="color:#e65100">10</span></div><div class="opto-bar-row"><span class="opto-bar-label">Pracowitość</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:80%;background:#e65100"></div></div><span class="opto-bar-val" style="color:#e65100">8</span></div><div class="opto-bar-row"><span class="opto-bar-label">Zapał</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:50%;background:#e65100"></div></div><span class="opto-bar-val" style="color:#e65100">5</span></div></div></div><p class="opto-dim-desc">Orientacja na cel na poziomie maksymalnym (10/10) — zawsze zdeterminowany do osiągania wyznaczonych celów, bardzo ambitny. Pracowitość i samodyscyplina (8/10).</p></div>
+        <div class="opto-dim-card"><div class="opto-dim-header"><span class="opto-dim-icon">💡</span><span class="opto-dim-name">Innowacyjność</span><div class="opto-dim-bars"><div class="opto-bar-row"><span class="opto-bar-label">Pomysłowość</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:90%;background:#6a1b9a"></div></div><span class="opto-bar-val" style="color:#6a1b9a">9</span></div><div class="opto-bar-row"><span class="opto-bar-label">Podejmowanie ryzyka</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:80%;background:#6a1b9a"></div></div><span class="opto-bar-val" style="color:#6a1b9a">8</span></div><div class="opto-bar-row"><span class="opto-bar-label">Zdolność adaptacji</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:70%;background:#6a1b9a"></div></div><span class="opto-bar-val" style="color:#6a1b9a">7</span></div></div></div><p class="opto-dim-desc">Wysoka pomysłowość (9/10) — cały czas kwestionuję istniejący stan rzeczy, mam mnóstwo nowych pomysłów. Gotowość do podejmowania ryzyka i przedsiębiorczość (8/10).</p></div>
+        <div class="opto-dim-card"><div class="opto-dim-header"><span class="opto-dim-icon">✅</span><span class="opto-dim-name">Sumienność</span><div class="opto-dim-bars"><div class="opto-bar-row"><span class="opto-bar-label">Obowiązkowość</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:80%;background:#37474f"></div></div><span class="opto-bar-val" style="color:#78909c">8</span></div><div class="opto-bar-row"><span class="opto-bar-label">Szczerość</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:80%;background:#37474f"></div></div><span class="opto-bar-val" style="color:#78909c">8</span></div><div class="opto-bar-row"><span class="opto-bar-label">Organizacja</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:70%;background:#37474f"></div></div><span class="opto-bar-val" style="color:#78909c">7</span></div><div class="opto-bar-row"><span class="opto-bar-label">Zapewnianie jakości</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:50%;background:#37474f"></div></div><span class="opto-bar-val" style="color:#78909c">5</span></div></div></div><p class="opto-dim-desc">Wysoka obowiązkowość (8/10) i szczerość (8/10) — zawsze dotrzymuję zobowiązań, można na mnie polegać. Organizacja pracy (7/10).</p></div>
+        <div class="opto-dim-card"><div class="opto-dim-header"><span class="opto-dim-icon">🤝</span><span class="opto-dim-name">Współpraca</span><div class="opto-dim-bars"><div class="opto-bar-row"><span class="opto-bar-label">Utrzymywanie relacji</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:90%;background:#00838f"></div></div><span class="opto-bar-val" style="color:#00838f">9</span></div><div class="opto-bar-row"><span class="opto-bar-label">Altruizm</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:60%;background:#00838f"></div></div><span class="opto-bar-val" style="color:#00838f">6</span></div><div class="opto-bar-row"><span class="opto-bar-label">Zaufanie</span><div class="opto-bar-track"><div class="opto-bar-fill" style="width:50%;background:#00838f"></div></div><span class="opto-bar-val" style="color:#00838f">5</span></div></div></div><p class="opto-dim-desc">Bardzo wysoka otwartość i towarzyskość (9/10) — lubię pracować w zespole, łatwo nawiązuję rozmowy. Altruizm (6/10). Zaufanie do ludzi (5/10) — z natury weryfikuję intencje.</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Klienci według sektorów -->
+  <div class="about-section-title">Wybrani klienci — według branż</div>
+  <p class="about-intro-text">
+    Ponad 10 lat pracy z organizacjami z różnych sektorów. Poniżej wybrane firmy i instytucje, z którymi współpracowałem.
+  </p>
+  <div class="clients-sectors">
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">🏦</span><span class="clients-sector-name">Bankowość &amp; Finanse</span></div><div class="clients-list"><span class="client-chip">AASA Poland</span><span class="client-chip">Alior Bank</span><span class="client-chip">Bank BPH</span><span class="client-chip">CERI International</span><span class="client-chip">Noble Bank</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">🛡️</span><span class="clients-sector-name">Ubezpieczenia</span></div><div class="clients-list"><span class="client-chip">Aviva</span><span class="client-chip">Generali</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">💻</span><span class="clients-sector-name">IT &amp; Technologie</span></div><div class="clients-list"><span class="client-chip">Atman</span><span class="client-chip">Capgemini</span><span class="client-chip">InPost</span><span class="client-chip">ISCH</span><span class="client-chip">Packhelp</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">💼</span><span class="clients-sector-name">Consulting &amp; Doradztwo biznesowe</span></div><div class="clients-list"><span class="client-chip">Deloitte</span><span class="client-chip">McKinsey &amp; Company</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">🎓</span><span class="clients-sector-name">Szkolenia &amp; Rozwój (L&amp;D)</span></div><div class="clients-list"><span class="client-chip">Certes</span><span class="client-chip">CERI</span><span class="client-chip">House of Skills</span><span class="client-chip">Polska Izba Firm Szkoleniowych</span><span class="client-chip">Teamformacja</span><span class="client-chip">Wszechnica UJ</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">🛒</span><span class="clients-sector-name">FMCG &amp; Artykuły konsumenckie</span></div><div class="clients-list"><span class="client-chip">Coty</span><span class="client-chip">Danone</span><span class="client-chip">Intersnack</span><span class="client-chip">JTI</span><span class="client-chip">L'Oréal</span><span class="client-chip">Philip Morris Polska</span><span class="client-chip">TTI</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">🛍️</span><span class="clients-sector-name">Retail &amp; E-commerce</span></div><div class="clients-list"><span class="client-chip">Allegro</span><span class="client-chip">Empik</span><span class="client-chip">Lidl</span><span class="client-chip">NEINVER (Factory Outlets)</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">👔</span><span class="clients-sector-name">Rekrutacja &amp; HR</span></div><div class="clients-list"><span class="client-chip">Adecco</span><span class="client-chip">Antal</span><span class="client-chip">Benefit Systems (MultiSport)</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">💊</span><span class="clients-sector-name">Ochrona Zdrowia &amp; Farmacja</span></div><div class="clients-list"><span class="client-chip">Apteki DOZ</span><span class="client-chip">NFZ</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">📦</span><span class="clients-sector-name">Dystrybucja &amp; Logistyka</span></div><div class="clients-list"><span class="client-chip">Agility Logistics</span><span class="client-chip">Lyreco</span><span class="client-chip">Orange</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">🚗</span><span class="clients-sector-name">Motoryzacja &amp; Wynajem</span></div><div class="clients-list"><span class="client-chip">99Rent</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">⚡</span><span class="clients-sector-name">OZE &amp; Energetyka</span></div><div class="clients-list"><span class="client-chip">4-Eco (fotowoltaika)</span><span class="client-chip">Solenerga</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">⚖️</span><span class="clients-sector-name">Branża prawna &amp; Odszkodowania</span></div><div class="clients-list"><span class="client-chip">Helpea</span></div></div>
+    <div class="clients-sector"><div class="clients-sector-header"><span class="clients-sector-icon">🏛️</span><span class="clients-sector-name">Administracja publiczna &amp; NGO</span></div><div class="clients-list"><span class="client-chip">Akademia PAN</span><span class="client-chip">Akademia Przyszłości</span><span class="client-chip">Fundacja im. Lesława Pagi</span><span class="client-chip">Fundacja „Twój Startup"</span><span class="client-chip">Ministerstwo Środowiska</span><span class="client-chip">Ministerstwo Sprawiedliwości</span><span class="client-chip">SGGW</span></div></div>
+  </div>
+
+  <!-- O aplikacji -->
+  <div class="about-app-note">
+    <span class="about-app-label">O aplikacji</span>
+    <p>
+      <strong>FLUX — Interaktywna Mapa Kompetencji</strong> to rama kompetencyjno-operacyjna
+      do funkcjonowania w świecie zmienności. Łączy 4 wymiary: FAST (tempo decyzji),
+      LIQUID (współpraca), UNLEARN (oduczanie) i EXPERIMENT (eksperymentowanie)
+      w interaktywny diagram z eksploratorem scenariuszy, trendów i narzędzi diagnostycznych.
+    </p>
+  </div>
+
+  <div class="about-footer">
+    Created &amp; designed by <strong>Sebastian Szajner</strong> · 2025
+  </div>
+
 </div>
 </section>
 
