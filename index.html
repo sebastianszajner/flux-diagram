@@ -748,6 +748,7 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
 
   <div class="about-footer">
     Created &amp; designed by <strong>Sebastian Szajner</strong> · 2025
+    <br>Aplikacja nie zbiera danych osobowych. Scenariusze i case studies mają charakter edukacyjny — nazwy firm i dane zostały zmienione. Czat AI: Google Gemini.
   </div>
 
 </div>
@@ -797,12 +798,12 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
     <div class="flex items-center gap-2">
       <div class="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-violet-500 flex items-center justify-center"><span class="text-[8px] font-black text-white">AI</span></div>
       <span class="text-sm font-semibold text-slate-200">FLUX Asystent</span>
-      <span class="text-[9px] text-slate-600">Gemini</span>
+      <span class="text-[9px] text-slate-600">AI Gemini</span>
     </div>
     <button onclick="toggleChat()" class="text-slate-500 hover:text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
   </div>
   <div class="chat-messages" id="chat-messages">
-    <div class="chat-msg assistant">Cześć! Jestem asystentem FLUX. Zapytaj mnie o model, scenariusze, narzędzia lub jak zastosować FLUX w Twojej branży.</div>
+    <div class="chat-msg assistant">Cześć! Jestem asystentem AI (Google Gemini). Pomagam zrozumieć model FLUX — pytaj o scenariusze, narzędzia lub zastosowania w Twojej branży. Odpowiedzi mają charakter edukacyjny.</div>
   </div>
   <div id="chat-status" class="px-4 text-[10px] text-violet-400 h-4"></div>
   <div class="chat-input-area">
@@ -825,6 +826,9 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
       <button onclick="clearApiKey()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm py-2 rounded-lg transition-colors">Wyczyść</button>
     </div>
     <p id="settings-status" class="text-xs mt-2 h-4"></p>
+    <div class="mt-4 p-3 bg-dark-950 rounded-lg border border-dark-700">
+      <p class="text-[10px] text-slate-500 leading-relaxed"><strong class="text-slate-400">Informacja:</strong> Czat wykorzystuje Google Gemini API. Twoje pytania są przesyłane do Google w celu wygenerowania odpowiedzi. Klucz API jest przechowywany wyłącznie w Twojej przeglądarce (localStorage). Aplikacja nie zbiera, nie przechowuje ani nie udostępnia żadnych danych osobowych. Odpowiedzi AI mają charakter edukacyjny i nie zastępują profesjonalnego doradztwa.</p>
+    </div>
   </div>
 </div>
 
@@ -1078,7 +1082,6 @@ const RESEARCH=[
   {area:'unlearn',authors:'Brynjolfsson, E. et al.',year:2023,title:'Generative AI at Work (NBER)',finding:'AI w obsłudze klienta: +14% produktywność, największy zysk dla najmniej doświadczonych.',type:'Badanie NBER',src:'https://www.nber.org/papers/w31161'},
   {area:'unlearn',authors:'Sisk, V.F. et al.',year:2018,title:'Growth mindset meta-analysis',finding:'Związek growth mindset z wynikami istotny ale niewielki. Kontekst > interwencja.',type:'Meta-analiza',src:'https://journals.sagepub.com/doi/10.1177/0956797617739704'},
   {area:'experiment',authors:'van Dyck, C. et al.',year:2005,title:'Organizational Error Management Culture',finding:'Kultura zarządzania błędami (nie unikania) → lepsza wydajność. Otwarta komunikacja o błędach kluczowa.',type:'Badanie empiryczne',src:'https://pubmed.ncbi.nlm.nih.gov/16316276/'},
-  // === NOWE: z bazy T7 i client-knowledge-base ===
   {area:'unlearn',authors:'Dixon, M. & Adamson, B.',year:2011,title:'The Challenger Sale: Taking Control of the Customer Conversation',finding:'Najlepsi handlowcy nie budują relacji — edukują klienta, kwestionują status quo i kontrolują proces sprzedaży. 5 profili sprzedawców, Challenger wygrywa w complex sale.',type:'Badanie CEB/Gartner',src:'https://www.gartner.com/en/sales/insights/challenger-sale'},
   {area:'liquid',authors:'Schulz von Thun, F.',year:1981,title:'Miteinander reden: Störungen und Klärungen (4 uszy komunikacji)',finding:'Każdy komunikat ma 4 warstwy: rzeczowa, relacyjna, apelowa, ujawniania siebie. Większość konfliktów = odbiór na złym „uchu".',type:'Model teoretyczny',src:null},
   {area:'fast',authors:'Kahneman, D.',year:2011,title:'Thinking, Fast and Slow',finding:'System 1 (szybki, intuicyjny) vs System 2 (wolny, analityczny). Błędy poznawcze (anchoring, availability, framing) systematycznie zniekształcają decyzje.',type:'Synteza badań',src:null},
@@ -1107,7 +1110,6 @@ const TOOLS=[
   {area:'experiment',name:'Hypothesis Builder',type:'Framework',desc:'Jeśli [X] to [Y] ponieważ [Z]. Metryka + timeline.',use:'Przed każdym eksperymentem.'},
   {area:'experiment',name:'Experiment Outcome Log',type:'Rejestr',desc:'Hipoteza → test → wynik → wniosek → next step.',use:'Po każdym eksperymencie.'},
   {area:'experiment',name:'Experiment Design Kit',type:'Framework',desc:'MVP canvas, A/B template, pilot protocol, failure pre-mortem.',use:'Warsztaty innowacyjne.'},
-  // === NOWE: z bazy T7 i client-knowledge-base ===
   {area:'liquid',name:'Model FUKO (feedback)',type:'Framework',desc:'Fakty → Uczucia → Konsekwencje → Oczekiwania. 4 kroki konstruktywnego feedbacku bez oceniania.',use:'Każda rozmowa feedbackowa, 1:1, ocena roczna.'},
   {area:'liquid',name:'4 Uszy Schulza von Thuna',type:'Diagnostyka',desc:'Każdy komunikat ma 4 warstwy: rzeczową, relacyjną, apelową i ujawniania siebie. Test: „na które ucho słuchasz?"',use:'Szkolenia z komunikacji, rozwiązywanie konfliktów.'},
   {area:'unlearn',name:'Challenger 3T (Teach-Tailor-Take control)',type:'Framework',desc:'Ucz klienta czegoś nowego → Dopasuj do jego kontekstu → Przejmij kontrolę nad procesem zakupowym.',use:'Sprzedaż złożona, transformacja z relationship selling.'},
@@ -1659,8 +1661,9 @@ const FLUX_SYSTEM_PROMPT=`Jesteś ekspertem modelu FLUX — ramy kompetencyjno-o
 FLUX = Fast (tempo decyzji), Liquid (współpraca i PS), Unlearn & Relearn (oduczanie się), eXperiment (innowacje).
 Odpowiadaj po polsku, konkretnie, evidence-based. Podawaj przykłady z branż (automotive, e-commerce, farmacja, ubezpieczenia, OZE, FMCG, start-upy, IT, bankowość, retail).
 Model działa zarówno w kontekście zawodowym (trener, lider, manager, specjalista) jak i prywatnym (mąż, ojciec, zdrowie, hobby, finanse).
-Kluczowe badania: Eisenhardt 1989 (fast decisions), Edmondson 1999 (PS), Frazier 2017 (PS meta-analysis), van Dyck 2005 (error management), Brynjolfsson 2023 (GenAI at work).
-Narzędzia: Decision 15min, PS Radar, Skill Gap Analyzer, Hypothesis Builder, Learning Loop, Collaboration Flow Map.
+Kluczowe badania: Eisenhardt 1989 (fast decisions), Edmondson 1999 (PS), Frazier 2017 (PS meta-analysis), van Dyck 2005 (error management), Brynjolfsson 2023 (GenAI at work), Dixon & Adamson 2011 (Challenger Sale), Kahneman 2011 (biasy), Goleman 1995 (EQ), Gallup 2024 (engagement), De Bono 1985 (lateral thinking).
+Narzędzia: Decision 15min, PS Radar, Skill Gap Analyzer, Hypothesis Builder, Learning Loop, Collaboration Flow Map, FUKO, 4 Uszy Schulza von Thuna, Challenger 3T, Bank obiekcji, 6 Kapeluszy De Bono, Energie kolorystyczne.
+WAŻNE: Jesteś systemem AI (Google Gemini). Twoje odpowiedzi mają charakter edukacyjny i nie zastępują profesjonalnego doradztwa. Nie zbierasz ani nie przechowujesz danych osobowych. Jeśli nie znasz odpowiedzi — powiedz to wprost.
 Bądź konkretny, podawaj actionable tips. Nie lej wody.`;
 
 let chatHistory=[];
@@ -1969,7 +1972,6 @@ const CASE_STUDIES={
   'Bezpieczeństwo psychologiczne w IT':{situation:'Junior developer odkrył krytyczny bug w kodzie tech leada, ale boi się zgłosić.',context:'Ostatni dev który zgłosił problem dostał publiczną krytykę na standup. Zespół 12 osób.',action:'Wdrożono PS Radar (anonimowy). Wynik: 2.1/5. Team lead przeszedł coaching na feedbacku. Wprowadzono "Bug Bounty wewnętrzny".',result:'PS wzrosło do 3.8/5 po kwartale. Liczba zgłoszonych bugów x3. Time-to-fix spadł o 40%.',debrief:['Dlaczego anonimowość była kluczowa w pierwszym kroku?','Jak mierzyć PS bez ankiet?','Co zmienić jeśli lider nie chce coachingu?']},
   'Wdrożenie AI w zespole sprzedaży':{situation:'Handlowcy FMCG (30 osób) boją się AI — "zastąpi nas", "to zabawka".',context:'Firma kupiła licencje ChatGPT Enterprise. Po miesiącu: 3 osoby używają, reszta ignoruje.',action:'AI Prompt Pack: 5 gotowych promptów (podsumowanie spotkania, follow-up mail, analiza CRM). Warsztat 2h: pokaz live efektu WOW.',result:'Adopcja po 6 tyg: 73%. Średni czas na follow-up z 24h do 2h. NPS wewnętrzny szkolenia: 9.2.',debrief:['Dlaczego "pokaż, nie mów" zadziałało lepiej?','Jak dobrać prompty do konkretnej roli?','Co z osobami które nadal nie adoptują?']},
   'Test nowego formatu szkolenia':{situation:'Trener testuje 4×2h online vs 1×8h offline — który format lepszy?',context:'Budżet na 2 grupy pilotażowe. Temat: komunikacja w zespole. Grupy po 16 osób.',action:'Hypothesis Builder: "4×2h → NPS>8 i retencja wiedzy po 30d >60%". Pre/post test. Dziennik stosowania.',result:'4×2h: NPS 8.4, retencja 67%. 8h offline: NPS 7.9, retencja 52%. Ale engagement offline wyższy.',debrief:['Czy NPS to wystarczająca metryka?','Jak zmierzyć transfer do praktyki?','Jakie inne formaty warto testować?']},
-  // === NOWE: z bazy T7 (zanonimizowane per R1) ===
   'Wdrożenie Challenger Sale w ubezpieczeniach':{situation:'Zespół 30 agentów ubezpieczeniowych przyzwyczajonych do relationship selling. Wyniki: 65% realizacji celu.',context:'Zarząd chce wzrostu. Agenci mówią „klient kupuje relację, nie produkt". Średni staż: 12 lat.',action:'Faza 1 (2 tyg.): shadow + diagnoza profili sprzedażowych (Relationship Builder dominuje). Faza 2 (4 tyg.): warsztaty Challenger 3T — Teach (insight o ryzyku), Tailor (do branży klienta), Take control (zamykanie). Faza 3: coaching 1:1 co 2 tygodnie.',result:'Po 3 miesiącach: realizacja celów z 65% do 82%. NPS klientów bez zmian (obawy o relację niepotwierdzone). 8/30 agentów awansowało na mentorów Challenger.',debrief:['Dlaczego „klient kupuje relację" to częściowa prawda?','Jak dobrać insight do branży klienta?','Co z agentami którzy nie chcą zmieniać stylu?']},
   'Bank obiekcji w contact center':{situation:'Contact center firmy logistycznej — 40 konsultantów. AHT rośnie, CSAT spada. Klienci mówią „drogo", „konkurencja ma taniej", „za wolno".',context:'Brak ustandaryzowanych odpowiedzi na obiekcje. Każdy konsultant improwizuje. Nowi pracownicy gubią się po 2 dniach.',action:'Stworzono Bank obiekcji: 25 najczęstszych obiekcji + gotowa odpowiedź (technika: potwierdzenie → pytanie pogłębiające → wartość). Warsztat 4h: roleplay z bankiem. Lista obserwacyjna do coachingu.',result:'AHT spadł o 15%. CSAT +12 pkt w 6 tygodni. Onboarding nowych z 14 dni do 5 dni. Konsultanci mówią: „w końcu wiem co powiedzieć".',debrief:['Dlaczego standaryzacja nie oznacza robotyzacji?','Jak aktualizować bank obiekcji (żywy dokument)?','Które obiekcje są sygnałem do zmiany oferty, nie do odpowiedzi?']},
   'Odporność psychiczna po restrukturyzacji':{situation:'Zespół 25 osób w firmie IT po rocznej restrukturyzacji (zwolnienia, zmiana zarządu, remote). Engagement Gallup: 18%.',context:'Ludzie „są" ale „nie ma ich". Absencja +30%. 4 osoby na zwolnieniu z powodu wypalenia. HR mówi: „zróbcie coś".',action:'Audyt odporności (RS-13): średnia 2.8/5. Resilience Workshop (2×4h): 1) Mapa energii zespołu. 2) Co nas wzmacnia vs. co osłabia — lista zespołowa. 3) Micro-experiments: 1 zmiana/tydzień przez 6 tygodni. Follow-up co 2 tyg.',result:'RS-13 po 8 tygodniach: 3.6/5. Absencja -20%. 2 osoby wróciły ze zwolnień. Gallup engagement: 34% (nadal niski, ale trend wzrostowy).',debrief:['Dlaczego „zróbcie coś" od HR to za mało — potrzebny sponsor z zarządu?','Jak odróżnić wypalenie od zwykłego zmęczenia?','Kiedy Resilience Workshop NIE wystarczy i trzeba interwencji indywidualnej?']},
@@ -1988,7 +1990,6 @@ const EVIDENCE_MAP={
   'Wdrożenie AI w zespole sprzedaży':{research:8,tier:1},
   'Test nowego formatu szkolenia':{research:10,tier:2},
   'Stare nawyki żywieniowe':{research:9,tier:1},
-  // === NOWE: powiązania z nowymi RESEARCH (indeksy 11-18) i CASE_STUDIES ===
   'Wdrożenie Challenger Sale w ubezpieczeniach':{research:11,tier:2},
   'Bank obiekcji w contact center':{research:12,tier:3},
   'Odporność psychiczna po restrukturyzacji':{research:16,tier:2},
@@ -2004,7 +2005,6 @@ const FRAMEWORKS={
   'STOP':{name:'STOP → THINK → ACT',steps:['STOP — zatrzymaj automatyczną reakcję','THINK — jaki jest mój cel? jakie opcje?','ACT — wybierz najlepszą opcję i działaj'],contexts:['fast','crisis','health','father']},
   'Atomic':{name:'Atomic Habits (Clear)',steps:['1% lepiej codziennie','Stack na istniejącym nawyku','Środowisko > motywacja','Tożsamość > wyniki'],contexts:['health','finance','learner','hobby']},
   '52Notatki':{name:'52 Notatki (Gerschmann)',steps:['Systematyczność > kwota','Automatyczny przelew co miesiąc','3 słoiki: bezpieczeństwo/wzrost/wolność','Edukacja finansowa co tydzień'],contexts:['finance']},
-  // === NOWE: z bazy T7 ===
   'FUKO':{name:'FUKO (model feedbacku)',steps:['Fakty — opisz sytuację bez ocen i interpretacji','Uczucia — powiedz jak to na Ciebie wpływa','Konsekwencje — wyjaśnij co z tego wynika','Oczekiwania — powiedz czego konkretnie oczekujesz'],contexts:['professional','leader','liquid']},
   '4Uszy':{name:'4 Uszy Schulza von Thuna',steps:['Ucho rzeczowe — co zostało powiedziane (fakty)','Ucho relacyjne — co nadawca myśli o odbiorcy','Ucho apelowe — czego nadawca chce od odbiorcy','Ucho ujawniania siebie — co nadawca mówi o sobie'],contexts:['professional','leader','liquid','husband']},
   'Thomas-Kilmann':{name:'Style rozwiązywania konfliktów (Thomas-Kilmann)',steps:['Rywalizacja — wysoka asertywność, niska współpraca','Współpraca — wysoka asertywność, wysoka współpraca','Kompromis — średnia asertywność, średnia współpraca','Unikanie — niska asertywność, niska współpraca','Dostosowanie — niska asertywność, wysoka współpraca'],contexts:['professional','leader','liquid','husband']},
@@ -2021,7 +2021,6 @@ const EXERCISES=[
   {id:'uq2',area:'unlearn',type:'quiz',q:'Brynjolfsson 2023 (NBER) — kto zyskał NAJWIĘCEJ na AI?',opts:['Eksperci','Początkujący pracownicy','Managerowie','Programiści'],correct:1,feedback:'+14% produktywność, ale NAJWIĘKSZY zysk dla najmniej doświadczonych. AI = equalizer.'},
   {id:'xq1',area:'experiment',type:'quiz',q:'Co jest kluczowe w kulturze eksperymentów?',opts:['Duży budżet na R&D','Traktowanie błędu jako źródła danych','Zatrudnienie innowatorów','Osobny dział innowacji'],correct:1,feedback:'van Dyck 2005: kultura zarządzania błędami (nie unikania!) → lepsza wydajność. Błąd = data point.'},
   {id:'xq2',area:'experiment',type:'quiz',q:'Jak poprawnie sformułować hipotezę eksperymentu?',opts:['"Sprawdzimy nowy proces"','"Jeśli X to Y ponieważ Z"','"Zrobimy pilot i zobaczymy"','"Nowy sposób będzie lepszy"'],correct:1,feedback:'Hypothesis Builder: Jeśli [interwencja] to [wynik] ponieważ [mechanizm]. Metryka + timeline.'},
-  // === NOWE: z bazy T7 ===
   {id:'ch1',area:'unlearn',type:'quiz',q:'W modelu Challenger Sale, co wyróżnia najlepszych handlowców?',opts:['Budowanie głębokich relacji z klientem','Edukowanie klienta i kwestionowanie jego status quo','Szybkie reagowanie na potrzeby klienta','Najniższa cena i najlepsza oferta'],correct:1,feedback:'Dixon & Adamson 2011: Challenger uczy, dopasowuje i kontroluje. Relationship Builder to najpopularniejszy, ale najsłabszy profil w complex sale.'},
   {id:'fu1',area:'liquid',type:'quiz',q:'Jaka jest prawidłowa kolejność kroków w modelu FUKO?',opts:['Uczucia → Fakty → Konsekwencje → Oczekiwania','Fakty → Uczucia → Konsekwencje → Oczekiwania','Fakty → Konsekwencje → Uczucia → Oczekiwania','Oczekiwania → Fakty → Uczucia → Konsekwencje'],correct:1,feedback:'FUKO: Fakty (bez ocen!) → Uczucia (jak to na mnie wpływa) → Konsekwencje (co z tego wynika) → Oczekiwania (czego chcę). Kolejność ma znaczenie!'},
   {id:'su1',area:'liquid',type:'quiz',q:'W modelu 4 Uszu Schulza von Thuna, szef mówi „Raport miał być wczoraj". Na które ucho najczęściej reaguje pracownik?',opts:['Rzeczowe (fakt o terminie)','Relacyjne (szef mnie krytykuje)','Apelowe (mam to natychmiast zrobić)','Ujawniania siebie (szef jest zestresowany)'],correct:1,feedback:'Najczęstszy odbiór to ucho relacyjne — „atakujesz mnie". Stąd defensywna reakcja. Świadomość 4 uszu pozwala wybrać, na które ucho słuchasz.'},
