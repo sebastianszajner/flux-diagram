@@ -192,7 +192,8 @@ html.projector .chat-toggle,html.projector .chat-panel{display:none!important}
 .training-areas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.75rem}
 .training-area-card{background:var(--card-bg);border:1px solid var(--line);border-radius:.6rem;padding:.75rem;display:flex;flex-direction:column;gap:.5rem}
 .training-area-header{display:flex;align-items:center;gap:.6rem}
-.training-area-icon{font-size:1.5rem;flex-shrink:0}
+.training-area-icon{width:40px;height:40px;border-radius:.5rem;flex-shrink:0;object-fit:cover}
+.training-banner{width:100%;border-radius:.6rem;margin-bottom:.5rem;max-height:120px;object-fit:cover}
 .training-area-title{font-size:.82rem;color:white;display:block}
 .training-area-level{font-size:.65rem;color:var(--accent);font-weight:600}
 .training-area-desc{font-size:.75rem;color:var(--txt-muted);line-height:1.5;margin:0}
@@ -327,11 +328,11 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
     <!-- Left cards -->
     <div class="space-y-3 order-2 lg:order-1">
       <div class="fcard rounded-xl p-4 bg-dark-900 cursor-pointer" style="--glow:rgba(245,158,11,.15)" onclick="showDetail('fast')">
-        <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center"><span class="text-amber-400 font-black">F</span></div><div><h3 class="font-bold text-sm text-amber-400">FAST</h3><p class="text-[10px] text-slate-500">Tempo decyzji i działania</p></div></div>
+        <div class="flex items-center gap-2 mb-2"><img src="assets/icon-fast.png" alt="FAST" class="w-10 h-10 rounded-lg object-cover"><div><h3 class="font-bold text-sm text-amber-400">FAST</h3><p class="text-[10px] text-slate-500">Tempo decyzji i działania</p></div></div>
         <p class="text-xs text-slate-400">Szybkie reagowanie i podejmowanie decyzji w warunkach niepewności.</p>
       </div>
       <div class="fcard rounded-xl p-4 bg-dark-900 cursor-pointer" style="--glow:rgba(16,185,129,.15)" onclick="showDetail('unlearn')">
-        <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-black">U</span></div><div><h3 class="font-bold text-sm text-emerald-400">UNLEARN & RELEARN</h3><p class="text-[10px] text-slate-500">Uczenie się i aktualizacja</p></div></div>
+        <div class="flex items-center gap-2 mb-2"><img src="assets/icon-unlearn.png" alt="UNLEARN" class="w-10 h-10 rounded-lg object-cover"><div><h3 class="font-bold text-sm text-emerald-400">UNLEARN & RELEARN</h3><p class="text-[10px] text-slate-500">Uczenie się i aktualizacja</p></div></div>
         <p class="text-xs text-slate-400">Świadome porzucanie przestarzałych modeli mentalnych.</p>
       </div>
     </div>
@@ -360,11 +361,11 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
     <!-- Right cards -->
     <div class="space-y-3 order-3">
       <div class="fcard rounded-xl p-4 bg-dark-900 cursor-pointer" style="--glow:rgba(6,182,212,.15)" onclick="showDetail('liquid')">
-        <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center"><span class="text-cyan-400 font-black">L</span></div><div><h3 class="font-bold text-sm text-cyan-400">LIQUID</h3><p class="text-[10px] text-slate-500">Współpraca i przepływ</p></div></div>
+        <div class="flex items-center gap-2 mb-2"><img src="assets/icon-liquid.png" alt="LIQUID" class="w-10 h-10 rounded-lg object-cover"><div><h3 class="font-bold text-sm text-cyan-400">LIQUID</h3><p class="text-[10px] text-slate-500">Współpraca i przepływ</p></div></div>
         <p class="text-xs text-slate-400">Płynność struktur, ról i przepływu wiedzy. Bezpieczeństwo psychologiczne.</p>
       </div>
       <div class="fcard rounded-xl p-4 bg-dark-900 cursor-pointer" style="--glow:rgba(139,92,246,.15)" onclick="showDetail('experiment')">
-        <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center"><span class="text-violet-400 font-black">X</span></div><div><h3 class="font-bold text-sm text-violet-400">EXPERIMENT</h3><p class="text-[10px] text-slate-500">Eksperymentowanie</p></div></div>
+        <div class="flex items-center gap-2 mb-2"><img src="assets/icon-experiment.png" alt="EXPERIMENT" class="w-10 h-10 rounded-lg object-cover"><div><h3 class="font-bold text-sm text-violet-400">EXPERIMENT</h3><p class="text-[10px] text-slate-500">Eksperymentowanie</p></div></div>
         <p class="text-xs text-slate-400">Systematyczne testowanie hipotez, uczenie się z błędów.</p>
       </div>
     </div>
@@ -603,14 +604,15 @@ html.projector .flux-tooltip{max-width:420px;font-size:1.1rem;padding:1.5rem}
     7 głównych obszarów tematycznych, w których prowadzę szkolenia i warsztaty.
     Każdy temat adaptuję do poziomu grupy — od podstawowego po zaawansowany.
   </p>
+  <img src="about/banner-training.png" alt="Obszary szkoleniowe" class="training-banner">
   <div class="training-areas-grid">
-    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">🤖</span><div><strong class="training-area-title">AI w biznesie</strong><span class="training-area-level">Flagowy temat</span></div></div><p class="training-area-desc">Od podstaw po zaawansowane wdrożenia. Prompt engineering, automatyzacja procesów, AI w sprzedaży i zarządzaniu.</p><div class="training-area-tags"><span class="training-area-tag">ChatGPT</span><span class="training-area-tag">Claude</span><span class="training-area-tag">Gemini</span><span class="training-area-tag">Copilot</span><span class="training-area-tag">Automatyzacja</span></div></div>
-    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">🧠</span><div><strong class="training-area-title">Psychologia sprzedaży</strong><span class="training-area-level">2 dni</span></div></div><p class="training-area-desc">Challenger Sale, SPIN Selling, psychologia decyzji zakupowych, praca z oporem klienta.</p><div class="training-area-tags"><span class="training-area-tag">Challenger Sale</span><span class="training-area-tag">SPIN</span><span class="training-area-tag">Negocjacje</span><span class="training-area-tag">Obiekcje</span></div></div>
-    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">💬</span><div><strong class="training-area-title">Komunikacja</strong><span class="training-area-level">1–2 dni</span></div></div><p class="training-area-desc">Feedback, NVC, prezentacje, storytelling, trudne rozmowy, asertywność.</p><div class="training-area-tags"><span class="training-area-tag">NVC</span><span class="training-area-tag">Feedback</span><span class="training-area-tag">Storytelling</span><span class="training-area-tag">Asertywność</span></div></div>
-    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">👔</span><div><strong class="training-area-title">Zarządzanie & Przywództwo</strong><span class="training-area-level">1–2 dni</span></div></div><p class="training-area-desc">VUCA leadership, zarządzanie zespołem, delegowanie, motywowanie, zarządzanie zmianą.</p><div class="training-area-tags"><span class="training-area-tag">VUCA</span><span class="training-area-tag">Delegowanie</span><span class="training-area-tag">Motywacja</span><span class="training-area-tag">Zmiana</span></div></div>
-    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">⚡</span><div><strong class="training-area-title">Efektywność osobista</strong><span class="training-area-level">1 dzień</span></div></div><p class="training-area-desc">GTD, Deep Work, zarządzanie energią, priorytetyzacja, produktywność w erze AI.</p><div class="training-area-tags"><span class="training-area-tag">GTD</span><span class="training-area-tag">Deep Work</span><span class="training-area-tag">Priorytety</span><span class="training-area-tag">Nawyki</span></div></div>
-    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">👥</span><div><strong class="training-area-title">Praca z grupą</strong><span class="training-area-level">1–2 dni</span></div></div><p class="training-area-desc">Dynamika grupowa, facylitacja, moderowanie dyskusji, zarządzanie konfliktem w grupie.</p><div class="training-area-tags"><span class="training-area-tag">Facylitacja</span><span class="training-area-tag">Dynamika</span><span class="training-area-tag">Tuckman</span><span class="training-area-tag">World Café</span></div></div>
-    <div class="training-area-card"><div class="training-area-header"><span class="training-area-icon">🎓</span><div><strong class="training-area-title">Train the Trainer</strong><span class="training-area-level">2–3 dni</span></div></div><p class="training-area-desc">Projektowanie szkoleń (ROPES), metody aktywne, praca z energią grupy, ewaluacja.</p><div class="training-area-tags"><span class="training-area-tag">ROPES</span><span class="training-area-tag">Metody aktywne</span><span class="training-area-tag">Ewaluacja</span><span class="training-area-tag">Kirkpatrick</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><img src="about/icon-ai.png" alt="AI" class="training-area-icon"><div><strong class="training-area-title">AI w biznesie</strong><span class="training-area-level">Flagowy temat</span></div></div><p class="training-area-desc">Od podstaw po zaawansowane wdrożenia. Prompt engineering, automatyzacja procesów, AI w sprzedaży i zarządzaniu.</p><div class="training-area-tags"><span class="training-area-tag">ChatGPT</span><span class="training-area-tag">Claude</span><span class="training-area-tag">Gemini</span><span class="training-area-tag">Copilot</span><span class="training-area-tag">Automatyzacja</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><img src="about/icon-sales.png" alt="Sprzedaż" class="training-area-icon"><div><strong class="training-area-title">Psychologia sprzedaży</strong><span class="training-area-level">2 dni</span></div></div><p class="training-area-desc">Challenger Sale, SPIN Selling, psychologia decyzji zakupowych, praca z oporem klienta.</p><div class="training-area-tags"><span class="training-area-tag">Challenger Sale</span><span class="training-area-tag">SPIN</span><span class="training-area-tag">Negocjacje</span><span class="training-area-tag">Obiekcje</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><img src="about/icon-communication.png" alt="Komunikacja" class="training-area-icon"><div><strong class="training-area-title">Komunikacja</strong><span class="training-area-level">1–2 dni</span></div></div><p class="training-area-desc">Feedback, NVC, prezentacje, storytelling, trudne rozmowy, asertywność.</p><div class="training-area-tags"><span class="training-area-tag">NVC</span><span class="training-area-tag">Feedback</span><span class="training-area-tag">Storytelling</span><span class="training-area-tag">Asertywność</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><img src="about/icon-leadership.png" alt="Przywództwo" class="training-area-icon"><div><strong class="training-area-title">Zarządzanie & Przywództwo</strong><span class="training-area-level">1–2 dni</span></div></div><p class="training-area-desc">VUCA leadership, zarządzanie zespołem, delegowanie, motywowanie, zarządzanie zmianą.</p><div class="training-area-tags"><span class="training-area-tag">VUCA</span><span class="training-area-tag">Delegowanie</span><span class="training-area-tag">Motywacja</span><span class="training-area-tag">Zmiana</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><img src="about/icon-effectiveness.png" alt="Efektywność" class="training-area-icon"><div><strong class="training-area-title">Efektywność osobista</strong><span class="training-area-level">1 dzień</span></div></div><p class="training-area-desc">GTD, Deep Work, zarządzanie energią, priorytetyzacja, produktywność w erze AI.</p><div class="training-area-tags"><span class="training-area-tag">GTD</span><span class="training-area-tag">Deep Work</span><span class="training-area-tag">Priorytety</span><span class="training-area-tag">Nawyki</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><img src="about/icon-group.png" alt="Grupa" class="training-area-icon"><div><strong class="training-area-title">Praca z grupą</strong><span class="training-area-level">1–2 dni</span></div></div><p class="training-area-desc">Dynamika grupowa, facylitacja, moderowanie dyskusji, zarządzanie konfliktem w grupie.</p><div class="training-area-tags"><span class="training-area-tag">Facylitacja</span><span class="training-area-tag">Dynamika</span><span class="training-area-tag">Tuckman</span><span class="training-area-tag">World Café</span></div></div>
+    <div class="training-area-card"><div class="training-area-header"><img src="about/icon-ttt.png" alt="Train the Trainer" class="training-area-icon"><div><strong class="training-area-title">Train the Trainer</strong><span class="training-area-level">2–3 dni</span></div></div><p class="training-area-desc">Projektowanie szkoleń (ROPES), metody aktywne, praca z energią grupy, ewaluacja.</p><div class="training-area-tags"><span class="training-area-tag">ROPES</span><span class="training-area-tag">Metody aktywne</span><span class="training-area-tag">Ewaluacja</span><span class="training-area-tag">Kirkpatrick</span></div></div>
   </div>
 
   <div class="training-methodologies">
@@ -974,11 +976,16 @@ const FLUX={
 
 // ===== FILTER DIMENSIONS =====
 const INDUSTRIES=[
-  {id:'automotive',name:'Automotive',icon:'🚗'},{id:'ecommerce',name:'E-commerce',icon:'🛒'},
-  {id:'pharma',name:'Farmacja',icon:'💊'},{id:'insurance',name:'Ubezpieczenia',icon:'🛡️'},
-  {id:'oze',name:'OZE / Energia',icon:'⚡'},{id:'fmcg',name:'FMCG',icon:'📦'},
-  {id:'startup',name:'Start-up',icon:'🚀'},{id:'it',name:'IT / Software',icon:'💻'},
-  {id:'banking',name:'Bankowość',icon:'🏦'},{id:'retail',name:'Handel / Retail',icon:'🏬'}
+  {id:'automotive',name:'Automotive',icon:'🚗',img:'assets/ind-automotive.png'},
+  {id:'ecommerce',name:'E-commerce',icon:'🛒',img:'assets/ind-ecommerce.png'},
+  {id:'pharma',name:'Farmacja',icon:'💊',img:'assets/ind-pharma.png'},
+  {id:'insurance',name:'Ubezpieczenia',icon:'🛡️',img:'assets/ind-insurance.png'},
+  {id:'oze',name:'OZE / Energia',icon:'⚡',img:'assets/ind-oze.png'},
+  {id:'fmcg',name:'FMCG',icon:'📦',img:'assets/ind-fmcg.png'},
+  {id:'startup',name:'Start-up',icon:'🚀',img:'assets/ind-startup.png'},
+  {id:'it',name:'IT / Software',icon:'💻',img:'assets/ind-it.png'},
+  {id:'banking',name:'Bankowość',icon:'🏦',img:'assets/ind-banking.png'},
+  {id:'retail',name:'Handel / Retail',icon:'🏬',img:'assets/ind-retail.png'}
 ];
 const ROLES=[
   {id:'manager',name:'Kierownik / Manager'},{id:'teamlead',name:'Team Lead'},
@@ -1360,8 +1367,9 @@ function toggleMobile(){
 let curArea=null,curTab='overview';
 function showDetail(a){
   curArea=a;curTab='overview';const d=FLUX[a],c=CC[a];
+  const iconMap={fast:'assets/icon-fast.png',liquid:'assets/icon-liquid.png',unlearn:'assets/icon-unlearn.png',experiment:'assets/icon-experiment.png'};
   document.getElementById('detail-header').innerHTML=`
-    <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-xl ${c.bg} flex items-center justify-center"><span class="${c.t} font-black text-2xl">${d.letter}</span></div>
+    <div class="flex items-center gap-3"><img src="${iconMap[a]}" alt="${d.name}" class="w-14 h-14 rounded-xl object-cover">
     <div><h2 class="text-2xl font-black ${c.t}">${d.name}</h2><p class="text-slate-400 text-sm">${d.full}</p></div>
     <button class="dl-btn ml-auto" onclick="downloadSection('detail')">📥 Pobierz</button></div>
     <p class="mt-3 text-sm text-slate-300 bg-dark-900 rounded-lg p-3 border ${c.b}">${d.def}</p>`;
@@ -1409,7 +1417,7 @@ function renderDetail(){
       // Frameworks
       let fwHtml='';
       if(isModuleOn('frameworks')){const fws=Object.entries(FRAMEWORKS).filter(([_,f])=>x.context.some(c=>f.contexts.includes(c)));if(fws.length)fwHtml=`<div class="flex flex-wrap gap-1 mt-2">${fws.map(([k,f])=>`<details class="inline"><summary class="text-xs px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 cursor-pointer">🧩 ${f.name}</summary><div class="bg-dark-950 rounded-lg p-2 mt-1 text-xs text-slate-400">${f.steps.map(s=>`<p>→ ${s}</p>`).join('')}</div></details>`).join('')}</div>`}
-      return`<div class="bg-dark-900 rounded-xl p-5 border border-dark-700 mb-3"><div class="flex items-center flex-wrap gap-1 mb-2"><h4 class="text-sm font-semibold text-slate-200">${x.title}</h4>${extra}</div><p class="text-sm text-slate-400 mb-2">${x.desc}</p><div class="flex flex-wrap gap-1.5 mb-2">${x.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">${ind.icon} ${ind.name}</span>`:''}).join('')}${x.context.map(ctx=>`<span class="text-xs px-2 py-0.5 rounded bg-violet-500/10 text-violet-400">${LIFE_CONTEXTS.find(z=>z.id===ctx)?.icon||''} ${LIFE_CONTEXTS.find(z=>z.id===ctx)?.name||ctx}</span>`).join('')}</div><div class="bg-dark-950 rounded-lg p-3 text-sm text-emerald-400/80"><strong>Tip:</strong> ${x.tip}</div>${csHtml}${fwHtml}</div>`;
+      return`<div class="bg-dark-900 rounded-xl p-5 border border-dark-700 mb-3"><div class="flex items-center flex-wrap gap-1 mb-2"><h4 class="text-sm font-semibold text-slate-200">${x.title}</h4>${extra}</div><p class="text-sm text-slate-400 mb-2">${x.desc}</p><div class="flex flex-wrap gap-1.5 mb-2">${x.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400"><img src="${ind.img}" alt="" class="w-4 h-4 rounded-sm object-cover" onerror="this.replaceWith(document.createTextNode('${ind.icon}'))">${ind.name}</span>`:''}).join('')}${x.context.map(ctx=>`<span class="text-xs px-2 py-0.5 rounded bg-violet-500/10 text-violet-400">${LIFE_CONTEXTS.find(z=>z.id===ctx)?.icon||''} ${LIFE_CONTEXTS.find(z=>z.id===ctx)?.name||ctx}</span>`).join('')}</div><div class="bg-dark-950 rounded-lg p-3 text-sm text-emerald-400/80"><strong>Tip:</strong> ${x.tip}</div>${csHtml}${fwHtml}</div>`;
     }).join('');
   }
   if(curTab==='tools'){
@@ -1466,7 +1474,7 @@ function renderExplore(){
       <div class="flex items-center justify-between mb-2"><div class="flex items-center gap-1.5">${s.area.map(a=>fluxBadge(a)).join('')}${evidBadge}</div>${isModuleOn('progress')?`<button onclick="event.stopPropagation();toggleBookmark('${s.title.replace(/'/g,"\\'")}');renderExplore()" class="text-lg ${bookmarked?'text-amber-400':'text-slate-600 hover:text-amber-400'}" title="Bookmark">${bookmarked?'★':'☆'}</button>`:''}</div>
       <h4 class="text-sm font-semibold text-slate-200 mb-1">${s.title}</h4>
       <p class="text-sm text-slate-400 mb-3">${s.desc}</p>
-      <div class="flex flex-wrap gap-1.5 mb-3">${s.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">${ind.icon} ${ind.name}</span>`:''}).join('')}${s.role.map(r=>{const rl=ROLES.find(z=>z.id===r);return rl?`<span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">${rl.name}</span>`:''}).join('')}${s.context.map(x=>{const lc=LIFE_CONTEXTS.find(z=>z.id===x);return lc?`<span class="text-xs px-2 py-0.5 rounded bg-violet-500/10 text-violet-400">${lc.icon} ${lc.name}</span>`:''}).join('')}${s.situation.map(x=>{const st=SITUATIONS.find(z=>z.id===x);return st?`<span class="text-xs px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400">${st.icon} ${st.name}</span>`:''}).join('')}</div>
+      <div class="flex flex-wrap gap-1.5 mb-3">${s.industry.map(i=>{const ind=INDUSTRIES.find(z=>z.id===i);return ind?`<span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400"><img src="${ind.img}" alt="" class="w-4 h-4 rounded-sm object-cover" onerror="this.replaceWith(document.createTextNode('${ind.icon}'))">${ind.name}</span>`:''}).join('')}${s.role.map(r=>{const rl=ROLES.find(z=>z.id===r);return rl?`<span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400">${rl.name}</span>`:''}).join('')}${s.context.map(x=>{const lc=LIFE_CONTEXTS.find(z=>z.id===x);return lc?`<span class="text-xs px-2 py-0.5 rounded bg-violet-500/10 text-violet-400">${lc.icon} ${lc.name}</span>`:''}).join('')}${s.situation.map(x=>{const st=SITUATIONS.find(z=>z.id===x);return st?`<span class="text-xs px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400">${st.icon} ${st.name}</span>`:''}).join('')}</div>
       <div class="bg-dark-950 rounded-lg p-3 text-sm text-emerald-400/80"><strong>Tip:</strong> ${s.tip}</div>
       ${s.fluxWhy?`<details class="mt-2"><summary class="text-xs text-slate-500 cursor-pointer hover:text-slate-300 transition-colors">Dlaczego ${s.area.map(a=>FLUX[a].letter).join('+')}?</summary><p class="text-xs text-slate-400 mt-1 pl-2 border-l-2 border-dark-700">${s.fluxWhy}</p></details>`:''}
       ${(()=>{const rt=getScenarioTrends(s);return rt.length?`<details class="mt-1"><summary class="text-xs text-slate-500 cursor-pointer hover:text-slate-300 transition-colors">🌍 Powiązane trendy (${rt.length})</summary><div class="flex flex-wrap gap-1 mt-1">${rt.map(t=>{const mw=MEGAWORLDS[t.mw];return`<span class="cross-link" style="background:${mw.color}10;color:${mw.color}" onclick="event.stopPropagation();nav('trends');setTimeout(()=>showTrendPopup({clientX:400,clientY:300,stopPropagation:()=>{}},'${t.name.replace(/'/g,"\\\\'")}'),300)">${t.name}</span>`}).join('')}</div></details>`:''})()}
